@@ -3,25 +3,24 @@ export interface NavItem {
   href: string;
 }
 
-/**
- * Navegação principal do site público. Itens de fases futuras (Comparador,
- * Categorias) já existem aqui, mesmo apontando para rotas ainda vazias —
- * a ativação real é controlada por feature flag (ver config/features.ts).
- */
+/** Navegação principal do header institucional. */
 export const primaryNav: NavItem[] = [
-  { label: "Categorias", href: "/categorias" },
-  { label: "Ranking", href: "/categorias/creatina" },
-  { label: "Comparador", href: "/comparar" },
-  { label: "Artigos", href: "/artigos" },
+  { label: "Home", href: "/" },
+  { label: "Ranking", href: "/ranking" },
+  { label: "Como Avaliamos", href: "/como-avaliamos" },
+  { label: "Metodologia", href: "/metodologia" },
+  { label: "Sobre", href: "/sobre" },
+  { label: "Contato", href: "/contato" },
 ];
 
 export const footerNav: { title: string; items: NavItem[] }[] = [
   {
     title: "Plataforma",
     items: [
-      { label: "Categorias", href: "/categorias" },
-      { label: "Comparador", href: "/comparar" },
-      { label: "Índice SupleCheck", href: "/sobre/indice" },
+      { label: "Ranking", href: "/ranking" },
+      { label: "Como Avaliamos", href: "/como-avaliamos" },
+      { label: "Metodologia", href: "/metodologia" },
+      { label: "Como ganhamos dinheiro", href: "/como-ganhamos-dinheiro" },
     ],
   },
   {
@@ -34,8 +33,15 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
   {
     title: "Legal",
     items: [
-      { label: "Termos de uso", href: "/termos" },
-      { label: "Privacidade", href: "/privacidade" },
+      { label: "Política de Privacidade", href: "/privacidade" },
+      { label: "Termos de Uso", href: "/termos" },
+      { label: "Cookies", href: "/cookies" },
     ],
   },
+];
+
+export const socialLinks = [
+  { label: "Instagram", href: "https://instagram.com/suplecheck", icon: "instagram" as const },
+  { label: "LinkedIn", href: "https://linkedin.com/company/suplecheck", icon: "linkedin" as const },
+  { label: "YouTube", href: "https://youtube.com/@suplecheck", icon: "youtube" as const },
 ];
