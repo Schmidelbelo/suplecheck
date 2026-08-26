@@ -1,0 +1,244 @@
+// SupleCheck — Schema do banco de dados
+// Fonte única de verdade das entidades da plataforma. Ver docs/ARCHITECTURE.md
+// (seção 8) para o raciocínio por trás de cada decisão de modelagem.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Catálogo
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  parentId    String?
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+  products    Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Brand {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  logoUrl  String?
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("brands")
+}
+
+model Product {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  name       String
+  categoryId String
+  brandId    String
+  imageUrl   String?
+  attributes Json? // atributos específicos da categoria (dosagem, forma, sabor, etc.)
+  isActive   Boolean  @default(true)
+
+  category Category @relation(fields: [categoryId], references: [id])
+  brand    Brand    @relation(fields: [brandId], references: [id])
+
+  scores     ProductScore[]
+  prices     PriceEntry[]
+  favorites  Favorite[]
+  alerts     Alert[]
+  comparisonItems ComparisonItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@map("products")
+}
+
+/// Cálculo do "Índice SupleCheck" versionado no tempo — permite reconstruir
+/// o histórico do score, não apenas o valor atual (ver ARCHITECTURE.md §8).
+model ProductScore {
+  id          String   @id @default(cuid())
+  productId   String
+  index       Float // 0–100
+  breakdown   Json // detalhamento do cálculo (pesos, critérios)
+  calculatedAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, calculatedAt])
+  @@map("product_scores")
+}
+
+// ---------------------------------------------------------------------------
+// Preço / lojas / afiliados
+// ---------------------------------------------------------------------------
+
+model Store {
+  id               String  @id @default(cuid())
+  slug             String  @unique
+  name             String
+  affiliateBaseUrl String?
+
+  prices PriceEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stores")
+}
+
+model PriceEntry {
+  id         String   @id @default(cuid())
+  productId  String
+  storeId    String
+  priceCents Int
+  url        String?
+  capturedAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store   Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([productId, capturedAt])
+  @@map("price_entries")
+}
+
+// ---------------------------------------------------------------------------
+// Usuário / conta
+// ---------------------------------------------------------------------------
+
+enum PlanType {
+  FREE
+  PREMIUM
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  imageUrl      String?
+  plan          PlanType  @default(FREE)
+  emailVerified DateTime?
+
+  favorites Favorite[]
+  alerts    Alert[]
+  comparisons Comparison[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
+}
+
+enum AlertCondition {
+  PRICE_DROP
+  BACK_IN_STOCK
+  SCORE_CHANGE
+}
+
+model Alert {
+  id         String         @id @default(cuid())
+  userId     String
+  productId  String
+  condition  AlertCondition
+  targetValue Float?
+  active     Boolean        @default(true)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("alerts")
+}
+
+// ---------------------------------------------------------------------------
+// Comparador
+// ---------------------------------------------------------------------------
+
+model Comparison {
+  id        String   @id @default(cuid())
+  userId    String?
+  createdAt DateTime @default(now())
+
+  user  User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items ComparisonItem[]
+
+  @@map("comparisons")
+}
+
+model ComparisonItem {
+  id           String @id @default(cuid())
+  comparisonId String
+  productId    String
+
+  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([comparisonId, productId])
+  @@map("comparison_items")
+}
+
+// ---------------------------------------------------------------------------
+// Leads / newsletter (Fase 0)
+// ---------------------------------------------------------------------------
+
+model Lead {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("landing_page")
+  createdAt DateTime @default(now())
+
+  @@map("leads")
+}
+
+// ---------------------------------------------------------------------------
+// Conteúdo editorial
+// ---------------------------------------------------------------------------
+
+model Article {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  excerpt     String?
+  content     String
+  coverImageUrl String?
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("articles")
+}
