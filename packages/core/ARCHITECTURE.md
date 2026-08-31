@@ -28,27 +28,33 @@ compondo novos critérios e novas metodologias.
 
 ```
 packages/core/src/
-├── domain/            ← regras de negócio puras. Não importa nada de application/.
-│   ├── value-objects/  Score, Weight, Money, CriterionId, MethodologyVersion, TechnicalNote, ValidationFlag
-│   ├── enums/           EvidenceQuality, ValidationSeverity, CriterionStatus, CriterionKind
-│   ├── entities/         SupplementProfile
-│   ├── evaluation/        EvaluationContext, EvaluationContextBuilder, Facts (fatos conhecidos)
-│   ├── criteria/           Criterion (contrato), CompositeCriterion, CriterionRegistry, builtin/*
-│   ├── classification/     ClassificationBand, ClassificationSystem
-│   ├── methodology/        Methodology, MethodologyBuilder, MethodologyResolver, CategoryOverride, WeightNormalizer
-│   ├── scoring/             AggregationStrategy, ScoringEngine, SupleCheckIndexResult
-│   ├── shared/                Result<T, E>
-│   └── errors/                 DomainError e subclasses
-└── application/        ← orquestra o domínio para quem está fora dele.
-    ├── use-cases/        CalculateSupplementIndexUseCase, CreateMethodologyUseCase
-    └── dto/                Contratos de entrada dos casos de uso
+└── domain/            ← regras de negócio puras. Todo o pacote É esta camada.
+    ├── value-objects/  Score, Weight, Money, CriterionId, MethodologyVersion, TechnicalNote, ValidationFlag
+    ├── enums/           EvidenceQuality, ValidationSeverity, CriterionStatus, CriterionKind
+    ├── entities/         SupplementProfile
+    ├── evaluation/        EvaluationContext, EvaluationContextBuilder, Facts (fatos conhecidos)
+    ├── criteria/           Criterion (contrato), CompositeCriterion, CriterionRegistry, builtin/*
+    ├── classification/     ClassificationBand, ClassificationSystem
+    ├── methodology/        Methodology, MethodologyBuilder, MethodologyResolver, CategoryOverride, WeightNormalizer
+    ├── scoring/             AggregationStrategy, ScoringEngine, SupleCheckIndexResult
+    ├── shared/                Result<T, E>
+    └── errors/                 DomainError e subclasses
 ```
 
-Regra de dependência (verificada no §7, autoauditoria): **domain/ nunca
-importa application/**. `application/` depende de `domain/`, nunca o
-contrário. Isso é o que separa "regra de negócio" de "orquestração" —
-uma futura camada de infraestrutura (API route, repositório Prisma) vai
-depender de `application/`, nunca de `domain/` diretamente.
+> **Atualização:** a camada de aplicação (casos de uso, DTOs, Ports,
+> mappers, policies) que originalmente vivia em `packages/core/src/application`
+> foi extraída para o pacote próprio `packages/application`, que depende
+> deste pacote (nunca o contrário). Ver
+> [`../application/ARCHITECTURE.md`](../application/ARCHITECTURE.md).
+> `packages/core` agora é exclusivamente Domain — nenhum Use Case, Port
+> ou DTO vive aqui.
+
+Regra de dependência: **`packages/core` nunca importa `packages/application`**
+(nem sabe que ele existe). `packages/application` depende de
+`packages/core` através de um único ponto de acoplamento
+(`packages/application/src/domain-kernel.ts`) — isso é o que separa
+"regra de negócio" de "orquestração", e o que permite auditar a direção
+da dependência com um grep em vez de só uma convenção de code review.
 
 ## 3. Vocabulário do domínio (DDD)
 
@@ -66,10 +72,11 @@ depender de `application/`, nunca de `domain/` diretamente.
 
 ## 4. O fluxo de cálculo, passo a passo
 
+Chamado por `CalculateIndexUseCase` (`packages/application`), mas os
+dois passos abaixo são só Domain — reproduzíveis sem nenhuma camada por
+cima, como o smoke test deste pacote faz:
+
 ```
-CalculateSupplementIndexUseCase.execute({ supplement, methodology, context })
-        │
-        ▼
 MethodologyResolver.resolve(methodology, supplement.categorySlug)
         │  aplica CategoryOverride (se existir) → desativa/repondera critérios
         │  renormaliza pesos via WeightNormalizer (voltam a somar 1)
@@ -153,8 +160,8 @@ renormalizar (hoje não precisa, pois exige soma=1 na criação). Os seis
 critérios embutidos não compartilham lógica entre si além dos Value
 Objects — cada um materializa uma regra de negócio distinta.
 
-**Acoplamento.** Verificado via grep: nenhum arquivo em `domain/` importa
-de `application/`. `domain/criteria/` não importa de `domain/methodology/`
+**Acoplamento.** Verificado via grep: nenhum arquivo neste pacote importa
+`packages/application`. `domain/criteria/` não importa de `domain/methodology/`
 (only `scoring/AggregationStrategy`, uma interface, para `CompositeCriterion`).
 `ScoringEngine` depende de `CriterionRegistry` e `ResolvedMethodology`
 (abstrações), nunca de um critério concreto. Os 6 critérios embutidos

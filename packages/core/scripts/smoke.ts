@@ -9,7 +9,9 @@ import {
   builtInCriteria,
   CriterionRegistry,
   MethodologyBuilder,
-  CalculateSupplementIndexUseCase,
+  MethodologyResolver,
+  ScoringEngine,
+  type Methodology,
   SupplementProfile,
   EvaluationContextBuilder,
   CategoryOverride,
@@ -24,6 +26,17 @@ import {
   ClassificationSystem,
   ClassificationBand,
 } from "../src/index";
+
+/**
+ * Este smoke test exercita só o Domain (chamando `MethodologyResolver` +
+ * `ScoringEngine` diretamente) — a orquestração via caso de uso
+ * (`CalculateIndexUseCase`) agora vive em `packages/application`, com o
+ * seu próprio smoke test (`packages/application/scripts/smoke.ts`).
+ */
+function calculate(supplement: SupplementProfile, methodology: Methodology) {
+  const resolved = MethodologyResolver.resolve(methodology, supplement.categorySlug);
+  return new ScoringEngine(registry).calculate(supplement.id, resolved, context);
+}
 
 function assert(condition: boolean, message: string): void {
   if (!condition) {
@@ -93,8 +106,7 @@ const context = new EvaluationContextBuilder()
   .build();
 
 const supplement = SupplementProfile.of("prod_123", "creatina", "brand_xyz");
-const useCase = new CalculateSupplementIndexUseCase(registry);
-const result = useCase.execute({ supplement, methodology, context });
+const result = calculate(supplement, methodology);
 
 assert(result.finalScore.value > 0 && result.finalScore.value <= 100, "nota final dentro de 0–100");
 assert(result.breakdown.length === 6, "breakdown contém os 6 critérios avaliados");
@@ -109,12 +121,10 @@ console.warn(
 );
 
 // 4. Override de categoria: desativa um critério e RENORMALIZA os pesos (não perde peso)
-const preTreinoUseCase = new CalculateSupplementIndexUseCase(registry);
-const preTreinoResult = preTreinoUseCase.execute({
-  supplement: SupplementProfile.of("prod_456", "pre-treino", "brand_xyz"),
+const preTreinoResult = calculate(
+  SupplementProfile.of("prod_456", "pre-treino", "brand_xyz"),
   methodology,
-  context,
-});
+);
 assert(
   preTreinoResult.breakdown.length === 5,
   "override de categoria desativa 1 critério (5 restantes)",
@@ -148,11 +158,7 @@ const methodologyWithUnknownCriterion = MethodologyBuilder.create()
   .addCriterion("criterio-que-nao-existe", 1)
   .build();
 try {
-  new CalculateSupplementIndexUseCase(registry).execute({
-    supplement,
-    methodology: methodologyWithUnknownCriterion,
-    context,
-  });
+  calculate(supplement, methodologyWithUnknownCriterion);
   assert(false, "critério inexistente deveria lançar UnknownCriterionError no cálculo");
 } catch (error) {
   assert(

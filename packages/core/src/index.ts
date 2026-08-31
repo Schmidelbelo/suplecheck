@@ -89,11 +89,7 @@ export * from "./domain/errors/DomainError";
 // Result (utilitário compartilhado)
 export { ok, err, isOk, unwrap, type Result } from "./domain/shared/Result";
 
-// Aplicação (casos de uso)
-export { CalculateSupplementIndexUseCase } from "./application/use-cases/CalculateSupplementIndexUseCase";
-export type { CalculateSupplementIndexInput } from "./application/dto/CalculateSupplementIndexDTO";
-export { CreateMethodologyUseCase } from "./application/use-cases/CreateMethodologyUseCase";
-export type {
-  CreateMethodologySpec,
-  CreateMethodologyCriterionSpec,
-} from "./application/dto/CreateMethodologyDTO";
+// Nenhuma camada de aplicação vive aqui. `packages/core` é só Domain —
+// casos de uso, DTOs, Ports e orquestração vivem em `packages/application`,
+// que depende deste pacote (nunca o contrário). Ver
+// packages/application/ARCHITECTURE.md.
