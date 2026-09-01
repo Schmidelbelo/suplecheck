@@ -7,7 +7,7 @@ export const productService = {
 
     return prisma.product.findMany({
       where: {
-        isActive: true,
+        status: "PUBLISHED",
         category: categorySlug ? { slug: categorySlug } : undefined,
         brand: brandSlug ? { slug: brandSlug } : undefined,
         name: search ? { contains: search, mode: "insensitive" } : undefined,

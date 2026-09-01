@@ -1,6 +1,19 @@
-// SupleCheck — Schema do banco de dados
-// Fonte única de verdade das entidades da plataforma. Ver docs/ARCHITECTURE.md
-// (seção 8) para o raciocínio por trás de cada decisão de modelagem.
+// SupleCheck — Schema de persistência definitivo
+//
+// Cada model abaixo é a tradução física de uma entidade já modelada em
+// docs/domain-model/DOMAIN_MODEL.md (o "porquê de negócio") e cada
+// campo de proveniência (importBatchId, source, capturedAt...) reflete
+// um estágio do docs/data-pipeline/DATA_PIPELINE.md (o "como o dado
+// chega aqui"). Nenhuma tabela existe só por conveniência técnica —
+// ver docs/domain-model/PERSISTENCE_MODEL.md para a auditoria completa,
+// entidade por entidade, incluindo o que foi deliberadamente OMITIDO
+// (ex: Comparison/ComparisonItem da Fase 0, sem base no Domain Model).
+//
+// Nomenclatura: models em inglês (consistente com todo o código —
+// packages/core, packages/application — que já usa termos em inglês);
+// os nomes em português do Domain Model são a linguagem de negócio, não
+// a linguagem de código. Ver PERSISTENCE_MODEL.md §1 para a tabela de
+// tradução completa.
 
 generator client {
   provider = "prisma-client-js"
@@ -11,32 +24,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---------------------------------------------------------------------------
-// Catálogo
-// ---------------------------------------------------------------------------
+// =============================================================================
+// CATALOG — Domain Model §3.1
+// =============================================================================
 
 model Category {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String  @id @default(cuid())
+  slug        String  @unique
   name        String
   description String?
   parentId    String?
-  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryToCategory")
-  products    Product[]
+  /// Soft delete: uma Categoria nunca é removida fisicamente enquanto
+  /// Suplementos a referenciam — só ocultada (Domain Model §3.1).
+  active      Boolean @default(true)
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryHierarchy")
+
+  products             Product[]
+  methodologies        Methodology[]
+  activeMethodology    CategoryActiveMethodology?
+  methodologyOverrides MethodologyCategoryOverride[]
+  rankings             Ranking[]
+  /// Denormalizado — ver PERSISTENCE_MODEL.md §4 (ProductScore.categoryId).
+  productScores        ProductScore[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([parentId])
+  @@index([active])
   @@map("categories")
 }
 
 model Brand {
-  id       String    @id @default(cuid())
-  slug     String    @unique
-  name     String
-  logoUrl  String?
+  id      String  @id @default(cuid())
+  slug    String  @unique
+  name    String
+  logoUrl String?
+  active  Boolean @default(true)
+
   products Product[]
 
   createdAt DateTime @default(now())
@@ -45,59 +72,147 @@ model Brand {
   @@map("brands")
 }
 
-model Product {
-  id         String   @id @default(cuid())
-  slug       String   @unique
-  name       String
-  categoryId String
-  brandId    String
-  imageUrl   String?
-  attributes Json? // atributos específicos da categoria (dosagem, forma, sabor, etc.)
-  isActive   Boolean  @default(true)
+/// Domain Model §3.1: distinto de Brand — a fábrica real, frequentemente
+/// diferente da marca comercial. Opcional em Product porque nem sempre é
+/// publicamente conhecida; nunca inferida sem fonte.
+model Manufacturer {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  country        String?
+  certifications String[]
+  active         Boolean  @default(true)
 
-  category Category @relation(fields: [categoryId], references: [id])
-  brand    Brand    @relation(fields: [brandId], references: [id])
-
-  scores     ProductScore[]
-  prices     PriceEntry[]
-  favorites  Favorite[]
-  alerts     Alert[]
-  comparisonItems ComparisonItem[]
+  products Product[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([categoryId])
+  @@map("manufacturers")
+}
+
+enum ProductStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  UNPUBLISHED
+  ARCHIVED
+}
+
+/// "Suplemento" no Domain Model (§3.1) — Produto é sinônimo, não uma
+/// entidade separada (ver decisão de nomenclatura, Domain Model §2.1).
+model Product {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  name           String
+  description    String?
+  categoryId     String
+  brandId        String
+  manufacturerId String?
+  /// Atributos livres específicos de categoria (sabor, forma farmacêutica...)
+  /// — JSON deliberado: a forma varia por categoria, nunca é filtrada por
+  /// SQL (ver PERSISTENCE_MODEL.md §6, JSON vs. tabela).
+  attributes     Json?
+  status         ProductStatus @default(DRAFT)
+
+  category     Category      @relation(fields: [categoryId], references: [id])
+  brand        Brand         @relation(fields: [brandId], references: [id])
+  manufacturer Manufacturer? @relation(fields: [manufacturerId], references: [id])
+
+  images         ProductImage[]
+  skus           Sku[]
+  scores         ProductScore[]
+  favorites      Favorite[]
+  alerts         Alert[]
+  rankingEntries RankingEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Consulta mais frequente da plataforma: "produtos publicados de uma
+  /// categoria" (listagem de catálogo, geração de Ranking).
+  @@index([categoryId, status])
   @@index([brandId])
+  @@index([manufacturerId])
   @@map("products")
 }
 
-/// Cálculo do "Índice SupleCheck" versionado no tempo — permite reconstruir
-/// o histórico do score, não apenas o valor atual (ver ARCHITECTURE.md §8).
-model ProductScore {
-  id          String   @id @default(cuid())
-  productId   String
-  index       Float // 0–100
-  breakdown   Json // detalhamento do cálculo (pesos, critérios)
-  calculatedAt DateTime @default(now())
+enum ProductImageRole {
+  COVER
+  GALLERY
+  CERTIFICATION_SEAL
+}
+
+model ProductImage {
+  id        String           @id @default(cuid())
+  productId String
+  url       String
+  altText   String?
+  role      ProductImageRole @default(GALLERY)
+  position  Int              @default(0)
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([productId, calculatedAt])
-  @@map("product_scores")
+  createdAt DateTime @default(now())
+
+  /// Invariante "exatamente uma capa por Suplemento" (Domain Model §3.1)
+  /// é aplicada em Application (Prisma não expressa unique parcial de
+  /// forma portável) — o índice aqui só otimiza a leitura ordenada.
+  @@index([productId, position])
+  @@map("product_images")
 }
 
-// ---------------------------------------------------------------------------
-// Preço / lojas / afiliados
-// ---------------------------------------------------------------------------
+enum SkuStatus {
+  ACTIVE
+  DISCONTINUED
+}
+
+/// Domain Model §3.1: a variação comercializável (tamanho/sabor) — o
+/// nível em que preço realmente existe. Nunca pertence a mais de um
+/// Product (Data Pipeline §4.2: mudança de embalagem = SKU novo).
+model Sku {
+  id               String    @id @default(cuid())
+  productId        String
+  /// GTIN/EAN — nulo quando desconhecido; único quando presente (chave
+  /// primária de deduplicação, Data Pipeline §4.1).
+  gtin             String?   @unique
+  variantLabel     String
+  servingsPerUnit  Int?
+  dosagePerServing Float?
+  status           SkuStatus @default(ACTIVE)
+  /// Data Pipeline §4.3: aponta para o SKU que sucede este quando a
+  /// correspondência é identificada com confiança suficiente.
+  successorSkuId   String?   @unique
+
+  product        Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  successorSku   Sku?    @relation("SkuSuccession", fields: [successorSkuId], references: [id])
+  predecessorSku Sku?    @relation("SkuSuccession")
+
+  priceEntries PriceEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId, status])
+  @@map("skus")
+}
+
+// =============================================================================
+// PRICING — Domain Model §3.2
+// =============================================================================
 
 model Store {
   id               String  @id @default(cuid())
   slug             String  @unique
   name             String
   affiliateBaseUrl String?
+  isAffiliate      Boolean @default(false)
+  /// Alimenta o critério `store-reliability` do Domain de cálculo
+  /// (packages/core) — não recalculado aqui, só armazenado.
+  trustScore       Float?
+  active           Boolean @default(true)
 
-  prices PriceEntry[]
+  priceEntries PriceEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -105,24 +220,370 @@ model Store {
   @@map("stores")
 }
 
+enum StockAvailability {
+  IN_STOCK
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+/// "Histórico de Preço" (Domain Model §3.2) — append-only por
+/// definição: nunca UPDATE, sempre INSERT (Data Pipeline §4.4). Sem
+/// updatedAt deliberadamente — não existe "editar" aqui.
 model PriceEntry {
-  id         String   @id @default(cuid())
-  productId  String
-  storeId    String
-  priceCents Int
-  url        String?
-  capturedAt DateTime @default(now())
+  id            String            @id @default(cuid())
+  skuId         String
+  storeId       String
+  priceCents    Int
+  currency      String            @default("BRL")
+  url           String?
+  availability  StockAvailability @default(UNKNOWN)
+  /// Rastreabilidade de origem (Data Pipeline §4.10) — nulo quando
+  /// capturado fora de um lote de importação (cadastro manual pontual).
+  importBatchId String?
+  capturedAt    DateTime          @default(now())
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  store   Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  sku         Sku          @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  store       Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  importBatch ImportBatch? @relation(fields: [importBatchId], references: [id])
 
-  @@index([productId, capturedAt])
+  /// "Qual o preço mais recente deste SKU nesta Loja" — a consulta mais
+  /// frequente sobre esta tabela, a que mais cresce da plataforma.
+  @@index([skuId, storeId, capturedAt])
+  @@index([storeId, capturedAt])
   @@map("price_entries")
 }
 
-// ---------------------------------------------------------------------------
-// Usuário / conta
-// ---------------------------------------------------------------------------
+// =============================================================================
+// EVALUATION — Domain Model §3.3 (espelha packages/core; ver ARCHITECTURE.md)
+// =============================================================================
+
+enum CriterionKind {
+  SIMPLE
+  COMPOSITE
+}
+
+enum CriterionStatus {
+  ACTIVE
+  DISABLED
+  DEPRECATED
+}
+
+/// Id é a própria identidade estável do critério (kebab-case, ex.
+/// "cost-benefit") — a mesma `CriterionId` (Value Object) do Domain de
+/// cálculo, nunca um cuid: o código (`Criterion.evaluate()`) e a linha
+/// desta tabela precisam concordar sobre "qual critério é este" sem
+/// tradução.
+model Criterion {
+  id                   String          @id
+  name                 String
+  description          String
+  kind                 CriterionKind   @default(SIMPLE)
+  status               CriterionStatus @default(ACTIVE)
+  /// Vazio = aplicável a qualquer categoria.
+  applicableCategories String[]
+
+  methodologyAssignments MethodologyVersionCriterion[]
+  scoreBreakdowns        ProductScoreCriterionBreakdown[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("criteria")
+}
+
+/// A identidade estável de uma metodologia (ex.: "a metodologia de
+/// creatina") — sempre escopada a UMA categoria primária (Domain Model
+/// §3.3). Aplicação a outras categorias acontece via
+/// MethodologyCategoryOverride, nunca duplicando a Methodology.
+model Methodology {
+  id         String @id
+  name       String
+  categoryId String
+
+  category Category             @relation(fields: [categoryId], references: [id])
+  versions MethodologyVersion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@map("methodologies")
+}
+
+enum MethodologyVersionStatus {
+  DRAFT
+  PUBLISHED
+}
+
+/// "Versão da Metodologia" (Domain Model §3.3) — uma vez PUBLISHED,
+/// imutável para sempre (sem updatedAt: nunca é editada, só sucedida
+/// por uma versão nova via ReviseMethodologyUseCase).
+model MethodologyVersion {
+  id                  String                   @id @default(cuid())
+  methodologyId       String
+  /// Semver — mesmo formato de MethodologyVersion (Value Object, Domain).
+  version             String
+  aggregationStrategy String                   @default("weighted-average")
+  status              MethodologyVersionStatus @default(DRAFT)
+  publishedAt         DateTime?
+  publishedByAdminId  String?
+
+  methodology Methodology @relation(fields: [methodologyId], references: [id], onDelete: Cascade)
+  publishedBy AdminUser?  @relation(fields: [publishedByAdminId], references: [id])
+
+  criteria            MethodologyVersionCriterion[]
+  classificationBands MethodologyClassificationBand[]
+  categoryOverrides   MethodologyCategoryOverride[]
+  activeForCategories CategoryActiveMethodology[]
+  productScores       ProductScore[]
+  rankings            Ranking[]
+
+  createdAt DateTime @default(now())
+
+  /// Nunca duas versões "1.2.0" da mesma metodologia — a chave que o
+  /// Domain (`MethodologyVersion.of`) já valida em memória, repetida
+  /// aqui como constraint física.
+  @@unique([methodologyId, version])
+  @@index([status])
+  @@map("methodology_versions")
+}
+
+/// Peso de um Critério dentro de uma Versão da Metodologia — a mesma
+/// `CriterionAssignment` do Domain de cálculo.
+model MethodologyVersionCriterion {
+  id                   String  @id @default(cuid())
+  methodologyVersionId String
+  criterionId          String
+  weight               Float
+  enabled              Boolean @default(true)
+
+  methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id], onDelete: Cascade)
+  criterion          Criterion          @relation(fields: [criterionId], references: [id])
+
+  /// Um critério não pode ser atribuído duas vezes à mesma versão —
+  /// mesma invariante que `Methodology.assertUniqueAssignments` (Domain).
+  @@unique([methodologyVersionId, criterionId])
+  @@map("methodology_version_criteria")
+}
+
+model MethodologyClassificationBand {
+  id                   String @id @default(cuid())
+  methodologyVersionId String
+  tier                 String
+  minScore             Float
+  label                String
+  description          String
+
+  methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id], onDelete: Cascade)
+
+  @@unique([methodologyVersionId, tier])
+  @@map("methodology_classification_bands")
+}
+
+/// A mesma `CategoryOverride` do Domain de cálculo, persistida: aplica
+/// uma Versão da Metodologia (construída para `Methodology.categoryId`)
+/// a OUTRA categoria, com ajustes. `weightOverrides` é JSON — ver
+/// PERSISTENCE_MODEL.md §6 (nunca filtrado por SQL, sempre lido inteiro
+/// pelo Domain via `MethodologyMapper`).
+model MethodologyCategoryOverride {
+  id                   String   @id @default(cuid())
+  methodologyVersionId String
+  categoryId           String
+  disabledCriterionIds String[]
+  weightOverrides      Json?
+
+  methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id], onDelete: Cascade)
+  category           Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([methodologyVersionId, categoryId])
+  @@map("methodology_category_overrides")
+}
+
+/// Domain Model §3.3: "uma Categoria tem, a qualquer momento, no máximo
+/// uma Versão da Metodologia vigente". `categoryId` como chave primária
+/// (não `id` próprio) é o que torna essa invariante física, não só
+/// aplicacional — é estruturalmente impossível ter duas linhas vigentes
+/// para a mesma categoria.
+model CategoryActiveMethodology {
+  categoryId           String   @id
+  methodologyVersionId String
+  activatedAt          DateTime @default(now())
+
+  category           Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id])
+
+  @@map("category_active_methodologies")
+}
+
+enum ProductScoreSource {
+  MANUAL
+  IMPORT
+  SCHEDULED_RECALC
+}
+
+/// "Avaliação" + "Índice" fundidos (Domain Model §3.3, decisão de
+/// nomenclatura §2.3) — o par nota-final/classificação nunca existe sem
+/// o evento que o produziu. Sem updatedAt: reavaliar gera uma linha
+/// nova, nunca edita esta (Data Pipeline §4.5).
+model ProductScore {
+  id                   String             @id @default(cuid())
+  productId            String
+  /// Denormalizado a partir de `product.categoryId` — ver
+  /// PERSISTENCE_MODEL.md §4: sem isso, "últimas notas de toda uma
+  /// categoria" (o insumo direto de GenerateRankingUseCase) exigiria
+  /// JOIN com Product em toda geração de Ranking, no caminho mais
+  /// sensível a performance da plataforma.
+  categoryId           String
+  methodologyVersionId String
+  finalScore           Float
+  classificationTier   String
+  classificationLabel  String
+  source               ProductScoreSource @default(MANUAL)
+  importBatchId        String?
+  calculatedAt         DateTime           @default(now())
+
+  product            Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category           Category           @relation(fields: [categoryId], references: [id])
+  methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id])
+  importBatch        ImportBatch?       @relation(fields: [importBatchId], references: [id])
+
+  breakdown ProductScoreCriterionBreakdown[]
+
+  /// Histórico de um produto (gráfico de evolução do Índice).
+  @@index([productId, calculatedAt])
+  /// "Última nota de cada produto de uma categoria" — insumo de Ranking.
+  @@index([categoryId, calculatedAt])
+  @@map("product_scores")
+}
+
+model ProductScoreCriterionBreakdown {
+  id             String @id @default(cuid())
+  productScoreId String
+  criterionId    String
+  score          Float
+  weight         Float
+  /// TechnicalNote[]/ValidationFlag[] — JSON porque são sempre lidos
+  /// como um todo (montagem do IndexResultDTO), nunca filtrados por SQL.
+  notes          Json?
+  flags          Json?
+
+  productScore ProductScore @relation(fields: [productScoreId], references: [id], onDelete: Cascade)
+  criterion    Criterion    @relation(fields: [criterionId], references: [id])
+
+  @@unique([productScoreId, criterionId])
+  @@map("product_score_criterion_breakdowns")
+}
+
+// =============================================================================
+// RANKING — Domain Model §3.4
+// =============================================================================
+
+/// Um snapshot — nunca "ao vivo" (Domain Model §3.4: custo de gerar a
+/// cada visita seria proibitivo em escala). Gerado sob demanda por
+/// GenerateRankingUseCase.
+model Ranking {
+  id                   String   @id @default(cuid())
+  categoryId           String
+  methodologyVersionId String
+  generatedAt          DateTime @default(now())
+
+  category           Category           @relation(fields: [categoryId], references: [id])
+  methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id])
+
+  entries RankingEntry[]
+
+  /// "O ranking mais recente de uma categoria" — sempre `ORDER BY
+  /// generatedAt DESC LIMIT 1` sobre este índice.
+  @@index([categoryId, generatedAt])
+  @@map("rankings")
+}
+
+model RankingEntry {
+  id                 String @id @default(cuid())
+  rankingId          String
+  productId          String
+  position           Int
+  /// Capturado no momento da geração — nunca uma referência viva a
+  /// ProductScore (Domain Model §3.4: um Ranking antigo deve continuar
+  /// mostrando os números de quando foi gerado).
+  finalScore         Float
+  classificationTier String
+
+  ranking Ranking @relation(fields: [rankingId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([rankingId, productId])
+  @@index([rankingId, position])
+  @@map("ranking_entries")
+}
+
+// =============================================================================
+// CONTENT — Domain Model §3.5
+// =============================================================================
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+model Article {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  title         String
+  excerpt       String?
+  content       String
+  coverImageUrl String?
+  status        ArticleStatus @default(DRAFT)
+  authorAdminId String?
+  publishedAt   DateTime?
+
+  author AdminUser? @relation(fields: [authorAdminId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, publishedAt])
+  @@map("articles")
+}
+
+// =============================================================================
+// GROWTH — Domain Model §3.6
+// =============================================================================
+
+enum LeadStatus {
+  SUBSCRIBED
+  CANCELLED
+  BOUNCED
+}
+
+/// "AssinanteNewsletter" no Domain Model — nome de tabela `leads`
+/// mantido por continuidade com a Fase 0 (o próprio módulo `leads` já
+/// implementado na Application Layer da Fase 0 usa este nome).
+model Lead {
+  id          String     @id @default(cuid())
+  email       String     @unique
+  source      String     @default("landing_page")
+  status      LeadStatus @default(SUBSCRIBED)
+  cancelledAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@map("leads")
+}
+
+// =============================================================================
+// IDENTITY — Domain Model §3.7
+// =============================================================================
+
+enum UserStatus {
+  UNVERIFIED
+  ACTIVE
+  SUSPENDED
+}
 
 enum PlanType {
   FREE
@@ -130,22 +591,59 @@ enum PlanType {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  imageUrl      String?
-  plan          PlanType  @default(FREE)
-  emailVerified DateTime?
+  id              String     @id @default(cuid())
+  email           String     @unique
+  name            String?
+  imageUrl        String?
+  plan            PlanType   @default(FREE)
+  status          UserStatus @default(UNVERIFIED)
+  emailVerifiedAt DateTime?
 
   favorites Favorite[]
   alerts    Alert[]
-  comparisons Comparison[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
 }
+
+enum AdminRole {
+  CURATOR
+  EDITOR
+  SUPER_ADMIN
+}
+
+enum AdminStatus {
+  ACTIVE
+  DISABLED
+}
+
+/// Deliberadamente separado de User (Domain Model §3.7): audiência,
+/// permissão e requisito de segurança completamente diferentes — um
+/// consumidor nunca deve, nem acidentalmente, herdar permissão
+/// administrativa por compartilhar a mesma tabela.
+model AdminUser {
+  id     String      @id @default(cuid())
+  email  String      @unique
+  name   String
+  role   AdminRole   @default(CURATOR)
+  status AdminStatus @default(ACTIVE)
+
+  publishedMethodologyVersions MethodologyVersion[]
+  articles                     Article[]
+  importBatches                ImportBatch[]
+  auditLogEntries              AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+// =============================================================================
+// PERSONALIZATION — Domain Model §3.8
+// =============================================================================
 
 model Favorite {
   id        String   @id @default(cuid())
@@ -156,7 +654,9 @@ model Favorite {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  /// Favoritar de novo é idempotente, não duplica (Domain Model §3.8).
   @@unique([userId, productId])
+  @@index([productId])
   @@map("favorites")
 }
 
@@ -166,13 +666,21 @@ enum AlertCondition {
   SCORE_CHANGE
 }
 
+enum AlertStatus {
+  ACTIVE
+  PAUSED
+  TRIGGERED
+  EXPIRED
+}
+
 model Alert {
-  id         String         @id @default(cuid())
-  userId     String
-  productId  String
-  condition  AlertCondition
+  id          String         @id @default(cuid())
+  userId      String
+  productId   String
+  condition   AlertCondition
   targetValue Float?
-  active     Boolean        @default(true)
+  status      AlertStatus    @default(ACTIVE)
+  triggeredAt DateTime?
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -180,65 +688,127 @@ model Alert {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
+  /// "Alertas ativos de um usuário" e "quem notificar quando este
+  /// produto mudar" — os dois sentidos de consulta que existem.
+  @@index([userId, status])
+  @@index([productId, status])
   @@map("alerts")
 }
 
-// ---------------------------------------------------------------------------
-// Comparador
-// ---------------------------------------------------------------------------
+// =============================================================================
+// PLATFORM OPERATIONS — Domain Model §3.9 / Data Pipeline (documento inteiro)
+// =============================================================================
 
-model Comparison {
-  id        String   @id @default(cuid())
-  userId    String?
-  createdAt DateTime @default(now())
-
-  user  User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
-  items ComparisonItem[]
-
-  @@map("comparisons")
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  REVERTED
 }
 
-model ComparisonItem {
-  id           String @id @default(cuid())
-  comparisonId String
-  productId    String
+/// "Importação" (Domain Model §3.9) — toda origem de dado, inclusive
+/// cadastro manual direto, produz uma linha aqui (Data Pipeline §1):
+/// é o que torna "de onde veio esse dado" sempre auditável.
+model ImportBatch {
+  id                 String       @id @default(cuid())
+  /// "admin-form" | "csv" | "amazon" | "mercado-livre" | ... — string
+  /// livre deliberada (Data Pipeline §1: novas origens não devem exigir
+  /// migration para serem registradas).
+  source             String
+  status             ImportStatus @default(PENDING)
+  triggeredByAdminId String?
+  totalRecords       Int          @default(0)
+  importedRecords    Int          @default(0)
+  failedRecords      Int          @default(0)
+  startedAt          DateTime     @default(now())
+  finishedAt         DateTime?
+  /// Data Pipeline §4.9 (Rollback) — marcado quando um Administrador
+  /// reverte o efeito administrativo desta importação.
+  revertedAt         DateTime?
 
-  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  triggeredBy AdminUser? @relation(fields: [triggeredByAdminId], references: [id])
 
-  @@unique([comparisonId, productId])
-  @@map("comparison_items")
+  errors        ImportRecordError[]
+  priceEntries  PriceEntry[]
+  productScores ProductScore[]
+
+  @@index([status])
+  @@index([source, startedAt])
+  @@map("import_batches")
 }
 
-// ---------------------------------------------------------------------------
-// Leads / newsletter (Fase 0)
-// ---------------------------------------------------------------------------
-
-model Lead {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  source    String   @default("landing_page")
-  createdAt DateTime @default(now())
-
-  @@map("leads")
+/// Espelha os 8 estágios do Data Pipeline — em qual estágio exato um
+/// registro parou de avançar.
+enum PipelineStage {
+  INPUT
+  VALIDATION
+  NORMALIZATION
+  DEDUPLICATION
+  ENRICHMENT
+  EVALUATION
+  PERSISTENCE
+  INDEXING
 }
 
-// ---------------------------------------------------------------------------
-// Conteúdo editorial
-// ---------------------------------------------------------------------------
+enum ImportRecordSeverity {
+  /// Registro rejeitado — não avançou (Data Pipeline §2, Validação).
+  ERROR
+  /// Registro pausado para decisão humana, não um erro (Data Pipeline
+  /// §4.1/§3, `AGUARDANDO_REVISAO_MANUAL`/`AGUARDANDO_MAPEAMENTO_DE_CATEGORIA`)
+  /// — reaproveita esta tabela em vez de criar uma fila de revisão
+  /// separada: mesma forma de dado (lote, linha, motivo), mesmo dono
+  /// (Administrador resolve), evitando uma segunda tabela redundante.
+  NEEDS_REVIEW
+}
 
-model Article {
-  id          String    @id @default(cuid())
-  slug        String    @unique
-  title       String
-  excerpt     String?
-  content     String
-  coverImageUrl String?
-  publishedAt DateTime?
+model ImportRecordError {
+  id               String               @id @default(cuid())
+  importBatchId    String
+  rowNumber        Int?
+  stage            PipelineStage
+  severity         ImportRecordSeverity @default(ERROR)
+  errorMessage     String
+  /// O registro bruto que falhou, para reprocessamento pontual (Data
+  /// Pipeline §4.8, Importações Parciais) sem reenviar o lote inteiro.
+  rawData          Json
+  /// Preenchido quando severity=NEEDS_REVIEW e a Deduplicação (Estágio
+  /// 4) encontrou candidatos ambíguos (Data Pipeline §4.1.3).
+  suggestedMatches Json?
+
+  importBatch ImportBatch @relation(fields: [importBatchId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  @@map("articles")
+  @@index([importBatchId, stage])
+  @@index([severity])
+  @@map("import_record_errors")
+}
+
+enum AuditActorType {
+  ADMIN
+  SYSTEM
+}
+
+/// "Auditoria" (Domain Model §3.9) — write-only do ponto de vista do
+/// fluxo normal da aplicação; nunca editada nem apagada.
+model AuditLog {
+  id           String         @id @default(cuid())
+  actorType    AuditActorType
+  actorAdminId String?
+  action       String
+  entityType   String
+  entityId     String
+  metadata     Json?
+  createdAt    DateTime       @default(now())
+
+  actorAdmin AdminUser? @relation(fields: [actorAdminId], references: [id])
+
+  /// "Histórico de uma entidade específica" (ex.: tudo que aconteceu
+  /// com este Suplemento) — a consulta de investigação mais comum.
+  @@index([entityType, entityId])
+  @@index([actorAdminId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

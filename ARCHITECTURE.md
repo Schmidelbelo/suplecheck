@@ -129,39 +129,24 @@ Convenção: se um componente é usado em 2+ módulos, ele sobe de nível (de m�
 
 ## 8. Modelagem de dados (visão inicial, extensível)
 
-> **Modelo de domínio completo:** o esboço abaixo (schema físico da Fase 0) foi sucedido por um modelo conceitual completo do negócio —
-> agregados, value objects, eventos de domínio, bounded contexts, para
-> as ~26 entidades da plataforma (Suplemento, SKU, Preço, Avaliação,
-> Metodologia, Usuário, Alerta, Auditoria...). Ver
-> [`docs/domain-model/DOMAIN_MODEL.md`](./docs/domain-model/DOMAIN_MODEL.md).
-> Esse documento é a fonte de verdade conceitual; o schema físico
-> (Prisma) ainda não foi atualizado para refleti-lo — isso é trabalho
-> futuro, deliberadamente fora do escopo desta modelagem.
+> **Esta seção foi sucedida por três documentos e pelo schema
+> definitivo.** O esboço original (Fase 0) evoluiu, nesta ordem, em:
 >
-> **Pipeline de ingestão:** como qualquer origem de dado (cadastro
-> manual, painel admin, CSV, APIs externas, marketplaces) entra,
-> valida, normaliza, deduplica, enriquece, avalia, persiste e indexa —
-> ver [`docs/data-pipeline/DATA_PIPELINE.md`](./docs/data-pipeline/DATA_PIPELINE.md).
-> Só depois deste documento e do modelo de domínio estarem consistentes
-> o schema físico (Prisma) será modelado definitivamente.
-
-Desenhada para suportar o produto final, populada minimamente na Fase 0.
-
-```
-Category        (id, slug, name, description, parentId?)      → suporta subcategorias futuras
-Product          (id, slug, categoryId, name, brand, imageUrl, attributes JSON)
-ProductScore     (productId, index, breakdown JSON, calculatedAt)  → Índice SupleCheck versionado no tempo
-PriceEntry       (productId, storeId, price, capturedAt)       → base do histórico de preços (Fase 3), vazio na Fase 0
-Store            (id, name, affiliateBaseUrl)                  → base de afiliados (Fase 7)
-Lead             (id, email, source, createdAt)                → captura de e-mail da Fase 0 já normalizada
-User              (id, email, ...)                              → Fase 4, mas Lead→User é uma migração natural (mesmo e-mail)
-Favorite          (userId, productId)                           → Fase 4
-Alert             (userId, productId, condition, active)        → Fase 3/4
-```
-
-Decisão chave: **`Lead` e `User` são entidades separadas desde o início**, ligadas por e-mail. Isso evita que a captura de e-mail da landing (Fase 0) precise de um cadastro completo, e permite migrar um lead para usuário completo depois sem retrabalho de schema.
-
-`ProductScore` é separado de `Product` e versionado por `calculatedAt` — o "Índice SupleCheck" da Fase 0 já nasce como um cálculo rastreável no tempo, não um campo estático, porque isso é exatamente o que vira histórico/gráfico de score depois.
+> 1. [`docs/domain-model/DOMAIN_MODEL.md`](./docs/domain-model/DOMAIN_MODEL.md)
+>    — o modelo conceitual do negócio (agregados, value objects, eventos
+>    de domínio, bounded contexts) para as ~26 entidades da plataforma.
+> 2. [`docs/data-pipeline/DATA_PIPELINE.md`](./docs/data-pipeline/DATA_PIPELINE.md)
+>    — como qualquer origem de dado entra, valida, normaliza, deduplica,
+>    enriquece, avalia, persiste e indexa.
+> 3. [`prisma/schema.prisma`](./prisma/schema.prisma) — o schema físico
+>    definitivo, derivado exclusivamente dos dois documentos acima, com
+>    a auditoria completa (integridade referencial, performance,
+>    normalização, gargalos) em
+>    [`docs/domain-model/PERSISTENCE_MODEL.md`](./docs/domain-model/PERSISTENCE_MODEL.md).
+>
+> O Prisma Client já foi gerado a partir desse schema (só para validar
+> que compila sem ambiguidade) — nenhuma migration foi executada contra
+> um banco real ainda; isso é a próxima etapa.
 
 ---
 
