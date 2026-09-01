@@ -8,6 +8,11 @@ import {
   SetSupplementStatusUseCase,
   DeleteSupplementUseCase,
 } from "../use-cases/supplement/SupplementStatusUseCases";
+import {
+  GetSupplementScoreUseCase,
+  ListSupplementScoreHistoryUseCase,
+} from "../use-cases/supplement/ScoreQueryUseCases";
+import { RecalculateSupplementScoreUseCase } from "../use-cases/supplement/RecalculateSupplementScoreUseCase";
 import { SearchSupplementsUseCase } from "../use-cases/catalog/SearchSupplementsUseCase";
 import { CompareSupplementsUseCase } from "../use-cases/catalog/CompareSupplementsUseCase";
 import { ListCategoriesUseCase } from "../use-cases/catalog/ListCategoriesUseCase";
@@ -58,6 +63,9 @@ export interface AllUseCases {
   readonly updateSupplement: UpdateSupplementUseCase;
   readonly evaluateSupplement: EvaluateSupplementUseCase;
   readonly calculateIndex: CalculateIndexUseCase;
+  readonly getSupplementScore: GetSupplementScoreUseCase;
+  readonly listSupplementScoreHistory: ListSupplementScoreHistoryUseCase;
+  readonly recalculateSupplementScore: RecalculateSupplementScoreUseCase;
   readonly getSupplement: GetSupplementUseCase;
   readonly setSupplementStatus: SetSupplementStatusUseCase;
   readonly deleteSupplement: DeleteSupplementUseCase;
@@ -107,6 +115,16 @@ export interface AllUseCases {
  */
 export const UseCaseFactory = {
   create(ports: ApplicationPorts): AllUseCases {
+    const evaluateSupplement = new EvaluateSupplementUseCase(
+      ports.supplements,
+      ports.methodologies,
+      ports.indexResults,
+      ports.criteria,
+      ports.clock,
+      ports.auditLog,
+      ports.analytics,
+    );
+
     return {
       registerSupplement: new RegisterSupplementUseCase(
         ports.supplements,
@@ -117,16 +135,14 @@ export const UseCaseFactory = {
         ports.auditLog,
       ),
       updateSupplement: new UpdateSupplementUseCase(ports.supplements, ports.clock, ports.auditLog),
-      evaluateSupplement: new EvaluateSupplementUseCase(
-        ports.supplements,
-        ports.methodologies,
-        ports.indexResults,
-        ports.criteria,
-        ports.clock,
-        ports.auditLog,
-        ports.analytics,
-      ),
+      evaluateSupplement,
       calculateIndex: new CalculateIndexUseCase(ports.criteria),
+      getSupplementScore: new GetSupplementScoreUseCase(ports.indexResults),
+      listSupplementScoreHistory: new ListSupplementScoreHistoryUseCase(ports.indexResults),
+      recalculateSupplementScore: new RecalculateSupplementScoreUseCase(
+        ports.indexResults,
+        evaluateSupplement,
+      ),
       getSupplement: new GetSupplementUseCase(ports.supplements),
       setSupplementStatus: new SetSupplementStatusUseCase(
         ports.supplements,

@@ -1,6 +1,6 @@
 // SupleCheck Infrastructure Layer — implementa os Ports da Application
 // Layer (persistência, cache, storage, mail, filas, APIs externas...).
-// Depende de @suplecheck/application (e, só via CriterionCatalogAdapter,
+// Depende de @suplecheck/application (e, só via PrismaCriterionCatalogAdapter,
 // de @suplecheck/core). Nenhum Use Case conhece este pacote — é o
 // contrário: este pacote é quem sabe compor Use Cases prontos para uso.
 // Ver ARCHITECTURE.md para a documentação completa.
@@ -53,18 +53,13 @@ export { PrismaSupplementRepository } from "./repositories/prisma/PrismaSuppleme
 export { PrismaSkuRepository } from "./repositories/prisma/PrismaSkuRepository";
 export { PrismaAuditLogAdapter } from "./repositories/prisma/PrismaAuditLogAdapter";
 
-// Repositories — ainda in-memory (avaliação/ranking, fora do escopo desta etapa)
-export { InMemoryMethodologyRepository } from "./repositories/InMemoryMethodologyRepository";
-export { InMemoryIndexResultRepository } from "./repositories/InMemoryIndexResultRepository";
-export { InMemoryRankingRepository } from "./repositories/InMemoryRankingRepository";
-export {
-  PrismaMethodologyRepositoryStub,
-  PrismaIndexResultRepositoryStub,
-  PrismaRankingRepositoryStub,
-} from "./repositories/PrismaRepositoriesStub";
+// Repositories — Avaliação/Ranking (Prisma, implementação real)
+export { PrismaMethodologyRepository } from "./repositories/prisma/PrismaMethodologyRepository";
+export { PrismaIndexResultRepository } from "./repositories/prisma/PrismaIndexResultRepository";
+export { PrismaRankingRepository } from "./repositories/prisma/PrismaRankingRepository";
+export { PrismaCriterionCatalogAdapter } from "./repositories/prisma/PrismaCriterionCatalogAdapter";
 
 // Adapters (Ports não cobertos por repositories)
-export { CriterionCatalogAdapter } from "./adapters/CriterionCatalogAdapter";
 export { InMemoryAuditLogAdapter, ConsoleAuditLogAdapter } from "./adapters/AuditLogAdapters";
 export { InternalAnalyticsAdapter } from "./adapters/InternalAnalyticsAdapter";
 export { SystemClockAdapter, RandomUuidAdapter } from "./adapters/SystemProviders";

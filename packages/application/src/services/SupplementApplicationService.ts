@@ -27,6 +27,9 @@ export class SupplementApplicationService {
       | "deleteSupplement"
       | "searchSupplements"
       | "compareSupplements"
+      | "getSupplementScore"
+      | "listSupplementScoreHistory"
+      | "recalculateSupplementScore"
     >,
   ) {}
 
@@ -60,5 +63,17 @@ export class SupplementApplicationService {
 
   compare(query: CompareSupplementsQuery) {
     return this.useCases.compareSupplements.execute(query);
+  }
+
+  getScore(supplementId: string) {
+    return this.useCases.getSupplementScore.execute(supplementId);
+  }
+
+  getScoreHistory(supplementId: string) {
+    return this.useCases.listSupplementScoreHistory.execute(supplementId);
+  }
+
+  recalculateScore(command: EvaluateSupplementCommand) {
+    return this.useCases.recalculateSupplementScore.execute(command);
   }
 }

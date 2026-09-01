@@ -306,12 +306,18 @@ model Criterion {
 /// creatina") — sempre escopada a UMA categoria primária (Domain Model
 /// §3.3). Aplicação a outras categorias acontece via
 /// MethodologyCategoryOverride, nunca duplicando a Methodology.
+///
+/// `categoryId` é opcional porque `CreateMethodologyUseCase` (Application)
+/// cria a metodologia sem saber ainda a que categoria ela pertence — só
+/// `setActiveForCategory` (chamado logo depois, no fluxo real) informa
+/// isso; `PrismaMethodologyRepository.setActiveForCategory` preenche esta
+/// coluna na primeira ativação, se ainda estiver nula.
 model Methodology {
-  id         String @id
+  id         String  @id
   name       String
-  categoryId String
+  categoryId String?
 
-  category Category             @relation(fields: [categoryId], references: [id])
+  category Category?            @relation(fields: [categoryId], references: [id])
   versions MethodologyVersion[]
 
   createdAt DateTime @default(now())

@@ -1,6 +1,7 @@
 /**
  * Segundo (e único outro) ponto de acoplamento — desta vez com o Core
- * Domain, usado exclusivamente por `adapters/CriterionCatalogAdapter.ts`.
+ * Domain, usado exclusivamente por
+ * `repositories/prisma/PrismaCriterionCatalogAdapter.ts`.
  *
  * Por quê Infrastructure importa Domain diretamente, se a regra geral é
  * "Infrastructure só conhece Application"? Porque `CriterionCatalogPort`

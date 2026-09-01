@@ -1,21 +1,12 @@
-import type { Metadata } from "next";
-import { buildMetadata } from "@/lib/seo/metadata";
-import { ComingSoon } from "@/components/shared/ComingSoon";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Ranking de Creatinas",
-  description:
-    "O primeiro ranking do SupleCheck: comparação de creatinas por composição, pureza e custo-benefício. Em preparação.",
-  path: "/ranking",
-});
-
+/**
+ * `/ranking` era o placeholder "em preparação" antes de qualquer
+ * categoria ter um ranking real. Creatina é a primeira (e, por ora,
+ * única) categoria com Índice SupleCheck calculado de ponta a ponta —
+ * quando houver mais de uma categoria com ranking real, isto vira uma
+ * página de índice em vez de um redirect fixo.
+ */
 export default function RankingPage() {
-  return (
-    <ComingSoon
-      eyebrow="Primeira categoria"
-      title="O ranking de creatinas está em preparação"
-      description="Estamos finalizando a coleta e a análise de composição dos produtos. Deixe seu e-mail para ser avisado assim que o ranking completo, com nota do Índice SupleCheck, estiver disponível."
-      leadSource="ranking_page"
-    />
-  );
+  redirect("/creatina");
 }

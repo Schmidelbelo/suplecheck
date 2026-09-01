@@ -141,6 +141,11 @@ export {
   SetSupplementStatusUseCase,
   DeleteSupplementUseCase,
 } from "./use-cases/supplement/SupplementStatusUseCases";
+export {
+  GetSupplementScoreUseCase,
+  ListSupplementScoreHistoryUseCase,
+} from "./use-cases/supplement/ScoreQueryUseCases";
+export { RecalculateSupplementScoreUseCase } from "./use-cases/supplement/RecalculateSupplementScoreUseCase";
 export { SearchSupplementsUseCase } from "./use-cases/catalog/SearchSupplementsUseCase";
 export { CompareSupplementsUseCase } from "./use-cases/catalog/CompareSupplementsUseCase";
 export { ListCategoriesUseCase } from "./use-cases/catalog/ListCategoriesUseCase";

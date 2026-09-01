@@ -17,7 +17,6 @@ import { ProviderNotImplementedError } from "../src/errors/InfrastructureError";
 import { RedisCacheProviderStub } from "../src/providers/cache/RedisCacheProviderStub";
 import { S3StorageProviderStub } from "../src/providers/storage/S3StorageProviderStub";
 import { AmazonMarketplaceProviderStub } from "../src/external-apis/marketplace/AmazonMarketplaceProviderStub";
-import { PrismaMethodologyRepositoryStub } from "../src/repositories/PrismaRepositoriesStub";
 
 function assert(condition: boolean, message: string): void {
   if (!condition) throw new Error(`FALHOU: ${message}`);
@@ -45,6 +44,7 @@ async function main() {
   const createdManufacturerIds: string[] = [];
   const createdProductIds: string[] = [];
   const createdSkuIds: string[] = [];
+  const createdMethodologyIds: string[] = [];
 
   try {
     // 2. CRUD real de Catálogo via Use Cases → repositórios Prisma → SQLite
@@ -83,7 +83,7 @@ async function main() {
       "SearchCategoriesUseCase filtra por nome via Prisma `contains`",
     );
 
-    // 3. Metodologia (ainda in-memory — fora do escopo desta etapa) + Produto + SKU
+    // 3. Metodologia real via Prisma + Produto + SKU
     const methodology = await container.useCases.createMethodology.execute({
       id: `smoke-methodology-${suffix}`,
       name: "Metodologia Smoke",
@@ -96,6 +96,7 @@ async function main() {
         { criterionId: "store-reliability", weight: 0.1 },
       ],
     });
+    createdMethodologyIds.push(methodology.id);
     await container.ports.methodologies.setActiveForCategory(
       category.slug,
       methodology.id,
@@ -254,27 +255,47 @@ async function main() {
       );
     }
 
-    try {
-      await new PrismaMethodologyRepositoryStub().findById("x");
-      assert(false, "PrismaMethodologyRepositoryStub deveria lançar");
-    } catch (error) {
-      assert(
-        error instanceof ProviderNotImplementedError,
-        "PrismaMethodologyRepositoryStub lança ProviderNotImplementedError (fora do escopo desta etapa)",
-      );
-    }
+    // 12. Ranking real via Prisma — gera e lê de volta o snapshot
+    const ranking = await container.useCases.generateRanking.execute({
+      categorySlug: category.slug,
+    });
+    assert(
+      ranking.entries.length === 1,
+      "GenerateRankingUseCase persiste um Ranking real via PrismaRankingRepository",
+    );
+    const latestRanking = await container.ports.rankings.findLatest(category.slug);
+    assert(
+      latestRanking?.entries[0]?.supplementId === supplement.id,
+      "PrismaRankingRepository.findLatest lê o snapshot gravado",
+    );
+
+    const latestScore = await container.useCases.getSupplementScore.execute(supplement.id);
+    assert(
+      latestScore.finalScore === result.finalScore,
+      "GetSupplementScoreUseCase lê o Índice mais recente via Prisma",
+    );
+
+    const history = await container.useCases.listSupplementScoreHistory.execute(supplement.id);
+    assert(
+      history.length === 1,
+      "ListSupplementScoreHistoryUseCase lê o histórico via Prisma (append-only)",
+    );
 
     console.warn("\nTodos os cenários do smoke test da Infrastructure Layer passaram.");
   } finally {
     // 12. Limpeza — mantém prisma/dev.db livre de lixo entre execuções.
     const client = container.prisma.client;
+    await client.rankingEntry.deleteMany({ where: { productId: { in: createdProductIds } } });
+    await client.ranking.deleteMany({ where: { categoryId: { in: createdCategoryIds } } });
     await client.auditLog.deleteMany({ where: { entityId: { in: createdProductIds } } });
     await client.productScore.deleteMany({ where: { productId: { in: createdProductIds } } });
     await client.sku.deleteMany({ where: { id: { in: createdSkuIds } } });
     await client.product.deleteMany({ where: { id: { in: createdProductIds } } });
     await client.manufacturer.deleteMany({ where: { id: { in: createdManufacturerIds } } });
     await client.brand.deleteMany({ where: { id: { in: createdBrandIds } } });
+    // Cascata da Category remove CategoryActiveMethodology antes de apagar a Methodology (Restrict).
     await client.category.deleteMany({ where: { id: { in: createdCategoryIds } } });
+    await client.methodology.deleteMany({ where: { id: { in: createdMethodologyIds } } });
     await container.prisma.disconnect();
   }
 }

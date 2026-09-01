@@ -8,7 +8,6 @@ import type { AppConfig } from "../config/Config";
 import type { Logger } from "../logging/Logger";
 import { ConsoleLogger } from "../logging/ConsoleLogger";
 
-import { InMemoryDatabase } from "../persistence/inmemory/InMemoryDatabase";
 import { PrismaConnection } from "../persistence/prisma/PrismaConnection";
 
 import {
@@ -19,11 +18,11 @@ import {
 import { PrismaSupplementRepository } from "../repositories/prisma/PrismaSupplementRepository";
 import { PrismaSkuRepository } from "../repositories/prisma/PrismaSkuRepository";
 import { PrismaAuditLogAdapter } from "../repositories/prisma/PrismaAuditLogAdapter";
-import { InMemoryMethodologyRepository } from "../repositories/InMemoryMethodologyRepository";
-import { InMemoryIndexResultRepository } from "../repositories/InMemoryIndexResultRepository";
-import { InMemoryRankingRepository } from "../repositories/InMemoryRankingRepository";
+import { PrismaMethodologyRepository } from "../repositories/prisma/PrismaMethodologyRepository";
+import { PrismaIndexResultRepository } from "../repositories/prisma/PrismaIndexResultRepository";
+import { PrismaRankingRepository } from "../repositories/prisma/PrismaRankingRepository";
+import { PrismaCriterionCatalogAdapter } from "../repositories/prisma/PrismaCriterionCatalogAdapter";
 
-import { CriterionCatalogAdapter } from "../adapters/CriterionCatalogAdapter";
 import { InternalAnalyticsAdapter } from "../adapters/InternalAnalyticsAdapter";
 import { SystemClockAdapter, RandomUuidAdapter } from "../adapters/SystemProviders";
 
@@ -64,7 +63,6 @@ export interface InfrastructureContainer {
   readonly config: AppConfig;
   readonly environment: EnvironmentManager;
   readonly logger: Logger;
-  readonly db: InMemoryDatabase;
   readonly prisma: PrismaConnection;
   readonly ports: ApplicationPorts;
   readonly useCases: AllUseCases;
@@ -96,15 +94,15 @@ export function buildInfrastructureContainer(
   const config = ConfigLoader.load(envSource);
   const environment = new EnvironmentManager(config);
   const logger = new ConsoleLogger(config.logging.level);
-  const db = new InMemoryDatabase();
 
-  // --- Catálogo: persistido de verdade via Prisma (objetivo desta etapa —
-  // ver ARCHITECTURE.md §3). Sem DATABASE_URL configurada não há como
-  // cumprir "persistir suplementos reais no banco", então falha cedo e
-  // claro em vez de mascarar com um fallback silencioso em memória. ---
+  // --- Catálogo + Avaliação: persistidos de verdade via Prisma (Domain
+  // Model completo — ver ARCHITECTURE.md §3). Sem DATABASE_URL
+  // configurada não há como cumprir "persistir dados reais no banco",
+  // então falha cedo e claro em vez de mascarar com um fallback
+  // silencioso em memória. ---
   if (!environment.hasDatabaseConfigured()) {
     throw new Error(
-      "DATABASE_URL não configurada — o módulo Catálogo requer Prisma conectado (ver .env.example).",
+      "DATABASE_URL não configurada — a plataforma requer Prisma conectado (ver .env.example).",
     );
   }
   const prisma = new PrismaConnection(config.database.url!);
@@ -115,10 +113,10 @@ export function buildInfrastructureContainer(
   const brands = new PrismaBrandRepository(prisma.client);
   const manufacturers = new PrismaManufacturerRepository(prisma.client);
   const skus = new PrismaSkuRepository(prisma.client);
-  const methodologies = new InMemoryMethodologyRepository(db);
-  const criteria = new CriterionCatalogAdapter(db);
-  const indexResults = new InMemoryIndexResultRepository(db);
-  const rankings = new InMemoryRankingRepository(db);
+  const methodologies = new PrismaMethodologyRepository(prisma.client);
+  const criteria = new PrismaCriterionCatalogAdapter(prisma.client);
+  const indexResults = new PrismaIndexResultRepository(prisma.client);
+  const rankings = new PrismaRankingRepository(prisma.client);
   const auditLog = new PrismaAuditLogAdapter(prisma.client);
   const analytics = new InternalAnalyticsAdapter(logger);
   const clock = new SystemClockAdapter();
@@ -177,7 +175,6 @@ export function buildInfrastructureContainer(
     config,
     environment,
     logger,
-    db,
     prisma,
     ports,
     useCases,
