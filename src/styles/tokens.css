@@ -35,13 +35,18 @@
   --neutral-950: #121417;
   --neutral-1000: #000000;
 
-  /* Cores semânticas */
+  /* Cores semânticas
+   * -600 são as usadas como texto (badges, ícones, links de estado) —
+   * ajustadas para 4.5:1 de contraste sobre fundo claro (WCAG 2.1 AA),
+   * verificado formalmente (ver auditoria da FASE 1, Bloco 6). -500
+   * continuam reservadas para fundos/preenchimentos, onde contraste de
+   * texto não se aplica. */
   --success-500: #1fc26c;
-  --success-600: #139d56;
+  --success-600: #0f7a44;
   --warning-500: #f5a524;
-  --warning-600: #d4880f;
+  --warning-600: #92600a;
   --danger-500: #ef4444;
-  --danger-600: #dc2626;
+  --danger-600: #b91c1c;
   --info-500: #3b82f6;
   --info-600: #2563eb;
 
@@ -56,13 +61,25 @@
   --color-border: var(--neutral-200);
   --color-border-strong: var(--neutral-300);
   --color-text: var(--neutral-900);
-  --color-text-muted: var(--neutral-600);
-  --color-text-subtle: var(--neutral-500);
+  /* neutral-600 (#868e96) media 3.32:1 sobre branco — abaixo do mínimo
+   * WCAG AA (4.5:1) para texto normal. neutral-700 passa com folga
+   * (8.18:1). Ver auditoria da FASE 1, Bloco 6. */
+  --color-text-muted: var(--neutral-700);
+  /* neutral-500 (#adb5bd) media 2.07:1 — bem abaixo do mínimo. Nenhum
+   * degrau da escala neutra entre 500 e 600 chega a 4.5:1, então este é
+   * um valor dedicado (não reaproveita a escala numerada), mais escuro
+   * que -500 mas ainda visivelmente mais claro que text-muted, para
+   * preservar a hierarquia visual (5.89:1). */
+  --color-text-subtle: #5f656c;
   --color-text-inverted: var(--neutral-0);
 
-  --color-brand: var(--brand-600);
-  --color-brand-hover: var(--brand-700);
-  --color-brand-active: var(--brand-800);
+  /* brand-600 (#139d56) como texto/botão media 3.51:1 sobre branco —
+   * abaixo do mínimo AA. Um degrau mais escuro em toda a progressão
+   * (700/800/900) resolve o token base sem inventar uma cor nova; a
+   * identidade de marca (matiz) não muda, só o tom. Ver Bloco 6. */
+  --color-brand: var(--brand-700);
+  --color-brand-hover: var(--brand-800);
+  --color-brand-active: var(--brand-900);
   --color-brand-subtle: var(--brand-50);
   --color-brand-foreground: var(--neutral-0);
 
@@ -213,6 +230,15 @@
   --color-brand-subtle: var(--brand-950);
   --color-brand-foreground: var(--neutral-950);
 
+  /* -600 escurecidos em :root para passar AA sobre fundo CLARO (Bloco 6)
+   * ficariam ilegíveis sobre o fundo escuro deste tema — sobrescritos
+   * aqui para valores que passam 4.5:1 sobre o fundo escuro nos badges
+   * (opacidade 15% de fundo). --danger-600 vira um valor dedicado (não
+   * há degrau na escala danger claro o bastante para isso). */
+  --success-600: var(--success-500);
+  --warning-600: var(--warning-500);
+  --danger-600: #f87171;
+
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
@@ -238,5 +264,10 @@
     --color-brand-active: var(--brand-300);
     --color-brand-subtle: var(--brand-950);
     --color-brand-foreground: var(--neutral-950);
+
+    /* Mesmo ajuste do bloco [data-theme="dark"] — ver comentário lá. */
+    --success-600: var(--success-500);
+    --warning-600: var(--warning-500);
+    --danger-600: #f87171;
   }
 }
