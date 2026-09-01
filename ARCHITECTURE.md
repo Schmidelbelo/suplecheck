@@ -137,6 +137,13 @@ Convenção: se um componente é usado em 2+ módulos, ele sobe de nível (de m�
 > Esse documento é a fonte de verdade conceitual; o schema físico
 > (Prisma) ainda não foi atualizado para refleti-lo — isso é trabalho
 > futuro, deliberadamente fora do escopo desta modelagem.
+>
+> **Pipeline de ingestão:** como qualquer origem de dado (cadastro
+> manual, painel admin, CSV, APIs externas, marketplaces) entra,
+> valida, normaliza, deduplica, enriquece, avalia, persiste e indexa —
+> ver [`docs/data-pipeline/DATA_PIPELINE.md`](./docs/data-pipeline/DATA_PIPELINE.md).
+> Só depois deste documento e do modelo de domínio estarem consistentes
+> o schema físico (Prisma) será modelado definitivamente.
 
 Desenhada para suportar o produto final, populada minimamente na Fase 0.
 
