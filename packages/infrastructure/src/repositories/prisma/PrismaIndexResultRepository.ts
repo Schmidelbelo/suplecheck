@@ -97,16 +97,46 @@ export class PrismaIndexResultRepository implements IndexResultRepositoryPort {
     return rows.map(toDTO);
   }
 
+  /**
+   * "Última nota de cada produto de uma categoria" resolvido em SQL, não
+   * em memória: uma agregação (`groupBy` + `_max`) descobre o
+   * `calculatedAt` mais recente por produto sem trazer o histórico
+   * inteiro, e uma segunda consulta busca só essas linhas (com
+   * breakdown). Cresce com o número de PRODUTOS da categoria, não com o
+   * tamanho do histórico de reavaliações — ao contrário da versão
+   * anterior, que buscava toda a tabela `product_scores` da categoria e
+   * filtrava "a mais recente por produto" em JavaScript.
+   *
+   * `groupBy`/`_max` é suportado igual em SQLite (dev) e Postgres
+   * (produção) — nenhum SQL cru, mantém a portabilidade documentada em
+   * `prisma/schema.prisma`.
+   */
   async listLatestByCategory(categorySlug: string): Promise<IndexResultDTO[]> {
     const category = await this.client.category.findUnique({ where: { slug: categorySlug } });
     if (!category) return [];
 
-    const rows = await this.client.productScore.findMany({
+    const latestPerProduct = await this.client.productScore.groupBy({
+      by: ["productId"],
       where: { categoryId: category.id },
+      _max: { calculatedAt: true },
+    });
+    if (latestPerProduct.length === 0) return [];
+
+    const rows = await this.client.productScore.findMany({
+      where: {
+        categoryId: category.id,
+        OR: latestPerProduct
+          .filter((entry) => entry._max.calculatedAt !== null)
+          .map((entry) => ({ productId: entry.productId, calculatedAt: entry._max.calculatedAt! })),
+      },
       include,
       orderBy: { calculatedAt: "desc" },
     });
 
+    // Rede de segurança para o caso raro de duas notas do mesmo produto
+    // empatarem no mesmo `calculatedAt` (o `OR` acima devolveria as
+    // duas) — garante no máximo uma linha por produto, igual ao
+    // contrato anterior.
     const latestByProduct = new Map<string, ProductScoreRow>();
     for (const row of rows) {
       if (!latestByProduct.has(row.productId)) latestByProduct.set(row.productId, row);

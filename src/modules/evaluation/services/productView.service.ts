@@ -31,25 +31,25 @@ export interface ProductPresentation {
   } | null;
 }
 
-async function loadPresentation(productId: string): Promise<ProductPresentation | null> {
-  const row = await prisma.product.findUnique({
-    where: { id: productId },
+const include = {
+  category: true,
+  brand: true,
+  manufacturer: true,
+  images: { where: { role: "COVER" as const }, take: 1 },
+  skus: {
+    where: { status: "ACTIVE" as const },
+    take: 1,
     include: {
-      category: true,
-      brand: true,
-      manufacturer: true,
-      images: { where: { role: "COVER" }, take: 1 },
-      skus: {
-        where: { status: "ACTIVE" },
-        take: 1,
-        include: {
-          priceEntries: { orderBy: { capturedAt: "desc" }, take: 1, include: { store: true } },
-        },
-      },
+      priceEntries: { orderBy: { capturedAt: "desc" as const }, take: 1, include: { store: true } },
     },
-  });
-  if (!row) return null;
+  },
+};
 
+type ProductWithPresentationData = NonNullable<
+  Awaited<ReturnType<typeof prisma.product.findFirst<{ include: typeof include }>>>
+>;
+
+function toPresentation(row: ProductWithPresentationData): ProductPresentation {
   const sku = row.skus[0];
   const priceEntry = sku?.priceEntries[0];
 
@@ -84,18 +84,35 @@ async function loadPresentation(productId: string): Promise<ProductPresentation 
   };
 }
 
+async function loadPresentation(productId: string): Promise<ProductPresentation | null> {
+  const row = await prisma.product.findUnique({ where: { id: productId }, include });
+  return row ? toPresentation(row) : null;
+}
+
 export const productViewService = {
   loadPresentation,
 
+  /**
+   * Carrega a apresentação de vários produtos em UMA consulta
+   * (`findMany` com `id IN (...)`), não uma por produto — é o que a
+   * página de ranking usa para montar todos os cards de uma vez.
+   * `Map` porque a ordem de retorno do Prisma não é garantida igual à
+   * ordem de `productIds`; quem chama já itera pelo ranking, que tem
+   * sua própria ordem (por nota), e busca cada apresentação por id.
+   */
   async loadPresentations(
     productIds: readonly string[],
   ): Promise<Map<string, ProductPresentation>> {
-    const entries = await Promise.all(
-      productIds.map(async (id) => [id, await loadPresentation(id)] as const),
-    );
+    if (productIds.length === 0) return new Map();
+
+    const rows = await prisma.product.findMany({
+      where: { id: { in: [...productIds] } },
+      include,
+    });
+
     const map = new Map<string, ProductPresentation>();
-    for (const [id, presentation] of entries) {
-      if (presentation) map.set(id, presentation);
+    for (const row of rows) {
+      map.set(row.id, toPresentation(row));
     }
     return map;
   },
