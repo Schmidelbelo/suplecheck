@@ -167,9 +167,6 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                       Ver oferta em {presentation.price.store.name}
                     </a>
                   </Button>
-                  <Button variant="outline" size="lg" disabled>
-                    Comparar outras lojas
-                  </Button>
                 </div>
               </div>
             ) : (

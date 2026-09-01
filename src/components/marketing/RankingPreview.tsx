@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { formatDate } from "@/lib/utils/format";
 import {
   classificationBadgeVariant,
   classificationLabel,
@@ -39,6 +40,11 @@ export async function RankingPreview() {
             ? `${ranking.entries.length} produtos avaliados pelo Índice SupleCheck — nota, preço e preço por dose, tudo comparável.`
             : "O ranking de creatinas, com nota do Índice, transparência do rótulo e preço por dose, é a primeira categoria avaliada pelo SupleCheck."}
         </p>
+        {ranking && ranking.entries.length > 0 ? (
+          <p className="text-text-subtle mt-2 text-sm">
+            Atualizado em {formatDate(ranking.generatedAt)}
+          </p>
+        ) : null}
       </div>
 
       {entries.length > 0 ? (
