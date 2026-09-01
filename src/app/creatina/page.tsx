@@ -10,9 +10,9 @@ import { RankingEntryCard } from "@/modules/evaluation/components/RankingEntryCa
 import type { RankingView } from "@/modules/evaluation/types";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Ranking de Creatinas",
+  title: "Qual a Melhor Creatina? Ranking Comparativo",
   description:
-    "O ranking de creatinas do SupleCheck: nota do Índice SupleCheck, preço, preço por dose e classificação de cada produto, calculados a partir de dados reais.",
+    "Qual a melhor creatina em custo-benefício? Ranking comparativo com nota do Índice SupleCheck, preço por dose e transparência do rótulo — calculado a partir de dados reais, sem posição paga.",
   path: "/creatina",
 });
 
@@ -31,10 +31,25 @@ export default async function CreatinaRankingPage() {
       />
       <PageHeader
         eyebrow="Ranking"
-        title="Ranking de Creatinas"
-        description="Cada produto abaixo foi avaliado pelo Índice SupleCheck a partir de composição, preço por dose, transparência do rótulo, reputação e confiabilidade da loja — nunca patrocinado."
+        title="Qual a melhor creatina? Ranking comparativo"
+        description="Cada produto abaixo foi avaliado pelo Índice SupleCheck a partir de custo-benefício, transparência do rótulo, preço por dose, reputação, promessas de marketing e confiabilidade da loja — nunca patrocinado."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Creatina" }]}
       />
+
+      <Section className="border-border border-b">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-text-muted text-lg">
+            Não existe uma única &ldquo;melhor creatina&rdquo; para todo mundo — existe a que
+            entrega mais princípio ativo pelo preço pago, com rótulo transparente e sem promessas
+            exageradas. É exatamente isso que o ranking abaixo compara, produto a produto, usando os
+            mesmos seis critérios documentados em{" "}
+            <a href="/metodologia" className="text-brand font-medium hover:underline">
+              Metodologia
+            </a>
+            .
+          </p>
+        </div>
+      </Section>
 
       <Section>
         {ranking && ranking.entries.length > 0 ? (
@@ -55,6 +70,44 @@ export default async function CreatinaRankingPage() {
             description="Assim que o Índice SupleCheck for calculado para os produtos desta categoria, eles aparecerão aqui."
           />
         )}
+      </Section>
+
+      <Section className="border-border bg-bg-subtle border-b">
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
+            Como escolher a melhor creatina
+          </h2>
+          <p className="text-text-muted">
+            A creatina monohidratada é uma molécula simples e amplamente estudada — a diferença real
+            entre os produtos do mercado não costuma estar no ingrediente em si, mas em coisas que
+            dá para medir: se a dose declarada no rótulo corresponde ao que a literatura considera
+            eficaz, se o rótulo é transparente sobre isso, quanto você paga por dose (não por pote)
+            e a reputação real de quem compra — entre outros fatores. É exatamente essa comparação
+            que o ranking acima resume em uma nota única, calculada a partir dos seis critérios
+            documentados, um a um, em{" "}
+            <a href="/como-avaliamos" className="text-brand font-medium hover:underline">
+              Como Avaliamos
+            </a>
+            .
+          </p>
+        </div>
+      </Section>
+
+      <Section>
+        <div className="mx-auto flex max-w-3xl flex-col gap-4">
+          <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
+            Creatina vale a pena?
+          </h2>
+          <p className="text-text-muted">
+            A creatina está entre os suplementos mais estudados para desempenho físico, e por isso
+            costuma valer a pena — mas &ldquo;vale a pena&rdquo; depende do produto específico, não
+            só do ingrediente. Um produto com dosagem abaixo da faixa eficaz, preço por dose alto ou
+            rótulo pouco transparente pode não valer o que custa, mesmo sendo tecnicamente
+            &ldquo;creatina&rdquo;. O SupleCheck não faz recomendação de uso ou de saúde —
+            comparamos os produtos disponíveis para que essa decisão seja seguida com dados, não com
+            a embalagem mais chamativa.
+          </p>
+        </div>
       </Section>
     </>
   );
