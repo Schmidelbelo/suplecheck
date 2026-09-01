@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
-import { Beaker, FileSearch, RefreshCw, Scale, Tag, Users2 } from "lucide-react";
+import {
+  AlertTriangle,
+  FileSearch,
+  RefreshCw,
+  Scale,
+  Star,
+  Store,
+  Tag,
+  Users2,
+} from "lucide-react";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd, breadcrumbSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -13,34 +22,52 @@ export const metadata: Metadata = buildMetadata({
   path: "/como-avaliamos",
 });
 
+/**
+ * Espelha exatamente os 6 critérios embutidos do Core Domain
+ * (`packages/core/src/domain/criteria/builtin/*.ts`) — nome, peso e
+ * descrição precisam corresponder ao motor de cálculo real.
+ */
 const criteria = [
   {
-    icon: Beaker,
-    weight: "35%",
-    title: "Pureza da composição",
+    icon: Tag,
+    weight: "25%",
+    title: "Custo-benefício",
     description:
-      "Checamos o rótulo em busca de cargas, aditivos e substâncias não declaradas. Produtos com composição limpa e alinhada ao que prometem pontuam mais alto.",
-  },
-  {
-    icon: Scale,
-    weight: "30%",
-    title: "Dosagem por porção",
-    description:
-      "Comparamos a quantidade real do princípio ativo por porção com as referências de literatura científica para a categoria — não o que a embalagem sugere visualmente.",
+      "Relação entre a quantidade efetiva de princípio ativo entregue por porção e o preço pago — dosagem dentro da faixa eficaz combinada com o custo dessa dosagem.",
   },
   {
     icon: FileSearch,
-    weight: "20%",
+    weight: "25%",
     title: "Transparência do rótulo",
     description:
-      "Misturas proprietárias (que escondem a dosagem individual de cada ingrediente) e informações nutricionais incompletas reduzem a nota.",
+      "Misturas proprietárias (que escondem a dosagem individual de cada ingrediente), informações nutricionais incompletas ou substâncias não declaradas reduzem a nota.",
   },
   {
-    icon: Tag,
+    icon: Scale,
     weight: "15%",
-    title: "Custo-benefício",
+    title: "Preço por dose",
     description:
-      "Calculamos o preço por dose efetiva do princípio ativo, não o preço por pote — dois produtos de preço igual podem ter custo por dose muito diferente.",
+      "Compara o preço por dose do produto com a média de preço por dose praticada na categoria — quanto mais abaixo da média, maior a nota.",
+  },
+  {
+    icon: Star,
+    weight: "15%",
+    title: "Reputação",
+    description:
+      "Avaliação média de compradores, amortecida pela quantidade de avaliações disponíveis — poucas avaliações muito positivas não dominam a nota sozinhas.",
+  },
+  {
+    icon: AlertTriangle,
+    weight: "10%",
+    title: "Promessas exageradas",
+    description:
+      "Proporção das alegações de marketing do produto (no rótulo ou na divulgação) sem respaldo científico identificável.",
+  },
+  {
+    icon: Store,
+    weight: "10%",
+    title: "Confiabilidade da loja",
+    description: "Reputação e garantias oferecidas pela loja onde o produto avaliado é vendido.",
   },
 ];
 
@@ -84,10 +111,10 @@ export default function ComoAvaliamosPage() {
       <Section className="border-border border-b">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
-            Quatro critérios, com pesos definidos
+            Seis critérios, com pesos definidos
           </h2>
           <p className="text-text-muted mt-4">
-            A nota final (Índice SupleCheck) é a soma ponderada dos quatro critérios abaixo. Nenhum
+            A nota final (Índice SupleCheck) é a soma ponderada dos seis critérios abaixo. Nenhum
             critério é atribuído subjetivamente.
           </p>
         </div>

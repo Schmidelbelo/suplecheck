@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { JsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { JsonLd, breadcrumbSchema, productSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { Badge } from "@/components/ui/Badge";
@@ -45,6 +45,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 }
 
+/** Descrição gerada só a partir de dados reais persistidos — nunca texto editorial inventado. */
+function buildProductDescription(view: ProductView): string {
+  const { product, presentation, score } = view;
+  const parts: string[] = [
+    `${product.name}${presentation ? ` da ${presentation.brand.name}` : ""}.`,
+  ];
+
+  if (score) {
+    parts.push(
+      `Nota ${score.finalScore.toFixed(1)} no Índice SupleCheck (${classificationLabel(score.classificationTier)}).`,
+    );
+  }
+  if (presentation?.price) {
+    parts.push(`Preço: ${formatCurrencyBRL(presentation.price.cents)}.`);
+  }
+
+  return parts.join(" ");
+}
+
 function explainScore(view: ProductView): string {
   if (!view.score) return "Este produto ainda não foi avaliado pelo Índice SupleCheck.";
 
@@ -71,6 +90,24 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
           { label: "Creatina", href: "/creatina" },
           { label: product.name, href: `/creatina/${slug}` },
         ])}
+      />
+      <JsonLd
+        data={productSchema({
+          name: product.name,
+          description: buildProductDescription(view),
+          image: presentation?.imageUrl ?? "/images/products/creatina-placeholder.svg",
+          slug: product.slug,
+          brand: presentation?.brand.name ?? product.brandSlug,
+          score: score
+            ? {
+                value: score.finalScore,
+                label: classificationLabel(score.classificationTier),
+                calculatedAt: score.calculatedAt,
+              }
+            : undefined,
+          priceInCents: presentation?.price?.cents,
+          offerUrl: presentation?.price?.url ?? undefined,
+        })}
       />
       <PageHeader
         eyebrow={presentation?.brand.name}

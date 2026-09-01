@@ -44,7 +44,7 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Button variant="primary" size="sm" className="hidden sm:inline-flex" asChild>
-            <Link href="/#newsletter">Receber ranking</Link>
+            <Link href="/creatina">Ver ranking</Link>
           </Button>
 
           <Drawer open={open} onOpenChange={setOpen}>

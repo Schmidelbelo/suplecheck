@@ -88,6 +88,14 @@ interface CreatinaSeed {
   readonly dosagePerServing: number;
   readonly storeSlug: string;
   readonly priceCents: number;
+  /**
+   * Link real e funcional (busca no varejista), não uma URL fictícia —
+   * ainda não é um link de afiliado (nenhum programa de afiliados foi
+   * contratado até esta etapa). `Store.affiliateBaseUrl`/`isAffiliate`
+   * (schema) já existem para quando isso mudar: trocar este campo por
+   * um link de afiliado real não exige nenhuma alteração de schema ou
+   * de código, só um novo valor aqui.
+   */
   readonly url: string;
   /** 0–1: o quanto o rótulo entrega da dose declarada — alimenta `composition.activeIngredientAmountPerServing`. */
   readonly doseCompliance: number;
@@ -109,7 +117,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "amazon-br",
     priceCents: 4990,
-    url: "https://www.amazon.com.br/dp/exemplo-growth-creatina",
+    url: "https://www.amazon.com.br/s?k=Growth+Supplements+Creatina+Monohidratada+300g",
     doseCompliance: 0.98,
     labelComplete: true,
     averageRating: 4.6,
@@ -127,7 +135,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "amazon-br",
     priceCents: 5490,
-    url: "https://www.amazon.com.br/dp/exemplo-max-titanium-creatina",
+    url: "https://www.amazon.com.br/s?k=Max+Titanium+Creatina+300g",
     doseCompliance: 0.95,
     labelComplete: true,
     averageRating: 4.4,
@@ -145,7 +153,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "loja-oficial",
     priceCents: 7990,
-    url: "https://www.integralmedica.com.br/exemplo-creatina-creapure",
+    url: "https://www.amazon.com.br/s?k=Integralm%C3%A9dica+Creatina+Creapure+300g",
     doseCompliance: 1,
     labelComplete: true,
     averageRating: 4.8,
@@ -163,7 +171,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "amazon-br",
     priceCents: 5990,
-    url: "https://www.amazon.com.br/dp/exemplo-black-skull-creatina",
+    url: "https://www.amazon.com.br/s?k=Black+Skull+Creatina+300g",
     doseCompliance: 0.92,
     labelComplete: true,
     averageRating: 4.3,
@@ -181,7 +189,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "loja-oficial",
     priceCents: 6490,
-    url: "https://www.duxnutrition.com.br/exemplo-creatina",
+    url: "https://www.amazon.com.br/s?k=Dux+Nutrition+Creatina+300g",
     doseCompliance: 0.97,
     labelComplete: true,
     averageRating: 4.7,
@@ -199,7 +207,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "amazon-br",
     priceCents: 4790,
-    url: "https://www.amazon.com.br/dp/exemplo-atlhetica-creatina",
+    url: "https://www.amazon.com.br/s?k=Atlhetica+Nutrition+Creatina+Nitro+300g",
     doseCompliance: 0.9,
     labelComplete: true,
     averageRating: 4.2,
@@ -217,7 +225,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "netshoes",
     priceCents: 4490,
-    url: "https://www.netshoes.com.br/exemplo-probiotica-creatina",
+    url: "https://www.amazon.com.br/s?k=Probi%C3%B3tica+Creatina+300g",
     doseCompliance: 0.8,
     labelComplete: false,
     averageRating: 3.8,
@@ -235,7 +243,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "loja-oficial",
     priceCents: 8990,
-    url: "https://www.vitafor.com.br/exemplo-creatina",
+    url: "https://www.amazon.com.br/s?k=Vitafor+Creatina+300g",
     doseCompliance: 0.99,
     labelComplete: true,
     averageRating: 4.75,
@@ -253,7 +261,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "amazon-br",
     priceCents: 6990,
-    url: "https://www.amazon.com.br/dp/exemplo-nutrata-creatina",
+    url: "https://www.amazon.com.br/s?k=Nutrata+Creatina+Creapure+250g",
     doseCompliance: 1,
     labelComplete: true,
     averageRating: 4.65,
@@ -270,7 +278,7 @@ const CREATINAS: readonly CreatinaSeed[] = [
     dosagePerServing: 5,
     storeSlug: "amazon-br",
     priceCents: 12990,
-    url: "https://www.amazon.com.br/dp/exemplo-optimum-nutrition-creatine",
+    url: "https://www.amazon.com.br/s?k=Optimum+Nutrition+Micronized+Creatine+Powder+300g",
     doseCompliance: 1,
     labelComplete: true,
     averageRating: 4.85,

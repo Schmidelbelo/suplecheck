@@ -24,11 +24,9 @@ export function websiteSchema() {
     "@type": "WebSite",
     name: siteConfig.name,
     url: siteConfig.url,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${siteConfig.url}/busca?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
+    // Sem `potentialAction`/`SearchAction` deliberadamente: a plataforma
+    // não tem uma página de busca ainda — declarar uma aqui anunciaria
+    // ao Google uma funcionalidade que não existe.
   };
 }
 
@@ -51,26 +49,56 @@ export interface ProductSchemaInput {
   image: string;
   slug: string;
   brand: string;
-  ratingValue?: number;
-  reviewCount?: number;
+  /** Índice SupleCheck já calculado para este produto — omitir quando ainda não houver avaliação. */
+  score?: {
+    /** 0–100. */
+    value: number;
+    /** Rótulo da faixa de classificação (ex.: "Excelente"). */
+    label: string;
+    /** ISO 8601 — data do cálculo, não da publicação da página. */
+    calculatedAt: string;
+  };
   priceInCents?: number;
+  /** Loja onde a oferta pode ser efetivada — se omitido, usa a própria página do produto. */
+  offerUrl?: string;
 }
 
+/**
+ * `Product` + `Offer` + `Review` (nunca `AggregateRating`): o Índice
+ * SupleCheck é UMA nota editorial calculada pelo Core Domain, não uma
+ * média de várias avaliações de usuários independentes — usar
+ * `AggregateRating` aqui seria estruturalmente incorreto (as diretrizes
+ * de dados estruturados do Google reservam `AggregateRating` para
+ * avaliações agregadas reais) e arriscaria a elegibilidade a rich
+ * results da própria plataforma. `Review` com um único `Rating`, de
+ * autoria da organização, é a representação fiel do que a plataforma
+ * realmente calcula (ver `/metodologia`).
+ */
 export function productSchema(input: ProductSchemaInput) {
+  const productUrl = new URL(`/creatina/${input.slug}`, siteConfig.url).toString();
+  const imageUrl = new URL(input.image, siteConfig.url).toString();
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
     name: input.name,
     description: input.description,
-    image: input.image,
+    image: imageUrl,
     brand: { "@type": "Brand", name: input.brand },
-    url: new URL(`/produtos/${input.slug}`, siteConfig.url).toString(),
-    ...(input.ratingValue && input.reviewCount
+    url: productUrl,
+    ...(input.score
       ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: input.ratingValue,
-            reviewCount: input.reviewCount,
+          review: {
+            "@type": "Review",
+            name: `Avaliação SupleCheck: ${input.score.label}`,
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: Math.round(input.score.value * 10) / 10,
+              bestRating: 100,
+              worstRating: 0,
+            },
+            author: { "@type": "Organization", name: siteConfig.name },
+            datePublished: input.score.calculatedAt,
           },
         }
       : {}),
@@ -81,6 +109,7 @@ export function productSchema(input: ProductSchemaInput) {
             priceCurrency: "BRL",
             price: (input.priceInCents / 100).toFixed(2),
             availability: "https://schema.org/InStock",
+            url: input.offerUrl ?? productUrl,
           },
         }
       : {}),

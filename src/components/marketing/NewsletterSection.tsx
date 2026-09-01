@@ -10,11 +10,11 @@ export function NewsletterSection() {
           <Mail className="size-5" aria-hidden />
         </div>
         <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
-          Receba o ranking assim que sair
+          Seja avisado quando novas categorias chegarem
         </h2>
         <p className="text-text-muted">
-          Entre para a lista e seja avisado em primeira mão quando o ranking de creatinas e os
-          próximos lançamentos do SupleCheck estiverem no ar. Sem spam.
+          O ranking de creatinas já está no ar. Entre para a lista para saber em primeira mão quando
+          avaliarmos a próxima categoria de suplementos. Sem spam.
         </p>
         <LeadCaptureForm source="home_newsletter" className="mt-2 w-full" />
       </div>

@@ -32,7 +32,7 @@ export default function MetodologiaPage() {
         <div className="mx-auto flex max-w-3xl flex-col gap-6">
           <h2 className="font-display text-text text-2xl font-bold">A fórmula</h2>
           <p className="text-text-muted">
-            O Índice SupleCheck é uma média ponderada de quatro subnotas, cada uma calculada em uma
+            O Índice SupleCheck é uma média ponderada de seis subnotas, cada uma calculada em uma
             escala de 0 a 100 e depois combinada pelos pesos definidos em{" "}
             <a href="/como-avaliamos" className="text-brand font-medium hover:underline">
               Como Avaliamos
@@ -43,19 +43,22 @@ export default function MetodologiaPage() {
           <Card>
             <CardContent className="p-6">
               <code className="text-text block font-mono text-sm whitespace-pre-wrap">
-                {`Índice = (Pureza × 0.35)
-        + (Dosagem × 0.30)
-        + (Transparência × 0.20)
-        + (Custo-benefício × 0.15)`}
+                {`Índice = (Custo-benefício × 0.25)
+        + (Transparência do rótulo × 0.25)
+        + (Preço por dose × 0.15)
+        + (Reputação × 0.15)
+        + (Promessas exageradas × 0.10)
+        + (Confiabilidade da loja × 0.10)`}
               </code>
             </CardContent>
           </Card>
 
           <p className="text-text-muted">
             Cada subnota é calculada individualmente antes de entrar na fórmula. A subnota de
-            Dosagem, por exemplo, compara a quantidade declarada por porção com a faixa de
-            referência da categoria: dosagens dentro da faixa eficaz recebem nota cheia, abaixo dela
-            perdem pontos proporcionalmente.
+            Custo-benefício, por exemplo, compara a quantidade declarada de princípio ativo por
+            porção com a faixa de referência da categoria: dosagens dentro da faixa eficaz pontuam
+            mais alto, abaixo dela perdem pontos proporcionalmente — combinado com o preço pago por
+            essa quantidade.
           </p>
         </div>
       </Section>

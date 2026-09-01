@@ -12,7 +12,7 @@ export const homeFaq: FaqItem[] = [
   {
     question: "Como o Índice SupleCheck é calculado?",
     answer:
-      "O Índice combina critérios objetivos e verificáveis — pureza da composição, dosagem por porção em relação ao recomendado, transparência do rótulo e custo-benefício — em uma nota única de 0 a 100. O detalhamento completo está na página de Metodologia.",
+      "O Índice combina seis critérios objetivos e verificáveis — custo-benefício, transparência do rótulo, preço por dose, reputação, promessas exageradas de marketing e confiabilidade da loja — em uma nota única de 0 a 100, cada um com peso público. O detalhamento completo está na página de Metodologia.",
   },
   {
     question: "Vocês recebem das marcas para aparecer bem no ranking?",

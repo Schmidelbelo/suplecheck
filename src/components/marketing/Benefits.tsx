@@ -1,11 +1,12 @@
-import { BadgeCheck, LineChart, ScanSearch, Wallet } from "lucide-react";
+import { BadgeCheck, History, LineChart, Wallet } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 
 const benefits = [
   {
-    icon: ScanSearch,
-    title: "Comparação lado a lado",
-    description: "Veja diferenças reais de composição e preço entre produtos concorrentes.",
+    icon: History,
+    title: "Histórico de cada avaliação",
+    description:
+      "Nenhuma nota é sobrescrita: acompanhe como o Índice de um produto muda ao longo do tempo.",
   },
   {
     icon: BadgeCheck,

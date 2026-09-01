@@ -1,35 +1,53 @@
 import Link from "next/link";
-import { ArrowRight, Beaker, FileSearch, Scale, Tag } from "lucide-react";
+import { AlertTriangle, ArrowRight, Scale, FileSearch, Star, Store, Tag } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { Button } from "@/components/ui/Button";
 
+/**
+ * Espelha exatamente os 6 critérios embutidos do Core Domain
+ * (`packages/core/src/domain/criteria/builtin/*.ts`) — id, nome, peso e
+ * descrição precisam corresponder ao que o motor de cálculo realmente
+ * executa. Qualquer mudança de peso/critério ali precisa ser refletida
+ * aqui manualmente (não há geração automática desta lista a partir do
+ * código nesta camada de marketing).
+ */
 const pillars = [
   {
-    icon: Beaker,
-    weight: "35%",
-    title: "Pureza da composição",
-    description:
-      "Verificamos aditivos, cargas e a presença de substâncias não declaradas no rótulo.",
-  },
-  {
-    icon: Scale,
-    weight: "30%",
-    title: "Dosagem por porção",
-    description:
-      "Comparamos a quantidade real do princípio ativo com as referências da literatura científica.",
+    icon: Tag,
+    weight: "25%",
+    title: "Custo-benefício",
+    description: "Relação entre a quantidade efetiva de princípio ativo entregue e o preço pago.",
   },
   {
     icon: FileSearch,
-    weight: "20%",
+    weight: "25%",
     title: "Transparência do rótulo",
-    description:
-      "Penalizamos misturas proprietárias e informações nutricionais incompletas ou ambíguas.",
+    description: "Mede o quanto o rótulo expõe claramente composição e dosagem, sem omissões.",
   },
   {
-    icon: Tag,
+    icon: Scale,
     weight: "15%",
-    title: "Custo-benefício",
-    description: "Calculamos o preço por dose efetiva, não pelo preço do pote.",
+    title: "Preço por dose",
+    description: "Compara o custo por dose do produto com a média de mercado da categoria.",
+  },
+  {
+    icon: Star,
+    weight: "15%",
+    title: "Reputação",
+    description:
+      "Avaliação média de compradores, amortecida pela quantidade de avaliações disponíveis.",
+  },
+  {
+    icon: AlertTriangle,
+    weight: "10%",
+    title: "Promessas exageradas",
+    description: "Proporção de alegações de marketing sem respaldo científico identificável.",
+  },
+  {
+    icon: Store,
+    weight: "10%",
+    title: "Confiabilidade da loja",
+    description: "Reputação e garantias oferecidas pela loja que vende o produto avaliado.",
   },
 ];
 
@@ -41,7 +59,7 @@ export function EvaluationCriteria() {
           Como avaliamos
         </span>
         <h2 className="font-display text-text mt-3 text-3xl font-bold md:text-4xl">
-          Quatro critérios, um processo transparente
+          Seis critérios, um processo transparente
         </h2>
         <p className="text-text-muted mt-4 text-lg">
           Cada critério tem peso definido e documentado publicamente — nenhuma nota é atribuída

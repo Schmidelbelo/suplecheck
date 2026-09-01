@@ -22,8 +22,9 @@ export function Hero() {
         </h1>
 
         <p className="text-text-muted max-w-2xl text-lg md:text-xl">
-          O SupleCheck avalia composição, pureza e custo-benefício de cada produto e resume tudo em
-          uma nota única: o Índice SupleCheck. Sem publicidade paga influenciando o resultado.
+          O SupleCheck avalia custo-benefício, transparência do rótulo, reputação e mais critérios
+          objetivos de cada produto e resume tudo em uma nota única: o Índice SupleCheck. Sem
+          publicidade paga influenciando o resultado.
         </p>
 
         <div className="mt-2 flex flex-col items-center gap-3 sm:flex-row">
