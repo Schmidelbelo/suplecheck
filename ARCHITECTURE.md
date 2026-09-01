@@ -129,6 +129,15 @@ Convenção: se um componente é usado em 2+ módulos, ele sobe de nível (de m�
 
 ## 8. Modelagem de dados (visão inicial, extensível)
 
+> **Modelo de domínio completo:** o esboço abaixo (schema físico da Fase 0) foi sucedido por um modelo conceitual completo do negócio —
+> agregados, value objects, eventos de domínio, bounded contexts, para
+> as ~26 entidades da plataforma (Suplemento, SKU, Preço, Avaliação,
+> Metodologia, Usuário, Alerta, Auditoria...). Ver
+> [`docs/domain-model/DOMAIN_MODEL.md`](./docs/domain-model/DOMAIN_MODEL.md).
+> Esse documento é a fonte de verdade conceitual; o schema físico
+> (Prisma) ainda não foi atualizado para refleti-lo — isso é trabalho
+> futuro, deliberadamente fora do escopo desta modelagem.
+
 Desenhada para suportar o produto final, populada minimamente na Fase 0.
 
 ```
