@@ -6,7 +6,7 @@ import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import { formatDate } from "@/lib/utils/format";
-import { RankingEntryCard } from "@/modules/evaluation/components/RankingEntryCard";
+import { RankingFilters } from "@/modules/evaluation/components/RankingFilters";
 import type { RankingView } from "@/modules/evaluation/types";
 
 export const metadata: Metadata = buildMetadata({
@@ -58,11 +58,7 @@ export default async function CreatinaRankingPage() {
               Ranking gerado em {formatDate(ranking.generatedAt)} · {ranking.entries.length}{" "}
               produtos avaliados
             </p>
-            <div className="flex flex-col gap-4">
-              {ranking.entries.map((entry) => (
-                <RankingEntryCard key={entry.product.id} entry={entry} />
-              ))}
-            </div>
+            <RankingFilters entries={ranking.entries} />
           </div>
         ) : (
           <EmptyState
