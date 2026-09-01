@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd, breadcrumbSchema, productSchema } from "@/lib/seo/schema";
@@ -80,7 +82,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
   const view = await loadProduct(slug);
   if (!view) notFound();
 
-  const { product, presentation, score, history } = view;
+  const { product, presentation, score, history, ranking } = view;
 
   return (
     <>
@@ -142,6 +144,15 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
               <Badge variant="outline">Ainda não avaliado</Badge>
             )}
 
+            {ranking ? (
+              <Link
+                href="/creatina"
+                className="text-brand w-fit text-sm font-medium hover:underline"
+              >
+                #{ranking.position} de {ranking.total} no ranking de creatina
+              </Link>
+            ) : null}
+
             <p className="text-text-muted">{explainScore(view)}</p>
 
             {presentation?.price ? (
@@ -181,7 +192,15 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
       {score ? (
         <Section className="border-border border-b">
           <div className="mx-auto flex max-w-3xl flex-col gap-6">
-            <h2 className="font-display text-text text-2xl font-bold">Critérios utilizados</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="font-display text-text text-2xl font-bold">Critérios utilizados</h2>
+              <Link
+                href="/metodologia"
+                className="text-text-subtle text-xs font-medium hover:underline"
+              >
+                Metodologia v{score.methodologyVersion}
+              </Link>
+            </div>
             <ScoreBreakdownList breakdown={score.breakdown} />
           </div>
         </Section>
@@ -222,6 +241,14 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
               />
             </CardContent>
           </Card>
+
+          <Link
+            href="/creatina"
+            className="text-brand inline-flex w-fit items-center gap-2 text-sm font-medium hover:underline"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+            Ver todos os produtos do ranking de creatina
+          </Link>
         </div>
       </Section>
     </>

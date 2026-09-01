@@ -62,6 +62,8 @@ describe("API /api/evaluation", () => {
       await import("../../src/app/api/evaluation/products/[idOrSlug]/score/recalculate/route");
     const { GET: GET_HISTORY } =
       await import("../../src/app/api/evaluation/products/[idOrSlug]/score/history/route");
+    const { GET: GET_PRODUCT_VIEW } =
+      await import("../../src/app/api/evaluation/products/[idOrSlug]/view/route");
 
     const category = await (
       await POST_CAT(
@@ -160,6 +162,13 @@ describe("API /api/evaluation", () => {
     );
     const history = await historyRes.json();
     expect(history.items).toHaveLength(2);
+
+    const productViewRes = await GET_PRODUCT_VIEW(
+      new Request("http://localhost/api/evaluation/products/x/view"),
+      { params: Promise.resolve({ idOrSlug: product.slug }) },
+    );
+    const productView = await productViewRes.json();
+    expect(productView.ranking).toBeNull();
   });
 
   it("gera (POST) e lê (GET) o ranking de uma categoria", async () => {
@@ -172,6 +181,8 @@ describe("API /api/evaluation", () => {
       await import("../../src/app/api/evaluation/rankings/[categorySlug]/route");
     const { GET: GET_RANKING_VIEW } =
       await import("../../src/app/api/evaluation/rankings/[categorySlug]/view/route");
+    const { GET: GET_PRODUCT_VIEW } =
+      await import("../../src/app/api/evaluation/products/[idOrSlug]/view/route");
 
     const category = await (
       await POST_CAT(
@@ -247,5 +258,17 @@ describe("API /api/evaluation", () => {
     );
     const view = await viewRes.json();
     expect(view.entries[0].product.slug).toBe(product.slug);
+
+    const productViewRes = await GET_PRODUCT_VIEW(
+      new Request("http://localhost/api/evaluation/products/x/view"),
+      { params: Promise.resolve({ idOrSlug: product.slug }) },
+    );
+    const productView = await productViewRes.json();
+    expect(productView.ranking).toEqual({
+      position: 1,
+      total: 1,
+      categorySlug: category.slug,
+      generatedAt: generated.generatedAt,
+    });
   });
 });

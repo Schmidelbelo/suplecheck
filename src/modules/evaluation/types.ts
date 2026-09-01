@@ -18,9 +18,18 @@ export interface RankingView {
   readonly entries: readonly RankingViewEntry[];
 }
 
+/** Onde este produto está no ranking vigente da sua categoria — `null` quando ainda não há ranking gerado. */
+export interface ProductRankingContext {
+  readonly position: number;
+  readonly total: number;
+  readonly categorySlug: string;
+  readonly generatedAt: string;
+}
+
 export interface ProductView {
   readonly product: SupplementDTO;
   readonly presentation: ProductPresentation | null;
   readonly score: IndexResultDTO | null;
   readonly history: readonly IndexResultDTO[];
+  readonly ranking: ProductRankingContext | null;
 }
