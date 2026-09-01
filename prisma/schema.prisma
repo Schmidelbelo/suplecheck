@@ -14,13 +14,21 @@
 // os nomes em português do Domain Model são a linguagem de negócio, não
 // a linguagem de código. Ver PERSISTENCE_MODEL.md §1 para a tabela de
 // tradução completa.
-
+//
+// Datasource: SQLite para desenvolvimento local desta etapa (ambiente
+// sem PostgreSQL/Docker disponível) — arquivo único, zero dependência
+// externa, migration real e testável. `ARCHITECTURE.md` sempre definiu
+// PostgreSQL como alvo de produção; a troca é `provider = "postgresql"`
+// + `DATABASE_URL` de produção + `prisma migrate deploy`, sem tocar em
+// nenhum model. Único ajuste feito por causa disso: os 3 campos que
+// eram `String[]` (arrays nativos, exclusivos do Postgres) viraram
+// `Json` — mesma informação, portável entre os dois provedores.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -80,7 +88,9 @@ model Manufacturer {
   slug           String   @unique
   name           String
   country        String?
-  certifications String[]
+  /// `string[]` serializado — Json em vez de array nativo por
+  /// portabilidade SQLite/Postgres (ver nota de datasource acima).
+  certifications Json?
   active         Boolean  @default(true)
 
   products Product[]
@@ -279,8 +289,8 @@ model Criterion {
   description          String
   kind                 CriterionKind   @default(SIMPLE)
   status               CriterionStatus @default(ACTIVE)
-  /// Vazio = aplicável a qualquer categoria.
-  applicableCategories String[]
+  /// `string[]` serializado (vazio/nulo = aplicável a qualquer categoria) — Json por portabilidade, ver nota de datasource.
+  applicableCategories Json?
 
   methodologyAssignments MethodologyVersionCriterion[]
   scoreBreakdowns        ProductScoreCriterionBreakdown[]
@@ -390,7 +400,8 @@ model MethodologyCategoryOverride {
   id                   String   @id @default(cuid())
   methodologyVersionId String
   categoryId           String
-  disabledCriterionIds String[]
+  /// `string[]` serializado — Json por portabilidade, ver nota de datasource.
+  disabledCriterionIds Json?
   weightOverrides      Json?
 
   methodologyVersion MethodologyVersion @relation(fields: [methodologyVersionId], references: [id], onDelete: Cascade)

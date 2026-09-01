@@ -10,7 +10,9 @@ export const productService = {
         status: "PUBLISHED",
         category: categorySlug ? { slug: categorySlug } : undefined,
         brand: brandSlug ? { slug: brandSlug } : undefined,
-        name: search ? { contains: search, mode: "insensitive" } : undefined,
+        // SQLite (dev) não suporta `mode: "insensitive"` do Prisma (só Postgres/Mongo) —
+        // `contains` já é case-insensitive por padrão no `LIKE` do SQLite para ASCII.
+        name: search ? { contains: search } : undefined,
       },
       include: { category: true, brand: true },
       skip: (page - 1) * perPage,

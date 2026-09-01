@@ -8,9 +8,12 @@ export const SupplementMapper = {
       id: record.id,
       slug: record.slug,
       name: record.name,
+      description: record.description,
       categorySlug: record.categorySlug,
       brandSlug: record.brandSlug,
+      manufacturerSlug: record.manufacturerSlug,
       attributes: record.attributes,
+      status: record.status,
       createdAt: record.createdAt.toISOString(),
       updatedAt: record.updatedAt.toISOString(),
     };

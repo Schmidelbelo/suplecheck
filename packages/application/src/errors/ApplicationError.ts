@@ -53,6 +53,34 @@ export class BrandNotFoundError extends ApplicationError {
   }
 }
 
+export class ManufacturerNotFoundError extends ApplicationError {
+  readonly code = "MANUFACTURER_NOT_FOUND";
+  constructor(slug: string) {
+    super(`Fabricante "${slug}" não encontrado.`);
+  }
+}
+
+export class SkuNotFoundError extends ApplicationError {
+  readonly code = "SKU_NOT_FOUND";
+  constructor(id: string) {
+    super(`SKU "${id}" não encontrado.`);
+  }
+}
+
+export class DuplicateSlugError extends ApplicationError {
+  readonly code = "DUPLICATE_SLUG";
+  constructor(entity: string, slug: string) {
+    super(`Já existe ${entity} com o slug "${slug}".`);
+  }
+}
+
+export class DuplicateSkuGtinError extends ApplicationError {
+  readonly code = "DUPLICATE_SKU_GTIN";
+  constructor(gtin: string) {
+    super(`Já existe um SKU com o GTIN "${gtin}".`);
+  }
+}
+
 export class MethodologyNotFoundError extends ApplicationError {
   readonly code = "METHODOLOGY_NOT_FOUND";
   constructor(id: string) {

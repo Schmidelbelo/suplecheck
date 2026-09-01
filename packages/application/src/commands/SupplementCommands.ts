@@ -10,15 +10,33 @@ import type {
 export interface RegisterSupplementCommand {
   readonly slug: string;
   readonly name: string;
+  readonly description?: string;
   readonly categorySlug: string;
   readonly brandSlug: string;
+  readonly manufacturerSlug?: string;
   readonly attributes?: Readonly<Record<string, unknown>>;
 }
 
 export interface UpdateSupplementCommand {
   readonly id: string;
   readonly name?: string;
+  readonly description?: string;
+  readonly manufacturerSlug?: string;
   readonly attributes?: Readonly<Record<string, unknown>>;
+}
+
+export type ProductStatusCommandValue =
+  "DRAFT" | "IN_REVIEW" | "PUBLISHED" | "UNPUBLISHED" | "ARCHIVED";
+
+/** Transição de status é um comando próprio (não um campo solto de Update) — cada mudança gera sua própria entrada de auditoria com o motivo explícito. */
+export interface SetSupplementStatusCommand {
+  readonly id: string;
+  readonly status: ProductStatusCommandValue;
+}
+
+/** Soft delete de um Suplemento = transição para ARCHIVED (Domain Model §3.1) — nunca remove a linha. */
+export interface DeleteSupplementCommand {
+  readonly id: string;
 }
 
 /**

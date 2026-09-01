@@ -1,5 +1,6 @@
 export * from "./SupplementRepositoryPort";
 export * from "./CatalogRepositoryPort";
+export * from "./SkuRepositoryPort";
 export * from "./MethodologyRepositoryPort";
 export * from "./CriterionCatalogPort";
 export * from "./IndexResultRepositoryPort";
@@ -10,7 +11,12 @@ export * from "./SystemPorts";
 export * from "./ImportExportPorts";
 
 import type { SupplementRepositoryPort } from "./SupplementRepositoryPort";
-import type { CategoryRepositoryPort, BrandRepositoryPort } from "./CatalogRepositoryPort";
+import type {
+  CategoryRepositoryPort,
+  BrandRepositoryPort,
+  ManufacturerRepositoryPort,
+} from "./CatalogRepositoryPort";
+import type { SkuRepositoryPort } from "./SkuRepositoryPort";
 import type { MethodologyRepositoryPort } from "./MethodologyRepositoryPort";
 import type { CriterionCatalogPort } from "./CriterionCatalogPort";
 import type { IndexResultRepositoryPort } from "./IndexResultRepositoryPort";
@@ -30,6 +36,8 @@ export interface ApplicationPorts {
   readonly supplements: SupplementRepositoryPort;
   readonly categories: CategoryRepositoryPort;
   readonly brands: BrandRepositoryPort;
+  readonly manufacturers: ManufacturerRepositoryPort;
+  readonly skus: SkuRepositoryPort;
   readonly methodologies: MethodologyRepositoryPort;
   readonly criteria: CriterionCatalogPort;
   readonly indexResults: IndexResultRepositoryPort;

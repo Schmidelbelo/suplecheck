@@ -18,13 +18,20 @@ import type {
   SupplementRepositoryPort,
   SupplementRecord,
   SupplementSearchCriteria,
+  SupplementSort,
+  ProductStatus,
 } from "../src/ports/SupplementRepositoryPort";
 import type {
   CategoryRepositoryPort,
   BrandRepositoryPort,
+  ManufacturerRepositoryPort,
   CategoryRecord,
   BrandRecord,
+  ManufacturerRecord,
+  ReferenceDataSearchCriteria,
+  ReferenceDataSort,
 } from "../src/ports/CatalogRepositoryPort";
+import type { SkuRepositoryPort, SkuRecord } from "../src/ports/SkuRepositoryPort";
 import type { MethodologyRepositoryPort } from "../src/ports/MethodologyRepositoryPort";
 import type { CriterionCatalogPort } from "../src/ports/CriterionCatalogPort";
 import type { IndexResultRepositoryPort } from "../src/ports/IndexResultRepositoryPort";
@@ -37,15 +44,32 @@ import type { MethodologyDTO } from "../src/dto/MethodologyDTO";
 import type { IndexResultDTO } from "../src/dto/IndexResultDTO";
 import type { RankingDTO } from "../src/dto/RankingDTO";
 
+function paginate<T>(all: T[], page: PageRequest): PageResult<T> {
+  const start = (page.page - 1) * page.perPage;
+  return {
+    items: all.slice(start, start + page.perPage),
+    page: page.page,
+    perPage: page.perPage,
+    total: all.length,
+    totalPages: Math.max(1, Math.ceil(all.length / page.perPage)),
+  };
+}
+
+function sortByName<T extends { name: string; createdAt: Date }>(items: T[], sort?: string): T[] {
+  const copy = [...items];
+  if (sort === "name-desc") return copy.sort((a, b) => b.name.localeCompare(a.name));
+  if (sort === "recent") return copy.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  return copy.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export class InMemorySupplementRepository implements SupplementRepositoryPort {
-  private readonly bySlug = new Map<string, SupplementRecord>();
   private readonly byId = new Map<string, SupplementRecord>();
 
   async findById(id: string) {
     return this.byId.get(id) ?? null;
   }
   async findBySlug(slug: string) {
-    return this.bySlug.get(slug) ?? null;
+    return [...this.byId.values()].find((r) => r.slug === slug) ?? null;
   }
   async findManyByIds(ids: readonly string[]) {
     return ids.map((id) => this.byId.get(id)).filter((r): r is SupplementRecord => r !== undefined);
@@ -53,45 +77,112 @@ export class InMemorySupplementRepository implements SupplementRepositoryPort {
   async search(
     criteria: SupplementSearchCriteria,
     page: PageRequest,
+    sort?: SupplementSort,
   ): Promise<PageResult<SupplementRecord>> {
-    const all = [...this.byId.values()].filter(
-      (r) =>
-        (!criteria.categorySlug || r.categorySlug === criteria.categorySlug) &&
-        (!criteria.brandSlug || r.brandSlug === criteria.brandSlug) &&
-        (!criteria.search || r.name.toLowerCase().includes(criteria.search.toLowerCase())),
+    const all = sortByName(
+      [...this.byId.values()].filter(
+        (r) =>
+          (!criteria.categorySlug || r.categorySlug === criteria.categorySlug) &&
+          (!criteria.brandSlug || r.brandSlug === criteria.brandSlug) &&
+          (!criteria.status || r.status === criteria.status) &&
+          (!criteria.search || r.name.toLowerCase().includes(criteria.search.toLowerCase())),
+      ),
+      sort,
     );
-    const start = (page.page - 1) * page.perPage;
-    return {
-      items: all.slice(start, start + page.perPage),
-      page: page.page,
-      perPage: page.perPage,
-      total: all.length,
-      totalPages: Math.max(1, Math.ceil(all.length / page.perPage)),
-    };
+    return paginate(all, page);
   }
   async save(record: SupplementRecord) {
     this.byId.set(record.id, record);
-    this.bySlug.set(record.slug, record);
+  }
+  async setStatus(id: string, status: ProductStatus) {
+    const existing = this.byId.get(id);
+    if (existing) this.byId.set(id, { ...existing, status, updatedAt: new Date() });
   }
 }
 
-export class InMemoryCategoryRepository implements CategoryRepositoryPort {
-  constructor(private readonly records: CategoryRecord[]) {}
+abstract class InMemoryReferenceDataRepository<
+  T extends { id: string; slug: string; name: string; active: boolean; createdAt: Date },
+> {
+  protected readonly byId = new Map<string, T>();
+
   async listAll() {
-    return this.records;
+    return [...this.byId.values()];
+  }
+  async search(criteria: ReferenceDataSearchCriteria, page: PageRequest, sort?: ReferenceDataSort) {
+    const filtered = sortByName(
+      [...this.byId.values()].filter(
+        (r) =>
+          (criteria.includeInactive || r.active) &&
+          (!criteria.search || r.name.toLowerCase().includes(criteria.search.toLowerCase())),
+      ),
+      sort,
+    );
+    return paginate(filtered, page);
+  }
+  async findById(id: string) {
+    return this.byId.get(id) ?? null;
   }
   async findBySlug(slug: string) {
-    return this.records.find((r) => r.slug === slug) ?? null;
+    return [...this.byId.values()].find((r) => r.slug === slug) ?? null;
+  }
+  async save(record: T) {
+    this.byId.set(record.id, record);
+  }
+  async setActive(id: string, active: boolean) {
+    const existing = this.byId.get(id);
+    if (existing) this.byId.set(id, { ...existing, active });
   }
 }
 
-export class InMemoryBrandRepository implements BrandRepositoryPort {
-  constructor(private readonly records: BrandRecord[]) {}
-  async listAll() {
-    return this.records;
+export class InMemoryCategoryRepository
+  extends InMemoryReferenceDataRepository<CategoryRecord>
+  implements CategoryRepositoryPort
+{
+  constructor(seed: readonly CategoryRecord[] = []) {
+    super();
+    for (const record of seed) this.byId.set(record.id, record);
   }
-  async findBySlug(slug: string) {
-    return this.records.find((r) => r.slug === slug) ?? null;
+}
+
+export class InMemoryBrandRepository
+  extends InMemoryReferenceDataRepository<BrandRecord>
+  implements BrandRepositoryPort
+{
+  constructor(seed: readonly BrandRecord[] = []) {
+    super();
+    for (const record of seed) this.byId.set(record.id, record);
+  }
+}
+
+export class InMemoryManufacturerRepository
+  extends InMemoryReferenceDataRepository<ManufacturerRecord>
+  implements ManufacturerRepositoryPort
+{
+  constructor(seed: readonly ManufacturerRecord[] = []) {
+    super();
+    for (const record of seed) this.byId.set(record.id, record);
+  }
+}
+
+export class InMemorySkuRepository implements SkuRepositoryPort {
+  private readonly byId = new Map<string, SkuRecord>();
+
+  async findById(id: string) {
+    return this.byId.get(id) ?? null;
+  }
+  async findByGtin(gtin: string) {
+    return [...this.byId.values()].find((r) => r.gtin === gtin) ?? null;
+  }
+  async listByProduct(productId: string, page: PageRequest) {
+    const all = [...this.byId.values()].filter((r) => r.productId === productId);
+    return paginate(all, page);
+  }
+  async save(record: SkuRecord) {
+    this.byId.set(record.id, record);
+  }
+  async setStatus(id: string, status: SkuRecord["status"]) {
+    const existing = this.byId.get(id);
+    if (existing) this.byId.set(id, { ...existing, status, updatedAt: new Date() });
   }
 }
 

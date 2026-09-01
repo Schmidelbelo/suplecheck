@@ -37,6 +37,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# banco de dados local (SQLite, desenvolvimento) — a migration é código, o arquivo de dados não
+prisma/*.db
+prisma/*.db-journal
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

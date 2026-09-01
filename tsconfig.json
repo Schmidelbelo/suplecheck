@@ -28,7 +28,9 @@
       "@/config/*": ["./src/config/*"],
       "@/types/*": ["./src/types/*"],
       "@/styles/*": ["./src/styles/*"],
-      "@core/*": ["./packages/core/src/*"]
+      "@core/*": ["./packages/core/src/*"],
+      "@application/*": ["./packages/application/src/*"],
+      "@infrastructure/*": ["./packages/infrastructure/src/*"]
     }
   },
   "include": [

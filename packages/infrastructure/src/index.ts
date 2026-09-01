@@ -41,21 +41,23 @@ export { MemoryIndicator } from "./monitoring/indicators/MemoryIndicator";
 // Persistence
 export type { PersistenceProvider } from "./persistence/PersistenceProvider";
 export { InMemoryDatabase } from "./persistence/inmemory/InMemoryDatabase";
-export { PrismaConnectionPlaceholder } from "./persistence/prisma/PrismaConnectionPlaceholder";
+export { PrismaConnection } from "./persistence/prisma/PrismaConnection";
 
-// Repositories
-export { InMemorySupplementRepository } from "./repositories/InMemorySupplementRepository";
+// Repositories — Catálogo (Prisma, implementação real)
 export {
-  InMemoryCategoryRepository,
-  InMemoryBrandRepository,
-} from "./repositories/InMemoryCatalogRepositories";
+  PrismaCategoryRepository,
+  PrismaBrandRepository,
+  PrismaManufacturerRepository,
+} from "./repositories/prisma/PrismaReferenceDataRepositories";
+export { PrismaSupplementRepository } from "./repositories/prisma/PrismaSupplementRepository";
+export { PrismaSkuRepository } from "./repositories/prisma/PrismaSkuRepository";
+export { PrismaAuditLogAdapter } from "./repositories/prisma/PrismaAuditLogAdapter";
+
+// Repositories — ainda in-memory (avaliação/ranking, fora do escopo desta etapa)
 export { InMemoryMethodologyRepository } from "./repositories/InMemoryMethodologyRepository";
 export { InMemoryIndexResultRepository } from "./repositories/InMemoryIndexResultRepository";
 export { InMemoryRankingRepository } from "./repositories/InMemoryRankingRepository";
 export {
-  PrismaSupplementRepositoryStub,
-  PrismaCategoryRepositoryStub,
-  PrismaBrandRepositoryStub,
   PrismaMethodologyRepositoryStub,
   PrismaIndexResultRepositoryStub,
   PrismaRankingRepositoryStub,

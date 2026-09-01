@@ -12,8 +12,9 @@ export { buildPageResult, defaultPageRequest } from "./shared/Pagination";
 export * from "./errors/ApplicationError";
 
 // DTOs
-export type { SupplementDTO } from "./dto/SupplementDTO";
-export type { CategoryDTO, BrandDTO } from "./dto/CatalogDTO";
+export type { SupplementDTO, ProductStatusDTO } from "./dto/SupplementDTO";
+export type { CategoryDTO, BrandDTO, ManufacturerDTO } from "./dto/CatalogDTO";
+export type { SkuDTO, SkuStatusDTO } from "./dto/SkuDTO";
 export type { CriterionDTO, CriterionKindDTO, CriterionStatusDTO } from "./dto/CriterionDTO";
 export type {
   MethodologyDTO,
@@ -39,7 +40,25 @@ export type {
   RegisterSupplementCommand,
   UpdateSupplementCommand,
   EvaluateSupplementCommand,
+  SetSupplementStatusCommand,
+  DeleteSupplementCommand,
+  ProductStatusCommandValue,
 } from "./commands/SupplementCommands";
+export type {
+  CreateCategoryCommand,
+  UpdateCategoryCommand,
+  CreateBrandCommand,
+  UpdateBrandCommand,
+  CreateManufacturerCommand,
+  UpdateManufacturerCommand,
+  SetReferenceDataActiveCommand,
+} from "./commands/CatalogCommands";
+export type {
+  CreateSkuCommand,
+  UpdateSkuCommand,
+  SetSkuStatusCommand,
+  SkuStatusCommandValue,
+} from "./commands/SkuCommands";
 export type {
   CreateMethodologyCommand,
   CreateMethodologyCriterionInput,
@@ -61,6 +80,8 @@ export type {
 export type {
   SearchSupplementsQuery,
   CompareSupplementsQuery,
+  SearchReferenceDataQuery,
+  ListSkusByProductQuery,
   GetRankingQuery,
 } from "./queries/CatalogQueries";
 
@@ -69,6 +90,8 @@ export * from "./ports";
 
 // Mappers
 export { SupplementMapper } from "./mappers/SupplementMapper";
+export { CategoryMapper, BrandMapper, ManufacturerMapper } from "./mappers/CatalogMapper";
+export { SkuMapper } from "./mappers/SkuMapper";
 export { MethodologyMapper, type MethodologyDTOExtras } from "./mappers/MethodologyMapper";
 export { CriterionMapper } from "./mappers/CriterionMapper";
 export { IndexResultMapper } from "./mappers/IndexResultMapper";
@@ -97,6 +120,12 @@ export {
   EvaluateSupplementValidator,
 } from "./validators/SupplementValidators";
 export { CreateMethodologyValidator } from "./validators/MethodologyValidators";
+export {
+  CreateCategoryValidator,
+  CreateBrandValidator,
+  CreateManufacturerValidator,
+} from "./validators/CatalogValidators";
+export { CreateSkuValidator } from "./validators/SkuValidators";
 
 // Use Cases (exportados individualmente também, para quem quiser montar
 // só um em vez de usar `UseCaseFactory.create` inteiro)
@@ -107,10 +136,45 @@ export {
   CalculateIndexUseCase,
   type CalculateIndexRequest,
 } from "./use-cases/supplement/CalculateIndexUseCase";
+export { GetSupplementUseCase } from "./use-cases/supplement/GetSupplementUseCase";
+export {
+  SetSupplementStatusUseCase,
+  DeleteSupplementUseCase,
+} from "./use-cases/supplement/SupplementStatusUseCases";
 export { SearchSupplementsUseCase } from "./use-cases/catalog/SearchSupplementsUseCase";
 export { CompareSupplementsUseCase } from "./use-cases/catalog/CompareSupplementsUseCase";
 export { ListCategoriesUseCase } from "./use-cases/catalog/ListCategoriesUseCase";
 export { ListBrandsUseCase } from "./use-cases/catalog/ListBrandsUseCase";
+export {
+  CreateCategoryUseCase,
+  UpdateCategoryUseCase,
+  SetCategoryActiveUseCase,
+  GetCategoryUseCase,
+} from "./use-cases/catalog/CategoryCrudUseCases";
+export {
+  CreateBrandUseCase,
+  UpdateBrandUseCase,
+  SetBrandActiveUseCase,
+  GetBrandUseCase,
+} from "./use-cases/catalog/BrandCrudUseCases";
+export {
+  CreateManufacturerUseCase,
+  UpdateManufacturerUseCase,
+  SetManufacturerActiveUseCase,
+  GetManufacturerUseCase,
+} from "./use-cases/catalog/ManufacturerCrudUseCases";
+export {
+  SearchCategoriesUseCase,
+  SearchBrandsUseCase,
+  SearchManufacturersUseCase,
+} from "./use-cases/catalog/SearchReferenceDataUseCases";
+export {
+  CreateSkuUseCase,
+  UpdateSkuUseCase,
+  SetSkuStatusUseCase,
+  GetSkuUseCase,
+} from "./use-cases/sku/SkuCrudUseCases";
+export { ListSkusByProductUseCase } from "./use-cases/sku/ListSkusByProductUseCase";
 export { CreateMethodologyUseCase } from "./use-cases/methodology/CreateMethodologyUseCase";
 export { ReviseMethodologyUseCase } from "./use-cases/methodology/ReviseMethodologyUseCase";
 export { RegisterCriterionUseCase } from "./use-cases/methodology/RegisterCriterionUseCase";
@@ -124,7 +188,8 @@ export { RecordAnalyticsEventUseCase } from "./use-cases/platform/RecordAnalytic
 
 // Application Services (fachadas)
 export { SupplementApplicationService } from "./services/SupplementApplicationService";
-export { MethodologyApplicationService } from "./services/MethodologyApplicationService";
 export { CatalogApplicationService } from "./services/CatalogApplicationService";
+export { SkuApplicationService } from "./services/SkuApplicationService";
+export { MethodologyApplicationService } from "./services/MethodologyApplicationService";
 export { RankingApplicationService } from "./services/RankingApplicationService";
 export { PlatformApplicationService } from "./services/PlatformApplicationService";

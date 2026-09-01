@@ -44,9 +44,12 @@ export class RegisterSupplementUseCase implements UseCase<
       id: this.idGenerator.next(),
       slug: command.slug,
       name: command.name,
+      description: command.description,
       categorySlug: command.categorySlug,
       brandSlug: command.brandSlug,
+      manufacturerSlug: command.manufacturerSlug,
       attributes: command.attributes ?? {},
+      status: "DRAFT",
       createdAt: now,
       updatedAt: now,
     };

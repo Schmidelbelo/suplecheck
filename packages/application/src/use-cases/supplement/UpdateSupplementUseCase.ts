@@ -25,6 +25,8 @@ export class UpdateSupplementUseCase implements UseCase<UpdateSupplementCommand,
     const updated: SupplementRecord = {
       ...existing,
       name: command.name ?? existing.name,
+      description: command.description ?? existing.description,
+      manufacturerSlug: command.manufacturerSlug ?? existing.manufacturerSlug,
       attributes: command.attributes ?? existing.attributes,
       updatedAt: now,
     };

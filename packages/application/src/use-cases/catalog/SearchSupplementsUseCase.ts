@@ -15,8 +15,14 @@ export class SearchSupplementsUseCase implements UseCase<
   async execute(query: SearchSupplementsQuery): Promise<PageResult<SupplementDTO>> {
     const page = defaultPageRequest(query.page);
     const result = await this.supplements.search(
-      { categorySlug: query.categorySlug, brandSlug: query.brandSlug, search: query.search },
+      {
+        categorySlug: query.categorySlug,
+        brandSlug: query.brandSlug,
+        search: query.search,
+        status: query.includeAllStatuses ? undefined : "PUBLISHED",
+      },
       page,
+      query.sort,
     );
 
     return {

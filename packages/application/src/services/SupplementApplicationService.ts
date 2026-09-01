@@ -3,6 +3,8 @@ import type {
   RegisterSupplementCommand,
   UpdateSupplementCommand,
   EvaluateSupplementCommand,
+  SetSupplementStatusCommand,
+  DeleteSupplementCommand,
 } from "../commands/SupplementCommands";
 import type { SearchSupplementsQuery, CompareSupplementsQuery } from "../queries/CatalogQueries";
 
@@ -20,6 +22,9 @@ export class SupplementApplicationService {
       | "registerSupplement"
       | "updateSupplement"
       | "evaluateSupplement"
+      | "getSupplement"
+      | "setSupplementStatus"
+      | "deleteSupplement"
       | "searchSupplements"
       | "compareSupplements"
     >,
@@ -35,6 +40,18 @@ export class SupplementApplicationService {
 
   evaluate(command: EvaluateSupplementCommand) {
     return this.useCases.evaluateSupplement.execute(command);
+  }
+
+  get(idOrSlug: string) {
+    return this.useCases.getSupplement.execute(idOrSlug);
+  }
+
+  setStatus(command: SetSupplementStatusCommand) {
+    return this.useCases.setSupplementStatus.execute(command);
+  }
+
+  delete(command: DeleteSupplementCommand) {
+    return this.useCases.deleteSupplement.execute(command);
   }
 
   search(query: SearchSupplementsQuery) {

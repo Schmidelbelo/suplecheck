@@ -9,18 +9,21 @@ import type { Logger } from "../logging/Logger";
 import { ConsoleLogger } from "../logging/ConsoleLogger";
 
 import { InMemoryDatabase } from "../persistence/inmemory/InMemoryDatabase";
+import { PrismaConnection } from "../persistence/prisma/PrismaConnection";
 
-import { InMemorySupplementRepository } from "../repositories/InMemorySupplementRepository";
 import {
-  InMemoryCategoryRepository,
-  InMemoryBrandRepository,
-} from "../repositories/InMemoryCatalogRepositories";
+  PrismaCategoryRepository,
+  PrismaBrandRepository,
+  PrismaManufacturerRepository,
+} from "../repositories/prisma/PrismaReferenceDataRepositories";
+import { PrismaSupplementRepository } from "../repositories/prisma/PrismaSupplementRepository";
+import { PrismaSkuRepository } from "../repositories/prisma/PrismaSkuRepository";
+import { PrismaAuditLogAdapter } from "../repositories/prisma/PrismaAuditLogAdapter";
 import { InMemoryMethodologyRepository } from "../repositories/InMemoryMethodologyRepository";
 import { InMemoryIndexResultRepository } from "../repositories/InMemoryIndexResultRepository";
 import { InMemoryRankingRepository } from "../repositories/InMemoryRankingRepository";
 
 import { CriterionCatalogAdapter } from "../adapters/CriterionCatalogAdapter";
-import { InMemoryAuditLogAdapter } from "../adapters/AuditLogAdapters";
 import { InternalAnalyticsAdapter } from "../adapters/InternalAnalyticsAdapter";
 import { SystemClockAdapter, RandomUuidAdapter } from "../adapters/SystemProviders";
 
@@ -62,6 +65,7 @@ export interface InfrastructureContainer {
   readonly environment: EnvironmentManager;
   readonly logger: Logger;
   readonly db: InMemoryDatabase;
+  readonly prisma: PrismaConnection;
   readonly ports: ApplicationPorts;
   readonly useCases: AllUseCases;
   readonly health: HealthCheckRegistry;
@@ -94,15 +98,28 @@ export function buildInfrastructureContainer(
   const logger = new ConsoleLogger(config.logging.level);
   const db = new InMemoryDatabase();
 
+  // --- Catálogo: persistido de verdade via Prisma (objetivo desta etapa —
+  // ver ARCHITECTURE.md §3). Sem DATABASE_URL configurada não há como
+  // cumprir "persistir suplementos reais no banco", então falha cedo e
+  // claro em vez de mascarar com um fallback silencioso em memória. ---
+  if (!environment.hasDatabaseConfigured()) {
+    throw new Error(
+      "DATABASE_URL não configurada — o módulo Catálogo requer Prisma conectado (ver .env.example).",
+    );
+  }
+  const prisma = new PrismaConnection(config.database.url!);
+
   // --- Ports da Application (ver ARCHITECTURE.md §3 para a matriz completa) ---
-  const supplements = new InMemorySupplementRepository(db);
-  const categories = new InMemoryCategoryRepository(db);
-  const brands = new InMemoryBrandRepository(db);
+  const supplements = new PrismaSupplementRepository(prisma.client);
+  const categories = new PrismaCategoryRepository(prisma.client);
+  const brands = new PrismaBrandRepository(prisma.client);
+  const manufacturers = new PrismaManufacturerRepository(prisma.client);
+  const skus = new PrismaSkuRepository(prisma.client);
   const methodologies = new InMemoryMethodologyRepository(db);
   const criteria = new CriterionCatalogAdapter(db);
   const indexResults = new InMemoryIndexResultRepository(db);
   const rankings = new InMemoryRankingRepository(db);
-  const auditLog = new InMemoryAuditLogAdapter(db);
+  const auditLog = new PrismaAuditLogAdapter(prisma.client);
   const analytics = new InternalAnalyticsAdapter(logger);
   const clock = new SystemClockAdapter();
   const idGenerator = new RandomUuidAdapter();
@@ -111,6 +128,8 @@ export function buildInfrastructureContainer(
     supplements,
     categories,
     brands,
+    manufacturers,
+    skus,
     methodologies,
     criteria,
     indexResults,
@@ -159,6 +178,7 @@ export function buildInfrastructureContainer(
     environment,
     logger,
     db,
+    prisma,
     ports,
     useCases,
     health,

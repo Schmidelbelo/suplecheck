@@ -1,72 +1,24 @@
 /**
- * Stubs que provam que os Ports da Application são implementáveis por um
- * repositório Prisma sem qualquer mudança de assinatura — mas NÃO
- * conectam nada: todo método lança `ProviderNotImplementedError`. Nunca
- * instanciados pelo `InfrastructureContainer` hoje (ver bootstrap/); só
- * existem para documentar a forma exata que a implementação real vai
- * assumir na próxima etapa (import de `@prisma/client`, mapeamento de
- * `PrismaClient.product` para `SupplementRecord`, etc.).
+ * Stubs que provam que os Ports ainda não conectados (Methodology,
+ * IndexResult, Ranking — fora do escopo desta etapa, ver
+ * `docs/domain-model/DOMAIN_MODEL.md`) são implementáveis por um
+ * repositório Prisma sem qualquer mudança de assinatura, mas NÃO
+ * conectam nada: todo método lança `ProviderNotImplementedError`.
+ * Category/Brand/Manufacturer/Supplement/Sku/AuditLog têm implementação
+ * REAL agora em `repositories/prisma/` — não são mais stubs.
  */
 import type {
-  SupplementRepositoryPort,
-  SupplementRecord,
-  SupplementSearchCriteria,
-  CategoryRepositoryPort,
-  BrandRepositoryPort,
-  CategoryRecord,
-  BrandRecord,
   MethodologyRepositoryPort,
   MethodologyDTO,
   IndexResultRepositoryPort,
   IndexResultDTO,
   RankingRepositoryPort,
   RankingDTO,
-  PageRequest,
-  PageResult,
 } from "../application-kernel";
 import { ProviderNotImplementedError } from "../errors/InfrastructureError";
 
 function notImplemented(): never {
   throw new ProviderNotImplementedError("Prisma");
-}
-
-export class PrismaSupplementRepositoryStub implements SupplementRepositoryPort {
-  async findById(_id: string): Promise<SupplementRecord | null> {
-    notImplemented();
-  }
-  async findBySlug(_slug: string): Promise<SupplementRecord | null> {
-    notImplemented();
-  }
-  async findManyByIds(_ids: readonly string[]): Promise<SupplementRecord[]> {
-    notImplemented();
-  }
-  async search(
-    _criteria: SupplementSearchCriteria,
-    _page: PageRequest,
-  ): Promise<PageResult<SupplementRecord>> {
-    notImplemented();
-  }
-  async save(_record: SupplementRecord): Promise<void> {
-    notImplemented();
-  }
-}
-
-export class PrismaCategoryRepositoryStub implements CategoryRepositoryPort {
-  async listAll(): Promise<CategoryRecord[]> {
-    notImplemented();
-  }
-  async findBySlug(_slug: string): Promise<CategoryRecord | null> {
-    notImplemented();
-  }
-}
-
-export class PrismaBrandRepositoryStub implements BrandRepositoryPort {
-  async listAll(): Promise<BrandRecord[]> {
-    notImplemented();
-  }
-  async findBySlug(_slug: string): Promise<BrandRecord | null> {
-    notImplemented();
-  }
 }
 
 export class PrismaMethodologyRepositoryStub implements MethodologyRepositoryPort {
