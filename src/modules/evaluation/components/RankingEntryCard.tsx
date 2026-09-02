@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -15,9 +16,11 @@ export function RankingEntryCard({ entry }: { entry: RankingViewEntry }) {
         #{entry.position}
       </div>
 
-      <img
+      <Image
         src={product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
         alt={product.name}
+        width={80}
+        height={80}
         className="border-border bg-bg-subtle size-20 shrink-0 self-center rounded-md border object-cover"
       />
 

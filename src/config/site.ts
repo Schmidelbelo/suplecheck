@@ -5,8 +5,7 @@ export const siteConfig = {
     "Rankings independentes de suplementos baseados em dados: o Índice SupleCheck compara qualidade, custo-benefício e composição para você decidir com segurança.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.suplecheck.com.br",
   locale: "pt_BR",
-  themeColor: "#139d56",
-  ogImage: "/og-image.png",
+  themeColor: "#127c47",
   keywords: [
     "suplementos",
     "creatina",

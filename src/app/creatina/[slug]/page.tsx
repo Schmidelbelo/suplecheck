@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo/metadata";
@@ -123,11 +124,16 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
 
       <Section className="border-border border-b">
         <div className="grid gap-8 md:grid-cols-[240px_1fr]">
-          <img
-            src={presentation?.imageUrl ?? "/images/products/creatina-placeholder.svg"}
-            alt={product.name}
-            className="border-border bg-bg-subtle size-full max-h-60 rounded-lg border object-cover"
-          />
+          <div className="border-border bg-bg-subtle relative h-60 w-full overflow-hidden rounded-lg border">
+            <Image
+              src={presentation?.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+              alt={product.name}
+              fill
+              sizes="(min-width: 768px) 240px, 100vw"
+              className="object-cover"
+              priority
+            />
+          </div>
 
           <div className="flex flex-col gap-6">
             {score ? (

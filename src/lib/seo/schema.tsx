@@ -13,7 +13,7 @@ export function organizationSchema() {
     "@type": "Organization",
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: new URL("/icon.png", siteConfig.url).toString(),
+    logo: new URL("/icon-512.png", siteConfig.url).toString(),
     sameAs: Object.values(siteConfig.links),
   };
 }

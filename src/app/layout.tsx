@@ -30,11 +30,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   ...buildMetadata(),
   metadataBase: new URL(siteConfig.url),
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/icon.png",
-  },
+  // Sem `icons` explícito: `icon.tsx`/`apple-icon.tsx` (convenção de
+  // arquivo do Next) já geram e injetam as tags corretas — declarar
+  // `icons` aqui sobrescreveria isso apontando para arquivos estáticos
+  // que não existem (ver auditoria da FASE 1.5).
   manifest: "/manifest.webmanifest",
+  // Verificação de propriedade no Google Search Console — só emite a
+  // meta tag quando o código estiver configurado (ver .env.example);
+  // sem a env, `verification` fica de fora do objeto (Next não injeta
+  // uma tag vazia).
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export const viewport: Viewport = {

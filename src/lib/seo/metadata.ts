@@ -19,11 +19,20 @@ export function buildMetadata({
   title,
   description = siteConfig.description,
   path = "/",
-  image = siteConfig.ogImage,
+  image,
   noIndex = false,
 }: BuildMetadataInput = {}): Metadata {
   const url = new URL(path, siteConfig.url).toString();
   const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.title;
+
+  // Sem `image` explícita, `openGraph.images`/`twitter.images` ficam de
+  // fora do objeto de propósito: `app/opengraph-image.tsx` e
+  // `app/twitter-image.tsx` (convenção de arquivo do Next) já geram a
+  // imagem padrão e o Next injeta a tag sozinho — declarar `images`
+  // aqui, mesmo vazio, sobrescreveria isso.
+  const images = image
+    ? [{ url: image, width: 1200, height: 630, alt: siteConfig.name }]
+    : undefined;
 
   return {
     title: fullTitle,
@@ -39,13 +48,13 @@ export function buildMetadata({
       title: fullTitle,
       description,
       siteName: siteConfig.name,
-      images: [{ url: image, width: 1200, height: 630, alt: siteConfig.name }],
+      ...(images ? { images } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: fullTitle,
       description,
-      images: [image],
+      ...(images ? { images: images.map((i) => i.url) } : {}),
     },
   };
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { Button } from "@/components/ui/Button";
@@ -59,9 +60,11 @@ export async function RankingPreview() {
                 <span className="text-text-subtle w-6 shrink-0 text-center text-sm font-semibold">
                   {entry.position}
                 </span>
-                <img
+                <Image
                   src={entry.product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
                   alt={entry.product.name}
+                  width={40}
+                  height={40}
                   className="border-border bg-bg-subtle size-10 shrink-0 rounded-md border object-cover"
                 />
                 <div className="min-w-0 flex-1">
