@@ -37,10 +37,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  const products = await prisma.product.findMany({
-    where: { status: "PUBLISHED", category: { slug: "creatina" } },
-    select: { slug: true, updatedAt: true },
-  });
+  let products: { slug: string; updatedAt: Date }[] = [];
+  try {
+    products = await prisma.product.findMany({
+      where: { status: "PUBLISHED", category: { slug: "creatina" } },
+      select: { slug: true, updatedAt: true },
+    });
+  } catch (error) {
+    console.error("[sitemap] falha ao carregar produtos publicados", error);
+  }
 
   const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
     url: new URL(`/creatina/${product.slug}`, siteConfig.url).toString(),

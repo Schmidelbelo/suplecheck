@@ -18,7 +18,10 @@ const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export function validateOptionalName(name: string | undefined): ValidationResult {
   const c = new ValidationIssueCollector();
   if (name !== undefined) {
-    c.require(name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    c.require(typeof name === "string", "name", "deve ser texto");
+    if (typeof name === "string") {
+      c.require(name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    }
   }
   return c.toResult();
 }
@@ -26,8 +29,14 @@ export function validateOptionalName(name: string | undefined): ValidationResult
 export class CreateCategoryValidator implements ApplicationValidator<CreateCategoryCommand> {
   validate(input: CreateCategoryCommand): ValidationResult {
     const c = new ValidationIssueCollector();
-    c.require(SLUG_PATTERN.test(input.slug), "slug", "deve estar em kebab-case");
-    c.require(input.name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    c.require(typeof input.slug === "string", "slug", "deve ser texto");
+    c.require(typeof input.name === "string", "name", "deve ser texto");
+    if (typeof input.slug === "string") {
+      c.require(SLUG_PATTERN.test(input.slug), "slug", "deve estar em kebab-case");
+    }
+    if (typeof input.name === "string") {
+      c.require(input.name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    }
     return c.toResult();
   }
 }
@@ -35,8 +44,14 @@ export class CreateCategoryValidator implements ApplicationValidator<CreateCateg
 export class CreateBrandValidator implements ApplicationValidator<CreateBrandCommand> {
   validate(input: CreateBrandCommand): ValidationResult {
     const c = new ValidationIssueCollector();
-    c.require(SLUG_PATTERN.test(input.slug), "slug", "deve estar em kebab-case");
-    c.require(input.name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    c.require(typeof input.slug === "string", "slug", "deve ser texto");
+    c.require(typeof input.name === "string", "name", "deve ser texto");
+    if (typeof input.slug === "string") {
+      c.require(SLUG_PATTERN.test(input.slug), "slug", "deve estar em kebab-case");
+    }
+    if (typeof input.name === "string") {
+      c.require(input.name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    }
     return c.toResult();
   }
 }
@@ -44,8 +59,14 @@ export class CreateBrandValidator implements ApplicationValidator<CreateBrandCom
 export class CreateManufacturerValidator implements ApplicationValidator<CreateManufacturerCommand> {
   validate(input: CreateManufacturerCommand): ValidationResult {
     const c = new ValidationIssueCollector();
-    c.require(SLUG_PATTERN.test(input.slug), "slug", "deve estar em kebab-case");
-    c.require(input.name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    c.require(typeof input.slug === "string", "slug", "deve ser texto");
+    c.require(typeof input.name === "string", "name", "deve ser texto");
+    if (typeof input.slug === "string") {
+      c.require(SLUG_PATTERN.test(input.slug), "slug", "deve estar em kebab-case");
+    }
+    if (typeof input.name === "string") {
+      c.require(input.name.trim().length >= 2, "name", "deve ter ao menos 2 caracteres");
+    }
     return c.toResult();
   }
 }
