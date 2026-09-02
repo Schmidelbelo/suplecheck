@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd, breadcrumbSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -43,9 +44,9 @@ export default async function CreatinaRankingPage() {
             entrega mais princípio ativo pelo preço pago, com rótulo transparente e sem promessas
             exageradas. É exatamente isso que o ranking abaixo compara, produto a produto, usando os
             mesmos seis critérios documentados em{" "}
-            <a href="/metodologia" className="text-brand font-medium hover:underline">
+            <Link href="/metodologia" className="text-brand font-medium hover:underline">
               Metodologia
-            </a>
+            </Link>
             .
           </p>
         </div>
@@ -81,9 +82,9 @@ export default async function CreatinaRankingPage() {
             e a reputação real de quem compra — entre outros fatores. É exatamente essa comparação
             que o ranking acima resume em uma nota única, calculada a partir dos seis critérios
             documentados, um a um, em{" "}
-            <a href="/como-avaliamos" className="text-brand font-medium hover:underline">
+            <Link href="/como-avaliamos" className="text-brand font-medium hover:underline">
               Como Avaliamos
-            </a>
+            </Link>
             .
           </p>
         </div>

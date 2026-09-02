@@ -35,13 +35,18 @@ export const metadata: Metadata = {
   // `icons` aqui sobrescreveria isso apontando para arquivos estáticos
   // que não existem (ver auditoria da FASE 1.5).
   manifest: "/manifest.webmanifest",
-  // Verificação de propriedade no Google Search Console — só emite a
-  // meta tag quando o código estiver configurado (ver .env.example);
-  // sem a env, `verification` fica de fora do objeto (Next não injeta
-  // uma tag vazia).
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
-    : {}),
+  // Verificação de propriedade no Google Search Console / Bing Webmaster
+  // Tools — só emite a meta tag quando o respectivo código estiver
+  // configurado (ver .env.example); sem a env, cada chave fica de fora
+  // do objeto (Next não injeta uma tag vazia).
+  verification: {
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : {}),
+    ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+      ? { other: { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } }
+      : {}),
+  },
 };
 
 export const viewport: Viewport = {

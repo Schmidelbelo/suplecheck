@@ -11,7 +11,10 @@ import type {
 import type { ClockPort, IdGeneratorPort } from "../../ports/SystemPorts";
 import type { AuditLogPort } from "../../ports/AuditLogPort";
 import { ManufacturerMapper } from "../../mappers/CatalogMapper";
-import { CreateManufacturerValidator } from "../../validators/CatalogValidators";
+import {
+  CreateManufacturerValidator,
+  validateOptionalName,
+} from "../../validators/CatalogValidators";
 import {
   ValidationFailedError,
   DuplicateSlugError,
@@ -76,6 +79,10 @@ export class UpdateManufacturerUseCase implements UseCase<
   ) {}
 
   async execute(command: UpdateManufacturerCommand): Promise<ManufacturerDTO> {
+    const validation = validateOptionalName(command.name);
+    if (!validation.ok)
+      throw new ValidationFailedError(validation.error.map((i) => `${i.field}: ${i.message}`));
+
     const existing = await this.manufacturers.findById(command.id);
     if (!existing) throw new ManufacturerNotFoundError(command.id);
 

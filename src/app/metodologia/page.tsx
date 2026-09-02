@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd, breadcrumbSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -34,9 +35,9 @@ export default function MetodologiaPage() {
           <p className="text-text-muted">
             O Índice SupleCheck é uma média ponderada de seis subnotas, cada uma calculada em uma
             escala de 0 a 100 e depois combinada pelos pesos definidos em{" "}
-            <a href="/como-avaliamos" className="text-brand font-medium hover:underline">
+            <Link href="/como-avaliamos" className="text-brand font-medium hover:underline">
               Como Avaliamos
-            </a>
+            </Link>
             :
           </p>
 
@@ -85,9 +86,9 @@ export default function MetodologiaPage() {
           <p className="text-text-muted">
             Se uma marca ou um leitor identificar um erro factual em um dado usado no cálculo (por
             exemplo, um rótulo desatualizado), o caso pode ser reportado pela página de{" "}
-            <a href="/contato" className="text-brand font-medium hover:underline">
+            <Link href="/contato" className="text-brand font-medium hover:underline">
               Contato
-            </a>
+            </Link>
             . Correções de dado não alteram os pesos ou a fórmula — apenas o valor de entrada
             incorreto.
           </p>

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { ApplicationError } from "@application/index";
 
 const NOT_FOUND_CODES = new Set([
@@ -40,7 +41,13 @@ export function handleApiError(error: unknown): NextResponse {
     return NextResponse.json({ code: error.code, message: error.message }, { status: 400 });
   }
 
+  // `ApplicationError` (acima) é erro de negócio esperado — não vai para
+  // o Sentry. Chegar aqui é sempre um bug ou falha de infraestrutura
+  // (ex: Prisma sem conexão) — o `try/catch` de cada `route.ts` engole
+  // a exceção antes que `onRequestError` (ver `instrumentation.ts`)
+  // pudesse capturá-la automaticamente, por isso o report é explícito.
   console.error("[api] erro inesperado", error);
+  Sentry.captureException(error);
   return NextResponse.json({ code: "INTERNAL_ERROR", message: "Erro interno" }, { status: 500 });
 }
 

@@ -5,7 +5,7 @@ import type { CategoryRepositoryPort, CategoryRecord } from "../../ports/Catalog
 import type { ClockPort, IdGeneratorPort } from "../../ports/SystemPorts";
 import type { AuditLogPort } from "../../ports/AuditLogPort";
 import { CategoryMapper } from "../../mappers/CatalogMapper";
-import { CreateCategoryValidator } from "../../validators/CatalogValidators";
+import { CreateCategoryValidator, validateOptionalName } from "../../validators/CatalogValidators";
 import {
   ValidationFailedError,
   DuplicateSlugError,
@@ -64,6 +64,10 @@ export class UpdateCategoryUseCase implements UseCase<UpdateCategoryCommand, Cat
   ) {}
 
   async execute(command: UpdateCategoryCommand): Promise<CategoryDTO> {
+    const validation = validateOptionalName(command.name);
+    if (!validation.ok)
+      throw new ValidationFailedError(validation.error.map((i) => `${i.field}: ${i.message}`));
+
     const existing = await this.categories.findById(command.id);
     if (!existing) throw new CategoryNotFoundError(command.id);
 

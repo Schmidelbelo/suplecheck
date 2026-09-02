@@ -10,10 +10,10 @@ export default defineConfig({
     // (colidiriam nos mesmos dados) mas cada teste dentro de um arquivo
     // usa slugs únicos.
     fileParallelism: false,
-    // 60s (era 20s no SQLite local): testes de integração agora fazem
-    // várias operações Prisma sequenciais contra o Postgres remoto
-    // (Neon), cuja latência de rede real supera o timeout antigo em
-    // cenários com mais chamadas encadeadas (ex.: geração de ranking).
+    // 60s: testes de integração fazem várias operações Prisma
+    // sequenciais contra o Postgres remoto (Neon), cuja latência de
+    // rede real pode superar um timeout mais curto em cenários com
+    // mais chamadas encadeadas (ex.: geração de ranking).
     testTimeout: 60000,
   },
 });

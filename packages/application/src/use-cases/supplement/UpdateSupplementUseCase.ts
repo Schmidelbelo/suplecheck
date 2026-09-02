@@ -8,7 +8,7 @@ import type {
 import type { ClockPort } from "../../ports/SystemPorts";
 import type { AuditLogPort } from "../../ports/AuditLogPort";
 import { SupplementMapper } from "../../mappers/SupplementMapper";
-import { SupplementNotFoundError } from "../../errors/ApplicationError";
+import { SupplementNotFoundError, ValidationFailedError } from "../../errors/ApplicationError";
 
 export class UpdateSupplementUseCase implements UseCase<UpdateSupplementCommand, SupplementDTO> {
   constructor(
@@ -18,6 +18,10 @@ export class UpdateSupplementUseCase implements UseCase<UpdateSupplementCommand,
   ) {}
 
   async execute(command: UpdateSupplementCommand): Promise<SupplementDTO> {
+    if (command.name !== undefined && command.name.trim().length < 2) {
+      throw new ValidationFailedError(["name: deve ter ao menos 2 caracteres"]);
+    }
+
     const existing = await this.supplements.findById(command.id);
     if (!existing) throw new SupplementNotFoundError(command.id);
 

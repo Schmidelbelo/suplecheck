@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Ban, Link2, ShieldCheck, Sparkles } from "lucide-react";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd, breadcrumbSchema } from "@/lib/seo/schema";
@@ -74,9 +75,9 @@ export default function ComoGanhamosDinheiroPage() {
         <div className="border-border text-text-muted mx-auto mt-10 max-w-4xl rounded-lg border border-dashed p-6 text-sm">
           Dúvidas sobre uma parceria comercial ou sobre como um link específico funciona? Fale com a
           gente pela página de{" "}
-          <a href="/contato" className="text-brand font-medium hover:underline">
+          <Link href="/contato" className="text-brand font-medium hover:underline">
             Contato
-          </a>
+          </Link>
           .
         </div>
       </Section>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
@@ -50,7 +51,7 @@ const sections: LegalSection[] = [
     body: (
       <p>
         Para entender como tratamos dados pessoais de forma geral, consulte nossa{" "}
-        <a href="/privacidade">Política de Privacidade</a>.
+        <Link href="/privacidade">Política de Privacidade</Link>.
       </p>
     ),
   },

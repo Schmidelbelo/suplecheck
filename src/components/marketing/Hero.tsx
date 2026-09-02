@@ -11,7 +11,7 @@ export function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-10%,color-mix(in_srgb,var(--color-brand)_12%,transparent),transparent_60%)]"
       />
-      <Container className="flex flex-col items-center gap-6 py-20 text-center md:py-28">
+      <Container className="animate-slide-up flex flex-col items-center gap-6 py-20 text-center md:py-28">
         <Badge variant="brand">
           <Sparkles className="size-3.5" aria-hidden />
           Comparação independente de suplementos

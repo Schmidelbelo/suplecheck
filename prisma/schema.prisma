@@ -591,6 +591,33 @@ model Lead {
   @@map("leads")
 }
 
+/// Mensagens do formulário de Contato (`/contato`) — distinto de `Lead`
+/// (captura de e-mail para newsletter): aqui a pessoa espera uma
+/// resposta humana a um assunto específico, incluindo solicitações
+/// LGPD (acesso/correção/eliminação de dados, ver `/privacidade`), por
+/// isso precisa de `subject`/`message` que `Lead` não tem.
+model ContactMessage {
+  id      String  @id @default(cuid())
+  name    String
+  email   String
+  subject String
+  message String
+  status  ContactMessageStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+enum ContactMessageStatus {
+  NEW
+  READ
+  RESOLVED
+}
+
 // =============================================================================
 // IDENTITY — Domain Model §3.7
 // =============================================================================

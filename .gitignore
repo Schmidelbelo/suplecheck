@@ -37,10 +37,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# banco de dados local (SQLite, desenvolvimento) — a migration é código, o arquivo de dados não
-prisma/*.db
-prisma/*.db-journal
-
 # backups locais de banco (dumps antes de migrações arriscadas) — nunca versionados
 /backups/
 

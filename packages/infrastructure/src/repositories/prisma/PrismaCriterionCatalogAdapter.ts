@@ -27,30 +27,34 @@ export class PrismaCriterionCatalogAdapter implements CriterionCatalogPort {
   }
 
   private async ensureRowsExist(): Promise<void> {
-    for (const criterion of this.criteria.values()) {
-      await this.client.criterion.upsert({
-        where: { id: criterion.metadata.id.value },
-        create: {
-          id: criterion.metadata.id.value,
-          name: criterion.metadata.name,
-          description: criterion.metadata.description,
-          kind: criterion.metadata.kind,
-          applicableCategories: criterion.metadata.applicableCategories
-            ? [...criterion.metadata.applicableCategories]
-            : undefined,
-        },
-        // Corrige qualquer placeholder que `PrismaMethodologyRepository.save`
-        // possa ter criado antes desta linha existir (uma metodologia pode
-        // referenciar um critério antes de qualquer avaliação rodar
-        // `loadRegistry()` pela primeira vez) — nunca sobrescreve o status,
-        // que é gerenciado só por `setStatus`.
-        update: {
-          name: criterion.metadata.name,
-          description: criterion.metadata.description,
-          kind: criterion.metadata.kind,
-        },
-      });
-    }
+    // `Promise.all` em vez de upsert sequencial — o conjunto é pequeno e
+    // fixo (critérios embutidos no código), mas nada impede paralelizar.
+    await Promise.all(
+      [...this.criteria.values()].map((criterion) =>
+        this.client.criterion.upsert({
+          where: { id: criterion.metadata.id.value },
+          create: {
+            id: criterion.metadata.id.value,
+            name: criterion.metadata.name,
+            description: criterion.metadata.description,
+            kind: criterion.metadata.kind,
+            applicableCategories: criterion.metadata.applicableCategories
+              ? [...criterion.metadata.applicableCategories]
+              : undefined,
+          },
+          // Corrige qualquer placeholder que `PrismaMethodologyRepository.save`
+          // possa ter criado antes desta linha existir (uma metodologia pode
+          // referenciar um critério antes de qualquer avaliação rodar
+          // `loadRegistry()` pela primeira vez) — nunca sobrescreve o status,
+          // que é gerenciado só por `setStatus`.
+          update: {
+            name: criterion.metadata.name,
+            description: criterion.metadata.description,
+            kind: criterion.metadata.kind,
+          },
+        }),
+      ),
+    );
   }
 
   async loadRegistry(): Promise<CriterionRegistry> {

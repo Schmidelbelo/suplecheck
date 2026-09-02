@@ -19,6 +19,7 @@ import {
 import { criterionLabel } from "@/modules/evaluation/lib/criteria";
 import { ScoreBreakdownList } from "@/modules/evaluation/components/ScoreBreakdownList";
 import { ScoreHistoryList } from "@/modules/evaluation/components/ScoreHistoryList";
+import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
 import type { ProductView } from "@/modules/evaluation/types";
 
 interface PageProps {
@@ -151,12 +152,17 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
             )}
 
             {ranking ? (
-              <Link
-                href="/creatina"
-                className="text-brand w-fit text-sm font-medium hover:underline"
-              >
-                #{ranking.position} de {ranking.total} no ranking de creatina
-              </Link>
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href="/creatina"
+                  className="text-brand w-fit text-sm font-medium hover:underline"
+                >
+                  #{ranking.position} de {ranking.total} no ranking de creatina
+                </Link>
+                {ranking.position === 1 ? (
+                  <Badge variant="success">Nº1 do ranking</Badge>
+                ) : null}
+              </div>
             ) : null}
 
             <p className="text-text-muted">{explainScore(view)}</p>
@@ -174,7 +180,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                     </p>
                   ) : null}
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <Button asChild size="lg">
                     <a
                       href={presentation.price.url ?? "#"}
@@ -184,12 +190,16 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                       Ver oferta em {presentation.price.store.name}
                     </a>
                   </Button>
+                  <FavoriteButton productId={product.id} productName={product.name} />
                 </div>
               </div>
             ) : (
-              <Button variant="outline" size="lg" disabled>
-                Nenhuma oferta cadastrada
-              </Button>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button variant="outline" size="lg" disabled>
+                  Nenhuma oferta cadastrada
+                </Button>
+                <FavoriteButton productId={product.id} productName={product.name} />
+              </div>
             )}
           </div>
         </div>

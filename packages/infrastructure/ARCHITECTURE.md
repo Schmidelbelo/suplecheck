@@ -194,9 +194,11 @@ in-memory reais, health check agregando o `MemoryIndicator`, cache com
 TTL, storage (upload/download), fila (enqueue/dequeue), hash de senha
 real (`scrypt`) com verificação correta e incorreta, e — igualmente
 importante — confirmação de que **todo stub de integração futura
-(Redis, S3, Amazon, Prisma) falha de forma explícita e identificável**
+(Redis, S3, Amazon) falha de forma explícita e identificável**
 (`ProviderNotImplementedError`/`InfrastructureNotConfiguredError`),
-nunca silenciosamente "funciona sem fazer nada".
+nunca silenciosamente "funciona sem fazer nada". Prisma não é mais um
+desses stubs — é a persistência real (PostgreSQL/Neon) desde a migração
+descrita em `docs/DEPLOY.md`.
 
 ```bash
 npx tsc -p packages/infrastructure/tsconfig.json --noEmit   # typecheck
@@ -208,7 +210,7 @@ npx tsx packages/infrastructure/scripts/smoke.ts                # cenário end-t
 
 | Integração                     | Interface pronta                                 | Estado                                                                                                                                           |
 | ------------------------------ | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| PostgreSQL/SQLite via Prisma   | `PersistenceProvider`, 6 `Prisma*RepositoryStub` | Stub — lança ao usar, não importa `@prisma/client`                                                                                               |
+| PostgreSQL via Prisma          | `PersistenceProvider`, repositórios Prisma reais | Real — conectado a produção/desenvolvimento (Neon), ver `docs/DEPLOY.md`                                                                         |
 | Firestore                      | —                                                | Não modelado nesta etapa (Ports atuais assumem um repositório relacional/documento genérico; um adapter Firestore implementaria os mesmos Ports) |
 | Redis                          | `CacheProvider`                                  | Stub (`RedisCacheProviderStub`)                                                                                                                  |
 | AWS S3                         | `StorageProvider`                                | Stub (`S3StorageProviderStub`)                                                                                                                   |

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
@@ -51,7 +52,7 @@ const sections: LegalSection[] = [
         Conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode solicitar a qualquer
         momento a confirmação da existência de tratamento, acesso, correção, anonimização,
         portabilidade ou eliminação dos seus dados pessoais, além de revogar consentimentos dados
-        anteriormente. Solicitações podem ser feitas pela página de <a href="/contato">Contato</a>.
+        anteriormente. Solicitações podem ser feitas pela página de <Link href="/contato">Contato</Link>.
       </p>
     ),
   },
@@ -70,7 +71,7 @@ const sections: LegalSection[] = [
     body: (
       <p>
         Para detalhes sobre o uso de cookies e tecnologias similares, consulte nossa{" "}
-        <a href="/cookies">Política de Cookies</a>.
+        <Link href="/cookies">Política de Cookies</Link>.
       </p>
     ),
   },

@@ -64,10 +64,16 @@ export function LeadCaptureForm({
             type="email"
             placeholder="seuemail@exemplo.com"
             aria-label="E-mail"
+            aria-invalid={!!errors.email || undefined}
+            aria-describedby={errors.email ? "lead-email-error" : undefined}
             error={!!errors.email}
             {...register("email")}
           />
-          {errors.email ? <p className="text-danger mt-1 text-xs">{errors.email.message}</p> : null}
+          {errors.email ? (
+            <p id="lead-email-error" className="text-danger mt-1 text-xs">
+              {errors.email.message}
+            </p>
+          ) : null}
         </div>
         <Button type="submit" isLoading={isSubmitting}>
           {submitLabel}

@@ -2,8 +2,8 @@ import { buildInfrastructureContainer, type InfrastructureContainer } from "@inf
 
 /**
  * Constrói um `InfrastructureContainer` real apontando para o mesmo
- * PostgreSQL (Neon) configurado em `DATABASE_URL`/`.env` — não há mais
- * banco SQLite dedicado a testes (schema único, um só provider, ver
+ * PostgreSQL (Neon) configurado em `DATABASE_URL`/`.env` — sem banco
+ * separado para testes (schema único, um só provider, ver
  * `prisma/schema.prisma`). Repository/Integration/API tests usam isto
  * em vez de mocks — são testes reais contra Prisma + PostgreSQL, não
  * doubles. `uniqueSuffix()` evita colisão de slug/gtin com dados de dev

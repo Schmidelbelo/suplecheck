@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { ZodError } from "zod";
-import { createLeadSchema } from "@/modules/leads/validators/lead.schema";
-import { leadService } from "@/modules/leads/services/lead.service";
+import { createContactMessageSchema } from "@/modules/contact/validators/contact.schema";
+import { contactService } from "@/modules/contact/services/contact.service";
 import { trackServerEvent } from "@/modules/analytics/services/analytics.server";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const input = createLeadSchema.parse(body);
+    const input = createContactMessageSchema.parse(body);
 
-    const lead = await leadService.create(input);
-    trackServerEvent("lead_captured", { source: input.source });
+    const message = await contactService.create(input);
+    trackServerEvent("contact_message_sent", { subject: input.subject });
 
-    return NextResponse.json({ id: lead.id }, { status: 201 });
+    return NextResponse.json({ id: message.id }, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       );
     }
 
-    console.error("[api/leads] erro inesperado", error);
+    console.error("[api/contact] erro inesperado", error);
     Sentry.captureException(error);
     return NextResponse.json({ message: "Erro interno" }, { status: 500 });
   }

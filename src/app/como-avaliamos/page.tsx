@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   AlertTriangle,
   FileSearch,
@@ -177,9 +178,9 @@ export default function ComoAvaliamosPage() {
           </p>
           <p>
             Quer entender a fórmula matemática por trás da nota? A página de{" "}
-            <a href="/metodologia" className="text-brand font-medium hover:underline">
+            <Link href="/metodologia" className="text-brand font-medium hover:underline">
               Metodologia
-            </a>{" "}
+            </Link>{" "}
             detalha o cálculo passo a passo.
           </p>
         </div>

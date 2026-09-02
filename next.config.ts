@@ -19,6 +19,27 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    // CSP pragmática: permite exatamente os hosts de terceiros que o
+    // projeto já carrega (GA4, Clarity, Sentry) — nunca um wildcard
+    // genérico. `'unsafe-inline'` em script-src é necessário porque o
+    // Next.js App Router injeta scripts inline de hydration/RSC sem
+    // nonce configurado (adotar nonce exigiria middleware por request,
+    // fora de escopo deste bloco); `'unsafe-eval'` não é necessário e
+    // fica de fora. Fontes são self-hosted via `next/font` — sem
+    // fonts.googleapis.com/gstatic.com.
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://*.clarity.ms",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.clarity.ms https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join("; ");
+
     return [
       {
         source: "/:path*",
@@ -27,6 +48,15 @@ const nextConfig: NextConfig = {
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          {
+            // HSTS: 2 anos + subdomínios. `preload` não é ativado aqui
+            // deliberadamente — exige submissão manual a hstspreload.org
+            // e é irreversível por meses; decisão de domínio, não de
+            // código (ver docs/DEPLOY.md).
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains",
+          },
+          { key: "Content-Security-Policy", value: csp },
         ],
       },
       {

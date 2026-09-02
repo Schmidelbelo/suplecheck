@@ -32,11 +32,6 @@ const subjectOptions: { value: ContactInput["subject"]; label: string }[] = [
   { value: "outro", label: "Outro assunto" },
 ];
 
-/**
- * Formulário de contato apenas visual nesta etapa — ainda não há um
- * endpoint de backend para mensagens de contato (diferente do módulo
- * `leads`, que já está conectado). O envio simula sucesso via toast.
- */
 export function ContactForm() {
   const {
     register,
@@ -49,14 +44,32 @@ export function ContactForm() {
     defaultValues: { subject: "duvida" },
   });
 
-  async function onSubmit() {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    toast({
-      variant: "success",
-      title: "Mensagem enviada",
-      description: "Recebemos seu contato e responderemos em breve.",
-    });
-    reset();
+  async function onSubmit(data: ContactInput) {
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Falha ao enviar contato: ${response.status}`);
+      }
+
+      toast({
+        variant: "success",
+        title: "Mensagem enviada",
+        description: "Recebemos seu contato e responderemos em breve.",
+      });
+      reset();
+    } catch (error) {
+      console.error("[contact-form]", error);
+      toast({
+        variant: "danger",
+        title: "Não foi possível enviar",
+        description: "Tente novamente em alguns instantes.",
+      });
+    }
   }
 
   return (

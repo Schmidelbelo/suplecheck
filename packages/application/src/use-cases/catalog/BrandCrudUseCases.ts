@@ -5,7 +5,7 @@ import type { BrandRepositoryPort, BrandRecord } from "../../ports/CatalogReposi
 import type { ClockPort, IdGeneratorPort } from "../../ports/SystemPorts";
 import type { AuditLogPort } from "../../ports/AuditLogPort";
 import { BrandMapper } from "../../mappers/CatalogMapper";
-import { CreateBrandValidator } from "../../validators/CatalogValidators";
+import { CreateBrandValidator, validateOptionalName } from "../../validators/CatalogValidators";
 import {
   ValidationFailedError,
   DuplicateSlugError,
@@ -63,6 +63,10 @@ export class UpdateBrandUseCase implements UseCase<UpdateBrandCommand, BrandDTO>
   ) {}
 
   async execute(command: UpdateBrandCommand): Promise<BrandDTO> {
+    const validation = validateOptionalName(command.name);
+    if (!validation.ok)
+      throw new ValidationFailedError(validation.error.map((i) => `${i.field}: ${i.message}`));
+
     const existing = await this.brands.findById(command.id);
     if (!existing) throw new BrandNotFoundError(command.id);
 
