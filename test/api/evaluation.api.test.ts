@@ -1,22 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import path from "node:path";
+import { describe, it, expect, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { uniqueSuffix } from "../setupTestContainer";
 
 /**
  * API Test — chama os handlers de `src/app/api/evaluation/**` diretamente
- * contra `prisma/test.db`, como em `test/api/catalog.api.test.ts`.
- * `DATABASE_URL` precisa ser trocada ANTES do primeiro `import` de
- * `@/lib/container` (lido no module scope), por isso os `import()` dinâmicos.
+ * contra o mesmo PostgreSQL (Neon) real, como em `test/api/catalog.api.test.ts`.
  */
-const dbPath = path.resolve(process.cwd(), "prisma/test.db");
-
-beforeAll(() => {
-  process.env.DATABASE_URL = `file:${dbPath}`;
-});
-
 const suffix = uniqueSuffix();
-const cleanupClient = new PrismaClient({ datasources: { db: { url: `file:${dbPath}` } } });
+const cleanupClient = new PrismaClient();
 const createdMethodologyIds: string[] = [];
 
 afterAll(async () => {

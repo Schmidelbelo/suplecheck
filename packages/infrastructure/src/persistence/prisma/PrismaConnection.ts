@@ -5,8 +5,8 @@ import type { PersistenceProvider } from "../PersistenceProvider";
  * Conexão real com o banco via Prisma — substitui o antigo
  * `PrismaConnectionPlaceholder` agora que esta etapa conecta o Prisma
  * de fato (ver `docs/domain-model/PERSISTENCE_MODEL.md` para o schema;
- * `provider = "sqlite"` em desenvolvimento local, `postgresql` em
- * produção — troca de uma linha, nenhum model muda).
+ * `provider = "postgresql"` em `prisma/schema.prisma`, mesmo banco
+ * Neon em desenvolvimento e produção).
  *
  * Uma única instância de `PrismaClient` por processo — reaproveitada
  * por todos os repositórios Prisma (`repositories/prisma/*`), nunca uma

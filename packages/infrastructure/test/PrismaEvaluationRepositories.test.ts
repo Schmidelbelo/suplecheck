@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
-import path from "node:path";
 import { PrismaMethodologyRepository } from "../src/repositories/prisma/PrismaMethodologyRepository";
 import { PrismaIndexResultRepository } from "../src/repositories/prisma/PrismaIndexResultRepository";
 import { PrismaRankingRepository } from "../src/repositories/prisma/PrismaRankingRepository";
@@ -10,10 +9,10 @@ import { CriterionId } from "../src/core-kernel";
 
 /**
  * Repository Test — exercita os repositórios Prisma do módulo de
- * Avaliação diretamente (sem Use Cases), contra `prisma/test.db` real.
+ * Avaliação diretamente (sem Use Cases), contra o PostgreSQL (Neon)
+ * real configurado em `DATABASE_URL`.
  */
-const dbPath = path.resolve(process.cwd(), "prisma/test.db");
-const client = new PrismaClient({ datasources: { db: { url: `file:${dbPath}` } } });
+const client = new PrismaClient();
 const suffix = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 
 const methodologies = new PrismaMethodologyRepository(client);

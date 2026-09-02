@@ -1,23 +1,15 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import path from "node:path";
+import { describe, it, expect, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { uniqueSuffix } from "../setupTestContainer";
 
 /**
  * API Test — chama os handlers de `src/app/api/catalog/**` diretamente
  * (sem subir um servidor HTTP), como o Next.js os invocaria, contra o
- * mesmo `prisma/test.db` real usado pelos outros testes. `DATABASE_URL`
- * precisa ser trocada ANTES do primeiro `import` de `@/lib/container`
- * (é lido no module scope), por isso os `import()` dinâmicos abaixo.
+ * mesmo PostgreSQL (Neon) real usado pelos outros testes (`DATABASE_URL`
+ * em `.env`).
  */
-const dbPath = path.resolve(process.cwd(), "prisma/test.db");
-
-beforeAll(() => {
-  process.env.DATABASE_URL = `file:${dbPath}`;
-});
-
 const suffix = uniqueSuffix();
-const cleanupClient = new PrismaClient({ datasources: { db: { url: `file:${dbPath}` } } });
+const cleanupClient = new PrismaClient();
 
 afterAll(async () => {
   await cleanupClient.sku.deleteMany({ where: { variantLabel: { contains: suffix } } });

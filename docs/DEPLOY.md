@@ -6,21 +6,23 @@ funcionalidade de negócio nova.
 
 ## 1. Pré-requisito crítico: banco de dados
 
-**O SQLite usado em desenvolvimento não é viável em produção na maioria
-dos hosts** (Vercel, Netlify, qualquer ambiente serverless têm sistema de
-arquivos efêmero/somente-leitura em runtime — o arquivo `dev.db` seria
-apagado a cada novo deploy ou nem gravável entre requisições).
+**Concluído.** O projeto usa PostgreSQL (Neon) tanto em desenvolvimento
+quanto em produção — mesmo projeto Neon, schema único, uma só linha de
+migrations (`provider = "postgresql"` em `prisma/schema.prisma`,
+`DATABASE_URL` pooled + `DIRECT_URL` direta, ver `.env.example`). SQLite
+não é mais usado em lugar nenhum do projeto (era inviável em produção
+serverless — Vercel/Netlify têm sistema de arquivos efêmero em runtime).
 
-Antes do primeiro deploy real:
+Passos ainda pendentes para o banco de **produção** especificamente
+(o schema/migration já está pronto e testado, falta só popular e validar
+o ambiente real):
 
-1. Provisionar um Postgres gerenciado (Supabase, Neon, Railway, RDS — a
-   escolha é livre, o schema já foi desenhado para isso).
-2. Trocar `provider = "sqlite"` para `provider = "postgresql"` em
-   `prisma/schema.prisma` (uma linha — nenhum model muda, ver o
-   comentário no topo do arquivo).
-3. Rodar `npx prisma migrate deploy` contra o banco de produção (nunca
-   `migrate dev` em produção).
-4. Rodar `npm run db:seed` uma vez, para popular categorias/marcas/
+1. Confirmar `DATABASE_URL`/`DIRECT_URL` de produção configuradas no
+   host de deploy (mesmo projeto Neon, branch `main`).
+2. Rodar `npx prisma migrate deploy` contra produção (nunca `migrate
+dev` em produção) — já validado em desenvolvimento, ver auditoria da
+   migração SQLite→Postgres.
+3. Rodar `npm run db:seed` uma vez, para popular categorias/marcas/
    fabricantes/as 10 creatinas do MVP.
 
 ## 2. Variáveis de ambiente

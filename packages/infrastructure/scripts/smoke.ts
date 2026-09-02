@@ -1,7 +1,7 @@
 /**
  * Smoke test da Infrastructure Layer — usa `buildInfrastructureContainer()`
- * (a composição real, não um double de teste) contra o SQLite real de
- * desenvolvimento (`prisma/dev.db`) para provar que os repositórios
+ * (a composição real, não um double de teste) contra o PostgreSQL (Neon)
+ * real de desenvolvimento (`DATABASE_URL`) para provar que os repositórios
  * Prisma do módulo Catálogo persistem de verdade, e que os providers
  * auxiliares (cache, storage, mail, http, fila, hash) funcionam. Isto
  * também serve como Integration Test do módulo Catálogo (ver
@@ -9,9 +9,8 @@
  *   npx tsx packages/infrastructure/scripts/smoke.ts
  *
  * Limpa (deleta) todos os dados que cria, ao final — pode ser rodado
- * repetidamente sem sujar `prisma/dev.db`.
+ * repetidamente sem sujar o banco de dev.
  */
-import path from "node:path";
 import { buildInfrastructureContainer } from "../src/bootstrap/InfrastructureContainer";
 import { ProviderNotImplementedError } from "../src/errors/InfrastructureError";
 import { RedisCacheProviderStub } from "../src/providers/cache/RedisCacheProviderStub";
@@ -24,18 +23,20 @@ function assert(condition: boolean, message: string): void {
 }
 
 async function main() {
-  // 1. Constrói o container inteiro apontando para o SQLite real de dev.
-  const dbPath = path.resolve(process.cwd(), "prisma/dev.db");
+  // 1. Constrói o container inteiro apontando para o PostgreSQL (Neon) real de dev.
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL não configurada — ver .env.example.");
+  }
   const container = buildInfrastructureContainer({
     NODE_ENV: "test",
     NEXT_PUBLIC_SITE_URL: "https://smoke.local",
-    DATABASE_URL: `file:${dbPath}`,
+    DATABASE_URL: process.env.DATABASE_URL,
   });
   assert(container.config.nodeEnv === "test", "ConfigLoader lê NODE_ENV da fonte informada");
   assert(container.environment.isTest(), "EnvironmentManager reflete a config carregada");
   assert(
     await container.prisma.isHealthy(),
-    "PrismaConnection conecta de verdade ao SQLite de dev",
+    "PrismaConnection conecta de verdade ao PostgreSQL (Neon) de dev",
   );
 
   const suffix = Date.now();
@@ -47,7 +48,7 @@ async function main() {
   const createdMethodologyIds: string[] = [];
 
   try {
-    // 2. CRUD real de Catálogo via Use Cases → repositórios Prisma → SQLite
+    // 2. CRUD real de Catálogo via Use Cases → repositórios Prisma → PostgreSQL
     const category = await container.useCases.createCategory.execute({
       slug: `smoke-creatina-${suffix}`,
       name: `Creatina (smoke ${suffix})`,
@@ -283,7 +284,7 @@ async function main() {
 
     console.warn("\nTodos os cenários do smoke test da Infrastructure Layer passaram.");
   } finally {
-    // 12. Limpeza — mantém prisma/dev.db livre de lixo entre execuções.
+    // 12. Limpeza — mantém o banco de dev livre de lixo entre execuções.
     const client = container.prisma.client;
     await client.rankingEntry.deleteMany({ where: { productId: { in: createdProductIds } } });
     await client.ranking.deleteMany({ where: { categoryId: { in: createdCategoryIds } } });

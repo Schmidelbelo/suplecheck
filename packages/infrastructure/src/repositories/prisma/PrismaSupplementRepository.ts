@@ -83,7 +83,9 @@ export class PrismaSupplementRepository implements SupplementRepositoryPort {
       status: criteria.status,
       category: criteria.categorySlug ? { slug: criteria.categorySlug } : undefined,
       brand: criteria.brandSlug ? { slug: criteria.brandSlug } : undefined,
-      name: criteria.search ? { contains: criteria.search } : undefined,
+      name: criteria.search
+        ? { contains: criteria.search, mode: "insensitive" as const }
+        : undefined,
     };
 
     const [total, rows] = await Promise.all([

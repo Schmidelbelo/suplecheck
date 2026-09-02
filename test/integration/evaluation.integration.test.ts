@@ -4,7 +4,7 @@ import type { InfrastructureContainer } from "@infrastructure/index";
 
 /**
  * Integration Test — Use Case → Application Service → Port → Repository
- * Prisma → SQLite real de teste, para o módulo de Avaliação: criar
+ * Prisma → PostgreSQL (Neon) real, para o módulo de Avaliação: criar
  * metodologia, avaliar um produto (Core Domain calculando de verdade),
  * recalcular, ler histórico e gerar/ler um Ranking.
  */

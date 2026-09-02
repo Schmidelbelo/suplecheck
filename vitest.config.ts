@@ -5,10 +5,15 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["packages/**/*.test.ts", "src/**/*.test.ts", "test/**/*.test.ts"],
-    // Testes de Repository/Integration reaproveitam o mesmo SQLite de dev —
-    // não podem rodar em paralelo entre arquivos (colidiriam nos mesmos
-    // dados) mas cada teste dentro de um arquivo usa slugs únicos.
+    // Testes de Repository/Integration reaproveitam o mesmo PostgreSQL
+    // (Neon) de dev — não podem rodar em paralelo entre arquivos
+    // (colidiriam nos mesmos dados) mas cada teste dentro de um arquivo
+    // usa slugs únicos.
     fileParallelism: false,
-    testTimeout: 20000,
+    // 60s (era 20s no SQLite local): testes de integração agora fazem
+    // várias operações Prisma sequenciais contra o Postgres remoto
+    // (Neon), cuja latência de rede real supera o timeout antigo em
+    // cenários com mais chamadas encadeadas (ex.: geração de ranking).
+    testTimeout: 60000,
   },
 });

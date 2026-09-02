@@ -107,9 +107,8 @@ export class PrismaIndexResultRepository implements IndexResultRepositoryPort {
    * anterior, que buscava toda a tabela `product_scores` da categoria e
    * filtrava "a mais recente por produto" em JavaScript.
    *
-   * `groupBy`/`_max` é suportado igual em SQLite (dev) e Postgres
-   * (produção) — nenhum SQL cru, mantém a portabilidade documentada em
-   * `prisma/schema.prisma`.
+   * `groupBy`/`_max` é suportado nativamente pelo Prisma sobre Postgres
+   * — nenhum SQL cru.
    */
   async listLatestByCategory(categorySlug: string): Promise<IndexResultDTO[]> {
     const category = await this.client.category.findUnique({ where: { slug: categorySlug } });

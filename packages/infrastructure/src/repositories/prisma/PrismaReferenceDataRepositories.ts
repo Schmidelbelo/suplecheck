@@ -72,7 +72,9 @@ export class PrismaCategoryRepository implements CategoryRepositoryPort {
   ): Promise<PageResult<CategoryRecord>> {
     const where = {
       active: criteria.includeInactive ? undefined : true,
-      name: criteria.search ? { contains: criteria.search } : undefined,
+      name: criteria.search
+        ? { contains: criteria.search, mode: "insensitive" as const }
+        : undefined,
     };
     const [total, rows] = await Promise.all([
       this.client.category.count({ where }),
@@ -171,7 +173,9 @@ export class PrismaBrandRepository implements BrandRepositoryPort {
   ): Promise<PageResult<BrandRecord>> {
     const where = {
       active: criteria.includeInactive ? undefined : true,
-      name: criteria.search ? { contains: criteria.search } : undefined,
+      name: criteria.search
+        ? { contains: criteria.search, mode: "insensitive" as const }
+        : undefined,
     };
     const [total, rows] = await Promise.all([
       this.client.brand.count({ where }),
@@ -258,7 +262,9 @@ export class PrismaManufacturerRepository implements ManufacturerRepositoryPort 
   ): Promise<PageResult<ManufacturerRecord>> {
     const where = {
       active: criteria.includeInactive ? undefined : true,
-      name: criteria.search ? { contains: criteria.search } : undefined,
+      name: criteria.search
+        ? { contains: criteria.search, mode: "insensitive" as const }
+        : undefined,
     };
     const [total, rows] = await Promise.all([
       this.client.manufacturer.count({ where }),

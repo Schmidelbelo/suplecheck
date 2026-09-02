@@ -15,21 +15,20 @@
 // a linguagem de código. Ver PERSISTENCE_MODEL.md §1 para a tabela de
 // tradução completa.
 //
-// Datasource: SQLite para desenvolvimento local desta etapa (ambiente
-// sem PostgreSQL/Docker disponível) — arquivo único, zero dependência
-// externa, migration real e testável. `ARCHITECTURE.md` sempre definiu
-// PostgreSQL como alvo de produção; a troca é `provider = "postgresql"`
-// + `DATABASE_URL` de produção + `prisma migrate deploy`, sem tocar em
-// nenhum model. Único ajuste feito por causa disso: os 3 campos que
-// eram `String[]` (arrays nativos, exclusivos do Postgres) viraram
-// `Json` — mesma informação, portável entre os dois provedores.
+// Datasource: PostgreSQL (Neon), tanto em desenvolvimento quanto em
+// produção — `DATABASE_URL` (pooled) para runtime, `DIRECT_URL` (direta)
+// para migrations (ver docs/DEPLOY.md). Historicamente esta etapa rodou
+// em SQLite local antes da migração para Neon; por isso os 3 campos que
+// seriam `String[]` nativo do Postgres permanecem `Json` — não foram
+// revertidos após a migração, mesma informação, sem ganho prático em mudar.
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // =============================================================================

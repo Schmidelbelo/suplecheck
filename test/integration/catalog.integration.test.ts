@@ -4,9 +4,9 @@ import type { InfrastructureContainer } from "@infrastructure/index";
 
 /**
  * Integration Test — atravessa a cadeia completa (Route→) Use Case →
- * Application Service → Port → Repository Prisma → SQLite real de teste
- * (`prisma/test.db`). Sem mocks: prova que o módulo Catálogo funciona
- * ponta a ponta como composto pelo `InfrastructureContainer` de verdade.
+ * Application Service → Port → Repository Prisma → PostgreSQL (Neon)
+ * real. Sem mocks: prova que o módulo Catálogo funciona ponta a ponta
+ * como composto pelo `InfrastructureContainer` de verdade.
  */
 describe("Catálogo — integração ponta a ponta", () => {
   let container: InfrastructureContainer;

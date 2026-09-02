@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
-import path from "node:path";
 import {
   PrismaCategoryRepository,
   PrismaBrandRepository,
@@ -10,10 +9,9 @@ import {
 /**
  * Repository Test — exercita `PrismaCategoryRepository`/`PrismaBrandRepository`/
  * `PrismaManufacturerRepository` diretamente (sem passar por Use Cases),
- * contra `prisma/test.db` real (mesmas migrations de `prisma/dev.db`).
+ * contra o PostgreSQL (Neon) real configurado em `DATABASE_URL`.
  */
-const dbPath = path.resolve(process.cwd(), "prisma/test.db");
-const client = new PrismaClient({ datasources: { db: { url: `file:${dbPath}` } } });
+const client = new PrismaClient();
 const suffix = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 
 const categoryRepo = new PrismaCategoryRepository(client);

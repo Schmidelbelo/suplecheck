@@ -1,20 +1,24 @@
-import path from "node:path";
 import { buildInfrastructureContainer, type InfrastructureContainer } from "@infrastructure/index";
 
 /**
- * Constrói um `InfrastructureContainer` real apontando para
- * `prisma/test.db` — um SQLite dedicado a testes (mesmas migrations de
- * `prisma/dev.db`, gerado com `DATABASE_URL="file:./test.db" npx prisma
- * migrate deploy`), nunca o banco de desenvolvimento. Repository/
- * Integration/API tests usam isto em vez de mocks — são testes reais
- * contra Prisma + SQLite, não doubles.
+ * Constrói um `InfrastructureContainer` real apontando para o mesmo
+ * PostgreSQL (Neon) configurado em `DATABASE_URL`/`.env` — não há mais
+ * banco SQLite dedicado a testes (schema único, um só provider, ver
+ * `prisma/schema.prisma`). Repository/Integration/API tests usam isto
+ * em vez de mocks — são testes reais contra Prisma + PostgreSQL, não
+ * doubles. `uniqueSuffix()` evita colisão de slug/gtin com dados de dev
+ * já existentes no mesmo banco.
  */
 export function buildTestContainer(): InfrastructureContainer {
-  const dbPath = path.resolve(process.cwd(), "prisma/test.db");
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      "DATABASE_URL não configurada — testes de integração precisam do Postgres real (ver .env.example).",
+    );
+  }
   return buildInfrastructureContainer({
     NODE_ENV: "test",
     NEXT_PUBLIC_SITE_URL: "https://test.local",
-    DATABASE_URL: `file:${dbPath}`,
+    DATABASE_URL: process.env.DATABASE_URL,
   });
 }
 
