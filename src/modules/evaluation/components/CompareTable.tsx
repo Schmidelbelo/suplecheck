@@ -1,18 +1,29 @@
 "use client";
 
 import Image from "next/image";
-import { Link as LinkIcon } from "lucide-react";
+import { Link as LinkIcon, Trophy } from "lucide-react";
 import { Modal, ModalContent, ModalHeader, ModalTitle } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import { formatCurrencyBRL } from "@/lib/utils/format";
 import { toast } from "@/hooks/useToast";
 import { classificationLabel, classificationBadgeVariant } from "../lib/classification";
 import type { RankingViewEntry } from "../types";
 
-const ROWS: { label: string; render: (entry: RankingViewEntry) => React.ReactNode }[] = [
+interface CompareRow {
+  label: string;
+  render: (entry: RankingViewEntry) => React.ReactNode;
+  /** Valor numérico comparável desta linha para este produto — `null` quando não há dado. */
+  value: (entry: RankingViewEntry) => number | null;
+  /** Se o menor valor vence (preço) em vez do maior (nota). */
+  lowerIsBetter?: boolean;
+}
+
+const ROWS: CompareRow[] = [
   {
     label: "Índice SupleCheck",
+    value: (entry) => entry.finalScore,
     render: (entry) => (
       <div className="flex items-center gap-2">
         <span className="text-text text-xl font-bold tabular-nums">
@@ -25,35 +36,63 @@ const ROWS: { label: string; render: (entry: RankingViewEntry) => React.ReactNod
     ),
   },
   {
-    label: "Posição no ranking",
-    render: (entry) => `#${entry.position}`,
-  },
-  {
     label: "Preço",
+    value: (entry) => entry.product.price?.cents ?? null,
+    lowerIsBetter: true,
     render: (entry) =>
       entry.product.price ? formatCurrencyBRL(entry.product.price.cents) : "Não informado",
   },
   {
     label: "Preço por dose",
+    value: (entry) => entry.product.price?.pricePerDoseCents ?? null,
+    lowerIsBetter: true,
     render: (entry) =>
       entry.product.price?.pricePerDoseCents != null
         ? formatCurrencyBRL(entry.product.price.pricePerDoseCents)
         : "Não informado",
   },
   {
+    label: "Posição no ranking",
+    value: () => null,
+    render: (entry) => `#${entry.position}`,
+  },
+  {
     label: "Apresentação",
+    value: () => null,
     render: (entry) =>
       entry.product.sku
         ? `${entry.product.sku.variantLabel}${
-            entry.product.sku.servingsPerUnit ? ` · ${entry.product.sku.servingsPerUnit} porções` : ""
+            entry.product.sku.servingsPerUnit
+              ? ` · ${entry.product.sku.servingsPerUnit} porções`
+              : ""
           }`
         : "Não informado",
   },
   {
     label: "Loja",
+    value: () => null,
     render: (entry) => entry.product.price?.store.name ?? "Não informado",
   },
 ];
+
+/**
+ * IDs dos produtos vencedores desta linha — só marca vencedor quando há
+ * pelo menos 2 valores numéricos reais para comparar (evita destacar um
+ * "vencedor" sozinho quando os outros produtos não têm o dado).
+ */
+function winnersOf(row: CompareRow, entries: readonly RankingViewEntry[]): Set<string> {
+  const withValues = entries
+    .map((entry) => ({ id: entry.product.id, value: row.value(entry) }))
+    .filter((v): v is { id: string; value: number } => v.value != null);
+
+  if (withValues.length < 2) return new Set();
+
+  const best = row.lowerIsBetter
+    ? Math.min(...withValues.map((v) => v.value))
+    : Math.max(...withValues.map((v) => v.value));
+
+  return new Set(withValues.filter((v) => v.value === best).map((v) => v.id));
+}
 
 export function CompareTable({
   entries,
@@ -112,18 +151,38 @@ export function CompareTable({
                 </tr>
               </thead>
               <tbody>
-                {ROWS.map((row) => (
-                  <tr key={row.label} className="border-border border-t">
-                    <th className="text-text-muted p-2 text-left align-middle text-xs font-medium">
-                      {row.label}
-                    </th>
-                    {entries.map((entry) => (
-                      <td key={entry.product.id} className="p-2 align-middle">
-                        {row.render(entry)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {ROWS.map((row) => {
+                  const winners = winnersOf(row, entries);
+                  return (
+                    <tr key={row.label} className="border-border border-t">
+                      <th className="text-text-muted p-2 text-left align-middle text-xs font-medium">
+                        {row.label}
+                      </th>
+                      {entries.map((entry) => {
+                        const isWinner = winners.has(entry.product.id);
+                        return (
+                          <td
+                            key={entry.product.id}
+                            className={cn(
+                              "p-2 align-middle",
+                              isWinner && "bg-success/10 rounded-md",
+                            )}
+                          >
+                            <div className="flex items-center gap-1.5">
+                              {isWinner ? (
+                                <Trophy
+                                  className="text-success size-3.5 shrink-0"
+                                  aria-label="Melhor valor entre os selecionados"
+                                />
+                              ) : null}
+                              {row.render(entry)}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

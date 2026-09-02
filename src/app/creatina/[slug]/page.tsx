@@ -20,7 +20,7 @@ import { criterionLabel } from "@/modules/evaluation/lib/criteria";
 import { ScoreBreakdownList } from "@/modules/evaluation/components/ScoreBreakdownList";
 import { ScoreHistoryList } from "@/modules/evaluation/components/ScoreHistoryList";
 import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
-import type { ProductView } from "@/modules/evaluation/types";
+import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -28,6 +28,28 @@ interface PageProps {
 
 async function loadProduct(slug: string): Promise<ProductView | null> {
   return fetchApiOrNull<ProductView>(`/api/evaluation/products/${slug}/view`);
+}
+
+async function loadRelatedProducts(currentSlug: string): Promise<RankingViewEntry[]> {
+  const ranking = await fetchApiOrNull<RankingView>("/api/evaluation/rankings/creatina/view");
+  if (!ranking) return [];
+
+  const currentIndex = ranking.entries.findIndex((e) => e.product.slug === currentSlug);
+  const others = ranking.entries.filter((e) => e.product.slug !== currentSlug);
+
+  if (currentIndex === -1) return others.slice(0, 3);
+
+  // Vizinhos mais próximos no ranking (acima e abaixo) — produtos de
+  // nível de nota parecido são a comparação mais útil, não só "os 3
+  // primeiros do ranking" repetidos em toda página de produto.
+  return [...others]
+    .sort(
+      (a, b) =>
+        Math.abs(a.position - ranking.entries[currentIndex]!.position) -
+        Math.abs(b.position - ranking.entries[currentIndex]!.position),
+    )
+    .slice(0, 3)
+    .sort((a, b) => a.position - b.position);
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -81,7 +103,7 @@ function explainScore(view: ProductView): string {
 
 export default async function CreatinaDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const view = await loadProduct(slug);
+  const [view, relatedProducts] = await Promise.all([loadProduct(slug), loadRelatedProducts(slug)]);
   if (!view) notFound();
 
   const { product, presentation, score, history, ranking } = view;
@@ -159,9 +181,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                 >
                   #{ranking.position} de {ranking.total} no ranking de creatina
                 </Link>
-                {ranking.position === 1 ? (
-                  <Badge variant="success">Nº1 do ranking</Badge>
-                ) : null}
+                {ranking.position === 1 ? <Badge variant="success">Nº1 do ranking</Badge> : null}
               </div>
             ) : null}
 
@@ -267,7 +287,50 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
           </Link>
         </div>
       </Section>
+
+      {relatedProducts.length > 0 ? (
+        <Section className="border-border bg-bg-subtle border-t">
+          <div className="mx-auto flex max-w-3xl flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold">Produtos parecidos</h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {relatedProducts.map((entry) => (
+                <RelatedProductCard key={entry.product.id} entry={entry} />
+              ))}
+            </div>
+          </div>
+        </Section>
+      ) : null}
     </>
+  );
+}
+
+function RelatedProductCard({ entry }: { entry: RankingViewEntry }) {
+  return (
+    <Link href={`/creatina/${entry.product.slug}`}>
+      <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-4 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
+        <Image
+          src={entry.product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+          alt={entry.product.name}
+          width={64}
+          height={64}
+          className="border-border bg-bg-subtle size-16 rounded-md border object-cover"
+        />
+        <div className="flex-1">
+          <p className="text-text-muted text-xs font-medium tracking-wide uppercase">
+            {entry.product.brand.name}
+          </p>
+          <p className="text-text line-clamp-2 text-sm font-semibold">{entry.product.name}</p>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-text text-lg font-bold tabular-nums">
+            {entry.finalScore.toFixed(1)}
+          </span>
+          <Badge variant={classificationBadgeVariant(entry.classificationTier)}>
+            {classificationLabel(entry.classificationTier)}
+          </Badge>
+        </div>
+      </Card>
+    </Link>
   );
 }
 
