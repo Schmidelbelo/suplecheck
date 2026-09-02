@@ -30,6 +30,29 @@ export function websiteSchema() {
   };
 }
 
+/**
+ * `FAQPage` — só deve ser usado na página que efetivamente renderiza as
+ * perguntas como texto visível (não é permitido pelas diretrizes do
+ * Google marcar conteúdo que não aparece na página) — hoje só a Home,
+ * via `FAQSection`/`homeFaq`. Torna a plataforma elegível ao rich
+ * result de FAQ na busca do Google sem custo de desenvolvimento
+ * adicional (o conteúdo já existe e já é exibido).
+ */
+export function faqPageSchema(items: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}
+
 export function breadcrumbSchema(items: { label: string; href: string }[]) {
   return {
     "@context": "https://schema.org",

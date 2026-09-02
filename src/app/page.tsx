@@ -1,3 +1,4 @@
+import { JsonLd, faqPageSchema } from "@/lib/seo/schema";
 import { Hero } from "@/components/marketing/Hero";
 import { ProblemSection } from "@/components/marketing/ProblemSection";
 import { HowItWorks } from "@/components/marketing/HowItWorks";
@@ -13,6 +14,7 @@ import { homeFaq } from "@/config/faq";
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={faqPageSchema(homeFaq)} />
       <Hero />
       <ProblemSection />
       <HowItWorks />
