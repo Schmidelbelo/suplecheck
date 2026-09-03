@@ -10,6 +10,12 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/conta/", "/admin/"],
       },
     ],
-    sitemap: new URL("/sitemap.xml", siteConfig.url).toString(),
+    sitemap: [
+      new URL("/sitemap.xml", siteConfig.url).toString(),
+      new URL("/sitemap-produtos.xml", siteConfig.url).toString(),
+      new URL("/sitemap-marcas.xml", siteConfig.url).toString(),
+      new URL("/sitemap-categorias.xml", siteConfig.url).toString(),
+      new URL("/sitemap-comparacoes.xml", siteConfig.url).toString(),
+    ],
   };
 }

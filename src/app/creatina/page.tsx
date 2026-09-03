@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { JsonLd, breadcrumbSchema } from "@/lib/seo/schema";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { breadcrumbSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -9,6 +10,7 @@ import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import { formatDate } from "@/lib/utils/format";
 import { RankingFilters } from "@/modules/evaluation/components/RankingFilters";
 import { CategoryStatisticsSection } from "@/components/market/CategoryStatisticsSection";
+import { ShareButton } from "@/modules/sharing/components/ShareButton";
 import type { RankingView } from "@/modules/evaluation/types";
 import type { MarketApiResponse } from "@/modules/market/types";
 
@@ -58,10 +60,13 @@ export default async function CreatinaRankingPage() {
       <Section>
         {ranking && ranking.entries.length > 0 ? (
           <div className="flex flex-col gap-6">
-            <p className="text-text-muted text-sm">
-              Ranking gerado em {formatDate(ranking.generatedAt)} · {ranking.entries.length}{" "}
-              produtos avaliados
-            </p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-text-muted text-sm">
+                Ranking gerado em {formatDate(ranking.generatedAt)} · {ranking.entries.length}{" "}
+                produtos avaliados
+              </p>
+              <ShareButton title="Ranking de creatina — SupleCheck" label="Compartilhar ranking" />
+            </div>
             <RankingFilters entries={ranking.entries} />
           </div>
         ) : (

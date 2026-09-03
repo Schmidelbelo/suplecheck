@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { TrendingDown, Star, Flame, Clock3 } from "lucide-react";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { JsonLd, breadcrumbSchema, itemListSchema } from "@/lib/seo/schema";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { breadcrumbSchema, itemListSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";

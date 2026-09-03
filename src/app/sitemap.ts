@@ -1,14 +1,10 @@
 import type { MetadataRoute } from "next";
-import { prisma } from "@/lib/db/prisma";
 import { siteConfig } from "@/config/site";
 
 /**
- * Sitemap dinâmico. Rotas estáticas continuam declaradas aqui; as rotas
- * de produto (`/creatina/[slug]`) são geradas a partir do Prisma — sem
- * isso, o Google nunca descobre as páginas de produto por conta própria.
- * Só produtos `PUBLISHED` da categoria `creatina` entram: é a única
- * categoria com página real (`/creatina`) nesta fase (Domain Model —
- * outras categorias existem no banco, mas não têm rota pública ainda).
+ * Sitemap principal com as rotas institucionais e os sitemaps segmentados.
+ * Produtos, marcas, categorias e comparações ficam separados para crescerem
+ * sem tornar este arquivo um gargalo conforme o catálogo aumenta.
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: {
@@ -18,6 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }[] = [
     { path: "", priority: 1, changeFrequency: "weekly" },
     { path: "/creatina", priority: 0.9, changeFrequency: "daily" },
+    { path: "/marcas", priority: 0.8, changeFrequency: "daily" },
+    { path: "/categorias", priority: 0.8, changeFrequency: "daily" },
     { path: "/ofertas", priority: 0.8, changeFrequency: "daily" },
     { path: "/como-avaliamos", priority: 0.8, changeFrequency: "monthly" },
     { path: "/metodologia", priority: 0.8, changeFrequency: "monthly" },
@@ -38,22 +36,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   );
 
-  let products: { slug: string; updatedAt: Date }[] = [];
-  try {
-    products = await prisma.product.findMany({
-      where: { status: "PUBLISHED", category: { slug: "creatina" } },
-      select: { slug: true, updatedAt: true },
-    });
-  } catch (error) {
-    console.error("[sitemap] falha ao carregar produtos publicados", error);
-  }
-
-  const productEntries: MetadataRoute.Sitemap = products.map((product) => ({
-    url: new URL(`/creatina/${product.slug}`, siteConfig.url).toString(),
-    lastModified: product.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.7,
+  const segmentedSitemaps: MetadataRoute.Sitemap = [
+    "/sitemap-produtos.xml",
+    "/sitemap-marcas.xml",
+    "/sitemap-categorias.xml",
+    "/sitemap-comparacoes.xml",
+  ].map((path) => ({
+    url: new URL(path, siteConfig.url).toString(),
+    lastModified: new Date(),
+    changeFrequency: "daily",
+    priority: 0.4,
   }));
 
-  return [...staticEntries, ...productEntries];
+  return [...staticEntries, ...segmentedSitemaps];
 }

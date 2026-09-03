@@ -88,6 +88,8 @@ function sortEntries(entries: readonly RankingViewEntry[], sortBy: SortKey): Ran
  * reescreve o ranking.
  */
 const COMPARE_QUERY_PARAM = "comparar";
+/** Mesmo parâmetro usado pelo `SearchAction` do `websiteSchema()` — a busca fica de verdade refletida na URL, nunca só em estado local. */
+const SEARCH_QUERY_PARAM = "q";
 
 export function RankingFilters({ entries }: { entries: readonly RankingViewEntry[] }) {
   const router = useRouter();
@@ -97,7 +99,7 @@ export function RankingFilters({ entries }: { entries: readonly RankingViewEntry
   const [sortBy, setSortBy] = React.useState<SortKey>("score");
   const [brand, setBrand] = React.useState<string>(ALL_BRANDS);
   const [onlyFavorites, setOnlyFavorites] = React.useState(false);
-  const [search, setSearch] = React.useState("");
+  const [search, setSearch] = React.useState(() => searchParams.get(SEARCH_QUERY_PARAM) ?? "");
   const [compareIds, setCompareIds] = React.useState<Set<string>>(new Set());
   const [compareOpen, setCompareOpen] = React.useState(false);
   const { values: favoriteIds, hydrated: favoritesHydrated } = useFavorites();
@@ -119,6 +121,23 @@ export function RankingFilters({ entries }: { entries: readonly RankingViewEntry
       pushSearchTermRef.current({ term, searchedAt: Date.now() });
     }, 800);
     return () => clearTimeout(timeout);
+  }, [search]);
+
+  // Reflete a busca na URL (`?q=`) — o que torna `SearchAction` em
+  // `websiteSchema()` honesto: o Google só deveria anunciar essa ação se
+  // a URL gerada realmente reproduzir a busca ao ser aberta. Debounced
+  // (400ms) para não substituir o histórico do navegador a cada tecla.
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      const term = search.trim();
+      if (term) params.set(SEARCH_QUERY_PARAM, term);
+      else params.delete(SEARCH_QUERY_PARAM);
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    }, 400);
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
 
   // Comparação compartilhável: `?comparar=slug-a,slug-b` na URL — lido

@@ -5,7 +5,8 @@ import { AppProviders } from "@/providers/AppProviders";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { JsonLd, organizationSchema, websiteSchema } from "@/lib/seo/schema";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 import { siteConfig } from "@/config/site";
 import { AnalyticsScripts } from "@/modules/analytics/components/AnalyticsScripts";
 

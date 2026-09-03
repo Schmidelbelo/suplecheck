@@ -4,7 +4,8 @@ import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { JsonLd, breadcrumbSchema, productSchema } from "@/lib/seo/schema";
+import { JsonLd } from "@/lib/seo/JsonLd";
+import { breadcrumbSchema, productSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { Container } from "@/components/layout/Container";
@@ -22,6 +23,7 @@ import { criterionLabel } from "@/modules/evaluation/lib/criteria";
 import { ScoreBreakdownList } from "@/modules/evaluation/components/ScoreBreakdownList";
 import { ScoreHistoryList } from "@/modules/evaluation/components/ScoreHistoryList";
 import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
+import { ShareButton } from "@/modules/sharing/components/ShareButton";
 import { ProductSummary } from "@/modules/evaluation/components/ProductSummary";
 import { rankCriteriaByImpact, recommendAlternatives, type ProductBadge } from "@core/index";
 import { AlternativeRecommendationCard } from "@/modules/evaluation/components/AlternativeRecommendationCard";
@@ -29,6 +31,7 @@ import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { ScoreExplanationBars } from "@/modules/evaluation/components/ScoreExplanationBars";
 import { ProductViewTimeline } from "@/modules/evaluation/components/ProductViewTimeline";
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
+import { encodeComparisonSlug } from "@/modules/comparison/lib/comparisonSlug";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 interface PageProps {
@@ -166,6 +169,30 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
     bestBalance: others.find((e) => e.product.id === recommendations.bestBalance) ?? null,
   };
 
+  // Links internos: "mesma marca" e "mesma faixa de preço" — sempre a
+  // partir do ranking real, nunca de um sinal de comportamento agregado
+  // que a plataforma não coleta (sem login/analytics de sessão, não há
+  // como saber de verdade "quem viu este produto também viu aquele").
+  const sameBrandProducts = currentEntry
+    ? [...others]
+        .filter((e) => e.product.brand.slug === currentEntry.product.brand.slug)
+        .sort((a, b) => b.overallScore - a.overallScore)
+        .slice(0, 3)
+    : [];
+
+  const currentPriceCents = currentEntry?.product.price?.cents ?? null;
+  const samePriceRangeProducts =
+    currentPriceCents != null
+      ? [...others]
+          .filter((e) => e.product.price?.cents != null)
+          .sort(
+            (a, b) =>
+              Math.abs(a.product.price!.cents - currentPriceCents) -
+              Math.abs(b.product.price!.cents - currentPriceCents),
+          )
+          .slice(0, 3)
+      : [];
+
   const priceHistory = presentation?.sku
     ? ((await fetchApiOrNull<{ priceCents: number; capturedAt: string }[]>(
         `/api/catalog/skus/${presentation.sku.id}/prices`,
@@ -301,6 +328,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                     </a>
                   </Button>
                   <FavoriteButton productId={product.id} productName={product.name} />
+                  <ShareButton title={product.name} text={`${product.name} no SupleCheck`} />
                 </div>
               </div>
             ) : (
@@ -480,7 +508,37 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
             <h2 className="font-display text-text text-2xl font-bold">Produtos parecidos</h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {relatedProducts.map((entry) => (
-                <RelatedProductCard key={entry.product.id} entry={entry} />
+                <RelatedProductCard key={entry.product.id} entry={entry} currentSlug={slug} />
+              ))}
+            </div>
+          </div>
+        </Section>
+      ) : null}
+
+      {sameBrandProducts.length > 0 ? (
+        <Section className="border-border border-t">
+          <div className="mx-auto flex max-w-3xl flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold">
+              Produtos da mesma marca
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {sameBrandProducts.map((entry) => (
+                <RelatedProductCard key={entry.product.id} entry={entry} currentSlug={slug} />
+              ))}
+            </div>
+          </div>
+        </Section>
+      ) : null}
+
+      {samePriceRangeProducts.length > 0 ? (
+        <Section className="border-border bg-bg-subtle border-t">
+          <div className="mx-auto flex max-w-3xl flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold">
+              Produtos na mesma faixa de preço
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {samePriceRangeProducts.map((entry) => (
+                <RelatedProductCard key={entry.product.id} entry={entry} currentSlug={slug} />
               ))}
             </div>
           </div>
@@ -507,10 +565,16 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
   );
 }
 
-function RelatedProductCard({ entry }: { entry: RankingViewEntry }) {
+function RelatedProductCard({
+  entry,
+  currentSlug,
+}: {
+  entry: RankingViewEntry;
+  currentSlug?: string;
+}) {
   return (
-    <Link href={`/creatina/${entry.product.slug}`}>
-      <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-4 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
+    <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-4 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
+      <Link href={`/creatina/${entry.product.slug}`} className="flex flex-col gap-3">
         <ProductMiniCard
           imageUrl={entry.product.imageUrl}
           name={entry.product.name}
@@ -519,8 +583,16 @@ function RelatedProductCard({ entry }: { entry: RankingViewEntry }) {
           classificationTier={entry.classificationTier}
           score={entry.finalScore}
         />
-      </Card>
-    </Link>
+      </Link>
+      {currentSlug ? (
+        <Link
+          href={`/comparar/${encodeComparisonSlug(currentSlug, entry.product.slug)}`}
+          className="text-brand text-xs font-medium hover:underline"
+        >
+          Comparar com este produto
+        </Link>
+      ) : null}
+    </Card>
   );
 }
 

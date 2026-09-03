@@ -21,6 +21,9 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Plataforma",
     items: [
       { label: "Ranking", href: "/ranking" },
+      { label: "Marcas", href: "/marcas" },
+      { label: "Categorias", href: "/categorias" },
+      { label: "Comparar produtos", href: "/comparar" },
       { label: "Mercado", href: "/mercado" },
       { label: "Central de Alertas", href: "/alertas" },
       { label: "Como Avaliamos", href: "/como-avaliamos" },

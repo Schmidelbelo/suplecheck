@@ -24,9 +24,11 @@ export function websiteSchema() {
     "@type": "WebSite",
     name: siteConfig.name,
     url: siteConfig.url,
-    // Sem `potentialAction`/`SearchAction` deliberadamente: a plataforma
-    // não tem uma página de busca ainda — declarar uma aqui anunciaria
-    // ao Google uma funcionalidade que não existe.
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${new URL("/creatina", siteConfig.url).toString()}?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 
@@ -151,26 +153,4 @@ export function productSchema(input: ProductSchemaInput) {
         }
       : {}),
   };
-}
-
-/**
- * Escapa `<`, `>` e `&` no JSON serializado antes de injetar via
- * `dangerouslySetInnerHTML`. Sem isto, um campo de texto vindo do banco
- * (nome/descrição de produto, por exemplo) contendo `</script><script>`
- * fecharia a tag `<script type="application/ld+json">` e injetaria
- * HTML/script arbitrário na página (stored XSS) — os valores usados aqui
- * (nome de produto, marca, descrição) vêm de dados persistidos, não de
- * literais de código, então não podem ser tratados como confiáveis.
- */
-function escapeJsonForScriptTag(json: string): string {
-  return json.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
-}
-
-export function JsonLd({ data }: { data: Record<string, unknown> }) {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: escapeJsonForScriptTag(JSON.stringify(data)) }}
-    />
-  );
 }
