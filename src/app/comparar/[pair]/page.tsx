@@ -26,7 +26,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { pair } = await params;
   const view = await getComparisonPageView(pair);
   if (!view) {
-    return buildMetadata({ title: "Comparacao nao encontrada", path: `/comparar/${pair}`, noIndex: true });
+    return buildMetadata({
+      title: "Comparacao nao encontrada",
+      path: `/comparar/${pair}`,
+      noIndex: true,
+    });
   }
 
   const { productA, productB } = view.data;
@@ -41,13 +45,16 @@ export default async function ComparisonPage({ params }: Params) {
   const { pair } = await params;
   const view = await getComparisonPageView(pair);
   if (!view) notFound();
-  console.log("[comparar debug]", { pair: view.pair, canonicalPair: view.canonicalPair });
   if (view.pair !== view.canonicalPair) redirect(`/comparar/${view.canonicalPair}`);
 
   const { productA, productB, narrative, criteriaDiff, advantagesA, advantagesB, winner } =
     view.data;
   const winnerName =
-    winner === "tie" ? "Empate tecnico" : winner === "a" ? productA.product.name : productB.product.name;
+    winner === "tie"
+      ? "Empate tecnico"
+      : winner === "a"
+        ? productA.product.name
+        : productB.product.name;
 
   return (
     <>
@@ -55,7 +62,10 @@ export default async function ComparisonPage({ params }: Params) {
         data={breadcrumbSchema([
           { label: "Home", href: "/" },
           { label: "Comparar", href: "/comparar" },
-          { label: `${productA.product.name} vs ${productB.product.name}`, href: `/comparar/${pair}` },
+          {
+            label: `${productA.product.name} vs ${productB.product.name}`,
+            href: `/comparar/${pair}`,
+          },
         ])}
       />
       <JsonLd
@@ -105,7 +115,7 @@ export default async function ComparisonPage({ params }: Params) {
       </Section>
 
       <Section className="border-border border-b">
-        <div className="overflow-hidden rounded-lg border border-border">
+        <div className="border-border overflow-hidden rounded-lg border">
           <table className="w-full text-left text-sm">
             <thead className="bg-bg-subtle text-text-muted">
               <tr>
@@ -143,7 +153,10 @@ export default async function ComparisonPage({ params }: Params) {
               {line}
             </p>
           ))}
-          <Link href="/creatina" className="text-brand inline-flex w-fit items-center gap-2 text-sm font-medium hover:underline">
+          <Link
+            href="/creatina"
+            className="text-brand inline-flex w-fit items-center gap-2 text-sm font-medium hover:underline"
+          >
             Ver ranking da categoria <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>
@@ -172,12 +185,18 @@ function ComparisonProductCard({
         <div className="grid grid-cols-3 gap-3 text-sm">
           <Metric label="Score" value={entry.overallScore.toFixed(1)} />
           <Metric label="Indice" value={entry.finalScore.toFixed(1)} />
-          <Metric label="Preco" value={entry.product.price ? formatCurrencyBRL(entry.product.price.cents) : "-"} />
+          <Metric
+            label="Preco"
+            value={entry.product.price ? formatCurrencyBRL(entry.product.price.cents) : "-"}
+          />
         </div>
         <Badge variant={classificationBadgeVariant(entry.classificationTier)}>
           {classificationLabel(entry.classificationTier)}
         </Badge>
-        <Link href={`/creatina/${entry.product.slug}`} className="text-brand text-sm font-medium hover:underline">
+        <Link
+          href={`/creatina/${entry.product.slug}`}
+          className="text-brand text-sm font-medium hover:underline"
+        >
           Ver analise do produto
         </Link>
       </CardContent>
@@ -199,13 +218,15 @@ function ProsCons({ title, items }: { title: string; items: readonly string[] })
     <div>
       <h2 className="text-text mb-3 text-xl font-bold">{title}</h2>
       {items.length > 0 ? (
-        <ul className="space-y-2 text-sm text-text-muted">
+        <ul className="text-text-muted space-y-2 text-sm">
           {items.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
       ) : (
-        <p className="text-text-muted text-sm">Nenhuma vantagem numerica exclusiva nos criterios avaliados.</p>
+        <p className="text-text-muted text-sm">
+          Nenhuma vantagem numerica exclusiva nos criterios avaliados.
+        </p>
       )}
     </div>
   );
