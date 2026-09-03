@@ -262,6 +262,11 @@ export class InMemoryIndexResultRepository implements IndexResultRepositoryPort 
       .filter((r): r is IndexResultDTO => r !== undefined);
     return latestPerSupplement.filter((r) => r.categorySlug === categorySlug);
   }
+  async listLatestForAllProducts() {
+    return [...this.bySupplementId.values()]
+      .filter((list): list is [IndexResultDTO, ...IndexResultDTO[]] => list.length > 0)
+      .map((list) => list[0]);
+  }
 }
 
 export class InMemoryRankingRepository implements RankingRepositoryPort {

@@ -8,7 +8,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import { formatDate } from "@/lib/utils/format";
 import { RankingFilters } from "@/modules/evaluation/components/RankingFilters";
+import { CategoryStatisticsSection } from "@/components/market/CategoryStatisticsSection";
 import type { RankingView } from "@/modules/evaluation/types";
+import type { MarketApiResponse } from "@/modules/market/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Qual a Melhor Creatina? Ranking Comparativo",
@@ -21,6 +23,7 @@ export const revalidate = 0;
 
 export default async function CreatinaRankingPage() {
   const ranking = await fetchApiOrNull<RankingView>("/api/evaluation/rankings/creatina/view");
+  const market = await fetchApiOrNull<MarketApiResponse>("/api/market?categorySlug=creatina");
 
   return (
     <>
@@ -68,6 +71,17 @@ export default async function CreatinaRankingPage() {
           />
         )}
       </Section>
+
+      {market?.category ? (
+        <Section className="border-border border-b">
+          <div className="flex flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
+              Estatísticas da categoria
+            </h2>
+            <CategoryStatisticsSection view={market.category} />
+          </div>
+        </Section>
+      ) : null}
 
       <Section className="border-border bg-bg-subtle border-b">
         <div className="mx-auto flex max-w-3xl flex-col gap-4">

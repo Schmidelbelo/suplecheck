@@ -15,4 +15,6 @@ export interface IndexResultRepositoryPort {
   listHistory(supplementId: string): Promise<IndexResultDTO[]>;
   /** Últimos resultados de todos os suplementos de uma categoria — insumo de `GenerateRankingUseCase`. */
   listLatestByCategory(categorySlug: string): Promise<IndexResultDTO[]>;
+  /** Últimos resultados de todos os suplementos do catálogo, de qualquer categoria — insumo da Inteligência de Mercado. */
+  listLatestForAllProducts(): Promise<IndexResultDTO[]>;
 }

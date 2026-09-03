@@ -110,6 +110,28 @@ export {
   type CriterionImpactInput,
   type CriterionImpact,
 } from "./domain/scoring/ScoreExplanation";
+export {
+  calculateMarketStatistics,
+  average,
+  median,
+  standardDeviation,
+  type MarketProductInput,
+  type MarketStatistics,
+} from "./domain/market/MarketStatistics";
+export {
+  rankBrands,
+  type BrandRankingProductInput,
+  type BrandRankingProductRef,
+  type BrandRankingEntry,
+} from "./domain/market/BrandRanking";
+export {
+  calculateCategoryStatistics,
+  type CategoryStatisticsInput,
+  type ScoreBucket,
+  type PriceBucket,
+  type CategoryStatistics,
+} from "./domain/market/CategoryStatistics";
+export { generateMarketInsights, type MarketInsightsInput } from "./domain/market/MarketInsights";
 
 // Erros de domínio
 export * from "./domain/errors/DomainError";

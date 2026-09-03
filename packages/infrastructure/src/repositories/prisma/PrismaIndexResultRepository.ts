@@ -142,4 +142,34 @@ export class PrismaIndexResultRepository implements IndexResultRepositoryPort {
     }
     return [...latestByProduct.values()].map(toDTO);
   }
+
+  /**
+   * Mesmo padrão de `listLatestByCategory` (groupBy + `_max` para achar o
+   * `calculatedAt` mais recente por produto, depois uma busca pontual),
+   * só que sem filtro de categoria — insumo do Panorama do Mercado, que
+   * precisa da última nota de TODO produto avaliado do catálogo.
+   */
+  async listLatestForAllProducts(): Promise<IndexResultDTO[]> {
+    const latestPerProduct = await this.client.productScore.groupBy({
+      by: ["productId"],
+      _max: { calculatedAt: true },
+    });
+    if (latestPerProduct.length === 0) return [];
+
+    const rows = await this.client.productScore.findMany({
+      where: {
+        OR: latestPerProduct
+          .filter((entry) => entry._max.calculatedAt !== null)
+          .map((entry) => ({ productId: entry.productId, calculatedAt: entry._max.calculatedAt! })),
+      },
+      include,
+      orderBy: { calculatedAt: "desc" },
+    });
+
+    const latestByProduct = new Map<string, ProductScoreRow>();
+    for (const row of rows) {
+      if (!latestByProduct.has(row.productId)) latestByProduct.set(row.productId, row);
+    }
+    return [...latestByProduct.values()].map(toDTO);
+  }
 }
