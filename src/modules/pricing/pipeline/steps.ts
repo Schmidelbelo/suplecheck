@@ -38,18 +38,34 @@ export function validateCapturedPrice(
       );
     }
   }
+
+  if (result.url != null && result.url.trim() !== "") {
+    try {
+      new URL(result.url);
+    } catch {
+      throw new InvalidPriceCaptureError(`URL capturada inválida: "${result.url}"`);
+    }
+  }
 }
 
 export interface NormalizedPrice {
   readonly priceCents: number;
   readonly availability: "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
+  readonly url: string | null;
 }
 
-/** Normalização — arredonda para inteiro (centavos são a unidade de armazenamento do schema). */
+/**
+ * Normalização — arredonda o preço para inteiro (centavos são a
+ * unidade de armazenamento do schema) e passa a URL adiante tal como o
+ * scraper devolveu (trim de espaço; string vazia vira `null` — nunca
+ * um valor "quase vazio" persistido como se fosse uma URL real).
+ */
 export function normalizeCapturedPrice(result: PriceScraperResult): NormalizedPrice {
+  const trimmedUrl = result.url?.trim();
   return {
     priceCents: Math.round(result.priceCents),
     availability: result.availability,
+    url: trimmedUrl ? trimmedUrl : null,
   };
 }
 

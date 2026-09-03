@@ -23,6 +23,16 @@ export interface PriceScraperInput {
 export interface PriceScraperResult {
   readonly priceCents: number;
   readonly availability: "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
+  /**
+   * URL real da oferta na loja, no momento desta captura — a fonte
+   * oficial de `PriceEntry.url` (nunca preenchida por um valor
+   * "herdado" na camada de persistência; se o scraper não souber a
+   * URL, `null` é o valor honesto, não a URL antiga). Um scraper real
+   * visita a página a cada captura, então devolver a URL de novo a
+   * cada chamada é o comportamento esperado — inclusive detecta
+   * sozinho quando a loja redirecionou o produto para uma URL nova.
+   */
+  readonly url: string | null;
 }
 
 export interface PriceScraperPort {
@@ -40,6 +50,6 @@ export interface PriceScraperPort {
  */
 export class LastKnownPriceScraperProvider implements PriceScraperPort {
   async fetchPrice(input: PriceScraperInput): Promise<PriceScraperResult> {
-    return { priceCents: input.lastKnownPriceCents, availability: "UNKNOWN" };
+    return { priceCents: input.lastKnownPriceCents, availability: "UNKNOWN", url: input.url };
   }
 }

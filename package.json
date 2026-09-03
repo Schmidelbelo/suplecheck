@@ -1,6 +1,6 @@
 {
   "name": "suplecheck",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "engines": {
     "node": ">=20.9.0"
@@ -20,6 +20,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "repair:price-urls": "tsx src/scripts/backfillPriceEntryUrls.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

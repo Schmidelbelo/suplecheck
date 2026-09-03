@@ -146,6 +146,14 @@ export async function runPriceCaptureJob(
           storeId: sku.storeId,
           priceCents: normalized.priceCents,
           availability: normalized.availability,
+          // Causa raiz do bug corrigido aqui: antes desta linha, `url`
+          // nunca era incluído no `create` — toda captura gravava `null`
+          // silenciosamente (a coluna é opcional), mesmo quando o
+          // scraper sabia a URL. Agora vem sempre do resultado desta
+          // captura (`normalized.url`), nunca copiado da linha anterior
+          // na persistência — a URL mais recente é sempre a fonte
+          // oficial, decidida pelo scraper, não "herdada" aqui.
+          url: normalized.url,
           importBatchId: batch.id,
         },
       });

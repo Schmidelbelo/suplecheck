@@ -2,6 +2,25 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.6.0] — 2026-09-03 — Monetização por Afiliados
+
+### Adicionado
+
+- **Monetização por afiliados**: serviço centralizado (`buildAffiliateUrl`) que decide a URL final de todo clique de saída — link de afiliado real quando `Store.isAffiliate`/`Store.affiliateBaseUrl` estiverem configurados (contrato próprio com placeholder `{url}`, sem inventar parâmetro de nenhuma rede real), fallback honesto para a URL normal nos demais casos.
+- Nova rota `/go/[productId]` (redirect 302) — único ponto de saída da aplicação; os 2 links reais que apontavam direto para a loja (CTA principal e barra fixa mobile de `/creatina/[slug]`) foram migrados.
+- Nova tabela `outbound_clicks` (produto, loja, categoria, origem, posição no ranking, se foi afiliado) — base para métricas de CTR por loja/categoria.
+- `AFFILIATES.md` — arquitetura, fluxo de redirecionamento, contrato de configuração por loja e auditoria técnica (sem integração ativada) dos programas de afiliado de Amazon, Netshoes, Growth, Soldiers Nutrition, Dark Lab, Integralmédica, Max Titanium e Adaptogen.
+- `npm run repair:price-urls` — script de reparo único de dado histórico (não um workaround de pipeline).
+
+### Corrigido
+
+- **Causa raiz da URL da oferta nunca sendo persistida**: `PriceCaptureJobRunner` nunca incluía o campo `url` ao gravar uma nova `PriceEntry` — toda captura automática gravava `url: null` silenciosamente, mesmo com uma URL real conhecida. Corrigido na origem: `PriceScraperResult`/`NormalizedPrice` agora carregam a URL de ponta a ponta pelo pipeline (Scraper → Validação → Normalização → Persistência), e a captura mais recente é sempre a fonte oficial — nunca um valor herdado silenciosamente na camada de persistência. Os 10 produtos reais do catálogo foram reparados (`repair:price-urls`) e revalidados com uma execução completa do pipeline corrigido.
+
+### Testes
+
+- 13 testes novos para monetização (`affiliateUrl`, `outboundLinkHref`, `/go/[productId]` end-to-end).
+- 8 testes novos para o pipeline de captura (URL válida/vazia/malformada) e 5 novos cenários de integração (criação de produto sem histórico, atualização de preço, alteração de URL, mudança de loja, múltiplas capturas sucessivas).
+
 ## [0.5.0] — 2026-09-03 — SEO Programático e Correções de Indexação
 
 ### Adicionado
