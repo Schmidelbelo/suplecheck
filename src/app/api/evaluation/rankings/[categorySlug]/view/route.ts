@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { rankingService, container } from "@/lib/container";
 import { handleApiError } from "@/lib/api/handleApiError";
-import { productViewService } from "@/modules/evaluation/services/productView.service";
-import { calculateOverallScores, assignProductBadges } from "@core/index";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
 
 type Params = { params: Promise<{ categorySlug: string }> };
 
@@ -14,86 +12,22 @@ type Params = { params: Promise<{ categorySlug: string }> };
  * consome — nunca dados mockados (ver ARCHITECTURE.md §3). Score Geral
  * e selos são calculados aqui, UMA vez por requisição, para todo o
  * conjunto comparável — nenhum componente React recalcula nada disso
- * (ver docs/SCORING.md).
+ * (ver docs/SCORING.md). A montagem em si vive em
+ * `rankingView.service.ts`, reaproveitada também por páginas
+ * server-side que precisam do mesmo dado sem um round-trip HTTP
+ * (marca, categoria, comparação).
  */
 export async function GET(_request: Request, { params }: Params) {
   try {
     const { categorySlug } = await params;
-    const ranking = await rankingService.get({ categorySlug });
-    const supplementIds = ranking.entries.map((entry) => entry.supplementId);
-
-    const [presentations, indexResults] = await Promise.all([
-      productViewService.loadPresentations(supplementIds),
-      container.ports.indexResults.listLatestByCategory(categorySlug),
-    ]);
-
-    const breakdownByProduct = new Map(
-      indexResults.map((result) => [
-        result.supplementId,
-        Object.fromEntries(result.breakdown.map((b) => [b.criterionId, b.score])),
-      ]),
-    );
-
-    const validEntries = ranking.entries
-      .map((entry) => {
-        const product = presentations.get(entry.supplementId);
-        return product ? { entry, product } : null;
-      })
-      .filter(
-        (
-          v,
-        ): v is {
-          entry: (typeof ranking.entries)[number];
-          product: NonNullable<ReturnType<typeof presentations.get>>;
-        } => v !== null,
+    const view = await loadRankingView(categorySlug);
+    if (!view) {
+      return NextResponse.json(
+        { code: "RANKING_NOT_FOUND", message: "Ranking não encontrado para esta categoria." },
+        { status: 404 },
       );
-
-    const overallScores = calculateOverallScores(
-      validEntries.map(({ entry, product }) => ({
-        productId: entry.supplementId,
-        qualityScore: entry.finalScore,
-        priceCents: product.price?.cents ?? null,
-        pricePerDoseCents: product.price?.pricePerDoseCents ?? null,
-        pricePerGramCents: product.price?.pricePerGramCents ?? null,
-      })),
-    );
-    const overallResultByProduct = new Map(overallScores.map((r) => [r.productId, r]));
-
-    const badgesByProduct = assignProductBadges(
-      validEntries.map(({ entry, product }) => ({
-        productId: entry.supplementId,
-        priceCents: product.price?.cents ?? null,
-        finalScore: entry.finalScore,
-        overallScore:
-          overallResultByProduct.get(entry.supplementId)?.overallScore ?? entry.finalScore,
-        criteriaScores: breakdownByProduct.get(entry.supplementId) ?? {},
-      })),
-    );
-
-    return NextResponse.json({
-      categorySlug: ranking.categorySlug,
-      methodologyId: ranking.methodologyId,
-      methodologyVersion: ranking.methodologyVersion,
-      generatedAt: ranking.generatedAt,
-      entries: validEntries.map(({ entry, product }) => {
-        const overallResult = overallResultByProduct.get(entry.supplementId);
-        return {
-          position: entry.position,
-          finalScore: entry.finalScore,
-          classificationTier: entry.classificationTier,
-          product,
-          overallScore: overallResult?.overallScore ?? entry.finalScore,
-          scoreComponents: overallResult?.components ?? {
-            quality: entry.finalScore,
-            price: null,
-            pricePerDose: null,
-            pricePerGram: null,
-          },
-          badges: badgesByProduct.get(entry.supplementId) ?? [],
-          criteriaScores: breakdownByProduct.get(entry.supplementId) ?? {},
-        };
-      }),
-    });
+    }
+    return NextResponse.json(view);
   } catch (error) {
     return handleApiError(error);
   }

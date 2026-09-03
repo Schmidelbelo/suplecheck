@@ -12,10 +12,11 @@ import {
   type CategoryStatistics,
 } from "@core/index";
 
-interface EnrichedProduct {
+export interface EnrichedProduct {
   readonly productId: string;
   readonly productSlug: string;
   readonly productName: string;
+  readonly imageUrl: string | null;
   readonly brandId: string;
   readonly brandName: string;
   readonly categorySlug: string;
@@ -79,6 +80,7 @@ async function loadEnrichedCatalog(): Promise<EnrichedProduct[]> {
         productId: result.supplementId,
         productSlug: presentation.slug,
         productName: presentation.name,
+        imageUrl: presentation.imageUrl,
         brandId: presentation.brand.slug,
         brandName: presentation.brand.name,
         categorySlug: result.categorySlug,
@@ -205,4 +207,26 @@ async function loadRankingScoresInOrder(
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Produtos avaliados de UMA marca, do catálogo real — base das páginas
+ * `/marcas/[slug]`. `brandId` aqui é o slug da marca (ver
+ * `loadEnrichedCatalog`), não um id opaco de banco.
+ */
+export async function getProductsByBrand(brandSlug: string): Promise<readonly EnrichedProduct[]> {
+  const catalog = await loadEnrichedCatalogCached();
+  return catalog
+    .filter((p) => p.brandId === brandSlug)
+    .sort((a, b) => b.overallScore - a.overallScore);
+}
+
+/** Produtos avaliados de UMA categoria — base das páginas `/categorias/[slug]`. */
+export async function getProductsByCategory(
+  categorySlug: string,
+): Promise<readonly EnrichedProduct[]> {
+  const catalog = await loadEnrichedCatalogCached();
+  return catalog
+    .filter((p) => p.categorySlug === categorySlug)
+    .sort((a, b) => b.overallScore - a.overallScore);
 }
