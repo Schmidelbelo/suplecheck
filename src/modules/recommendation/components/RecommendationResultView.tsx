@@ -11,17 +11,9 @@ import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { formatCurrencyBRL } from "@/lib/utils/format";
 import { criterionLabel } from "@/modules/evaluation/lib/criteria";
 import { useRecommendationHistory } from "../lib/recommendationHistory";
-import type { RecommendationProfileForm } from "../lib/profileQuery";
+import { PRIORITY_LABELS, type RecommendationProfileForm } from "../lib/profileQuery";
 import type { RecommendationApiResponse } from "../types";
 import type { RecommendationEntry } from "@core/index";
-
-const PRIORITY_LABELS: Record<string, string> = {
-  economy: "Economia",
-  quality: "Qualidade",
-  bestRating: "Melhor nota",
-  transparency: "Transparência",
-  costBenefit: "Custo-benefício",
-};
 
 function EntryMiniCard({ entry, label }: { entry: RecommendationEntry; label: string }) {
   return (

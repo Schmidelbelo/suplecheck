@@ -34,6 +34,31 @@ export const priceService = {
   },
 
   /**
+   * Histórico de vários SKUs em UMA consulta (`skuId IN (...)`) em vez
+   * de uma por produto — era assim que `/ofertas` calculava a evolução
+   * de preço antes (N chamadas HTTP, uma por produto, cada uma
+   * disparando sua própria query). Agrupa em memória depois: o volume
+   * por SKU é pequeno (capturas de preço, não todo o catálogo).
+   */
+  async getHistoryBySkuIds(skuIds: readonly string[]) {
+    if (skuIds.length === 0) return new Map<string, { priceCents: number; capturedAt: Date }[]>();
+
+    const rows = await prisma.priceEntry.findMany({
+      where: { skuId: { in: [...skuIds] } },
+      orderBy: { capturedAt: "asc" },
+      select: { skuId: true, priceCents: true, capturedAt: true },
+    });
+
+    const bySkuId = new Map<string, { priceCents: number; capturedAt: Date }[]>();
+    for (const row of rows) {
+      const list = bySkuId.get(row.skuId) ?? [];
+      list.push({ priceCents: row.priceCents, capturedAt: row.capturedAt });
+      bySkuId.set(row.skuId, list);
+    }
+    return bySkuId;
+  },
+
+  /**
    * Grava um novo snapshot de preço — sempre `create`, nunca
    * atualiza uma linha existente (ver comentário de append-only no
    * schema). É assim que o histórico de preços cresce ao longo do

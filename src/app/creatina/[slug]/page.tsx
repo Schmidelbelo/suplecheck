@@ -7,6 +7,7 @@ import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd, breadcrumbSchema, productSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
+import { Container } from "@/components/layout/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -26,7 +27,7 @@ import { rankCriteriaByImpact, recommendAlternatives, type ProductBadge } from "
 import { AlternativeRecommendationCard } from "@/modules/evaluation/components/AlternativeRecommendationCard";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { ScoreExplanationBars } from "@/modules/evaluation/components/ScoreExplanationBars";
-import { RecordProductVisit } from "@/modules/evaluation/components/RecordProductVisit";
+import { ProductViewTimeline } from "@/modules/evaluation/components/ProductViewTimeline";
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
@@ -176,7 +177,6 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <RecordProductVisit slug={slug} />
       <JsonLd
         data={breadcrumbSchema([
           { label: "Home", href: "/" },
@@ -211,6 +211,10 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
           { label: product.name },
         ]}
       />
+
+      <Container className="pt-4">
+        <ProductViewTimeline slug={slug} />
+      </Container>
 
       <ProductPageNav
         hasScore={!!score}

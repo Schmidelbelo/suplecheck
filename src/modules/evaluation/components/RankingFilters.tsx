@@ -16,6 +16,7 @@ import { CompareBar, MAX_COMPARE } from "./CompareBar";
 import { CompareTable } from "./CompareTable";
 import { useFavorites } from "./FavoriteButton";
 import { useRecentComparisons } from "../lib/recentActivity";
+import { useSearchHistory } from "@/modules/monitoring/lib/searchHistory";
 import type { RankingViewEntry } from "../types";
 
 type SortKey = "overall" | "score" | "price" | "pricePerDose" | "brand";
@@ -101,6 +102,24 @@ export function RankingFilters({ entries }: { entries: readonly RankingViewEntry
   const [compareOpen, setCompareOpen] = React.useState(false);
   const { values: favoriteIds, hydrated: favoritesHydrated } = useFavorites();
   const { push: pushComparison } = useRecentComparisons();
+  const { push: pushSearchTerm } = useSearchHistory();
+  const pushSearchTermRef = React.useRef(pushSearchTerm);
+  pushSearchTermRef.current = pushSearchTerm;
+
+  // Grava a busca no histórico local só depois de uma pausa de digitação
+  // (800ms) — evita uma entrada por tecla pressionada, e só termos com
+  // 2+ caracteres (ignora buscas de 1 letra, ruído demais para virar
+  // insight). `pushSearchTermRef` (não `pushSearchTerm` direto) porque
+  // a função é recriada a cada push — incluí-la nas deps causaria um
+  // loop (efeito reagenda a si mesmo a cada gravação).
+  React.useEffect(() => {
+    const term = search.trim();
+    if (term.length < 2) return;
+    const timeout = setTimeout(() => {
+      pushSearchTermRef.current({ term, searchedAt: Date.now() });
+    }, 800);
+    return () => clearTimeout(timeout);
+  }, [search]);
 
   // Comparação compartilhável: `?comparar=slug-a,slug-b` na URL — lido
   // uma vez ao montar (permite abrir um link enviado por alguém já com

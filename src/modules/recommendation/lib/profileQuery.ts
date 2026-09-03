@@ -21,6 +21,14 @@ export interface RecommendationProfileForm {
   readonly weeklyFrequency: number | null;
 }
 
+export const PRIORITY_LABELS: Record<RecommendationPriority, string> = {
+  economy: "Economia",
+  quality: "Qualidade",
+  bestRating: "Melhor nota",
+  transparency: "Transparência",
+  costBenefit: "Custo-benefício",
+};
+
 export const DEFAULT_PROFILE: RecommendationProfileForm = {
   goal: null,
   priority: "costBenefit",

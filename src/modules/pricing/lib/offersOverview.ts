@@ -1,5 +1,5 @@
 import { fetchApiOrNull } from "@/lib/api/fetchApi";
-import { computePriceStats, type PriceStats } from "../services/price.service";
+import type { PriceStats } from "../services/price.service";
 import type { RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 export interface ProductPriceInfo {
@@ -8,30 +8,39 @@ export interface ProductPriceInfo {
   readonly capturedAt: string | null;
 }
 
+type PriceStatsBySkuResponse = Record<
+  string,
+  { stats: PriceStats | null; lastCapturedAt: string | null }
+>;
+
 /**
- * Busca o histórico de preço de cada produto do ranking em paralelo —
- * catálogo pequeno hoje (10 produtos), custo aceitável. Se crescer para
- * centenas de produtos, isto precisaria de um endpoint de listagem em
- * lote em vez de N requisições; decisão de escala para revisitar quando
- * o catálogo justificar.
+ * Evolução de preço de todo o ranking em UMA requisição
+ * (`/api/monitoring/price-stats?skuIds=...`) — antes eram N requisições,
+ * uma por produto (`loadCatalogPriceInfo` chamava
+ * `/api/catalog/skus/[id]/prices` dentro de `Promise.all`). O cálculo
+ * de min/máx/variação/tendência (`computePriceStats`) também passa a
+ * rodar uma vez no servidor, não é refeito aqui.
  */
 export async function loadCatalogPriceInfo(ranking: RankingView): Promise<ProductPriceInfo[]> {
-  return Promise.all(
-    ranking.entries.map(async (entry) => {
-      const skuId = entry.product.sku?.id;
-      if (!skuId) return { entry, stats: null, capturedAt: null };
+  const entriesWithSku = ranking.entries.filter((entry) => entry.product.sku?.id);
+  const skuIds = entriesWithSku.map((entry) => entry.product.sku!.id);
 
-      const history = await fetchApiOrNull<{ priceCents: number; capturedAt: string }[]>(
-        `/api/catalog/skus/${skuId}/prices`,
-      );
-      const points = history ?? [];
-      return {
-        entry,
-        stats: computePriceStats(points),
-        capturedAt: points[points.length - 1]?.capturedAt ?? null,
-      };
-    }),
-  );
+  const statsBySkuId =
+    skuIds.length > 0
+      ? ((await fetchApiOrNull<PriceStatsBySkuResponse>(
+          `/api/monitoring/price-stats?skuIds=${skuIds.join(",")}`,
+        )) ?? {})
+      : {};
+
+  return ranking.entries.map((entry) => {
+    const skuId = entry.product.sku?.id;
+    const info = skuId ? statsBySkuId[skuId] : undefined;
+    return {
+      entry,
+      stats: info?.stats ?? null,
+      capturedAt: info?.lastCapturedAt ?? null,
+    };
+  });
 }
 
 export function categoryAveragePriceCents(products: readonly ProductPriceInfo[]): number | null {

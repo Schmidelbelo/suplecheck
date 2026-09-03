@@ -55,6 +55,20 @@ export function formatRelativeTime(timestamp: number, now: number = Date.now()):
   return rtf.format(diffSeconds, "second");
 }
 
+/**
+ * "hoje"/"ontem"/"há 3 dias" — granularidade de DIA (não de hora/minuto
+ * como `formatRelativeTime`), para a Timeline do Produto ("Você visitou
+ * este produto: hoje/ontem/há X dias"). Compara início de dia local, não
+ * diferença bruta de milissegundos — visitar às 23h e reabrir às 1h do
+ * dia seguinte é "ontem", não "há poucas horas".
+ */
+export function formatRelativeDay(timestamp: number, now: number = Date.now()): string {
+  const startOfDay = (t: number) => new Date(t).setHours(0, 0, 0, 0);
+  const diffDays = Math.round((startOfDay(timestamp) - startOfDay(now)) / (1000 * 60 * 60 * 24));
+  const rtf = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
+  return rtf.format(diffDays, "day");
+}
+
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength).trimEnd()}…`;

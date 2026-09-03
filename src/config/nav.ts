@@ -22,6 +22,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Ranking", href: "/ranking" },
       { label: "Mercado", href: "/mercado" },
+      { label: "Central de Alertas", href: "/alertas" },
       { label: "Como Avaliamos", href: "/como-avaliamos" },
       { label: "Metodologia", href: "/metodologia" },
       { label: "Como ganhamos dinheiro", href: "/como-ganhamos-dinheiro" },

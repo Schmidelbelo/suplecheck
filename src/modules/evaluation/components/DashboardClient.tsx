@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, History, GitCompareArrows, Trash2, BarChart3, Bell, BellOff } from "lucide-react";
+import {
+  Heart,
+  History,
+  GitCompareArrows,
+  Trash2,
+  BarChart3,
+  Bell,
+  BellOff,
+  Search,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -16,6 +27,14 @@ import { useCategoryRanking } from "../lib/useCategoryRanking";
 import { buildDashboardStats } from "../lib/dashboardStats";
 import { usePriceAlerts, isAlertTriggered } from "@/modules/pricing/lib/priceAlerts";
 import { formatCurrencyBRL } from "@/lib/utils/format";
+import { useSearchHistory } from "@/modules/monitoring/lib/searchHistory";
+import { generatePersonalInsights } from "@/modules/monitoring/lib/personalInsights";
+import { PersonalInsightsList } from "@/modules/monitoring/components/PersonalInsightsList";
+import { useRecommendationHistory } from "@/modules/recommendation/lib/recommendationHistory";
+import {
+  decodeProfileFromSearchParams,
+  PRIORITY_LABELS,
+} from "@/modules/recommendation/lib/profileQuery";
 import type { RankingView } from "../types";
 
 function resolveProduct(ranking: RankingView | null, slug: string) {
@@ -27,9 +46,17 @@ export function DashboardClient() {
   const { items: history, hydrated: historyHydrated, clear: clearHistory } = useRecentlyViewed();
   const { items: comparisons, hydrated: comparisonsHydrated } = useRecentComparisons();
   const { items: alerts, hydrated: alertsHydrated, remove: removeAlert } = usePriceAlerts();
+  const { items: searches, hydrated: searchesHydrated, clear: clearSearches } = useSearchHistory();
+  const { items: recommendations, hydrated: recommendationsHydrated } = useRecommendationHistory();
   const { ranking, loading: rankingLoading } = useCategoryRanking();
 
-  const hydrated = favoritesHydrated && historyHydrated && comparisonsHydrated && alertsHydrated;
+  const hydrated =
+    favoritesHydrated &&
+    historyHydrated &&
+    comparisonsHydrated &&
+    alertsHydrated &&
+    searchesHydrated &&
+    recommendationsHydrated;
 
   if (!hydrated || rankingLoading) {
     return (
@@ -44,7 +71,51 @@ export function DashboardClient() {
   const stats = buildDashboardStats(history, ranking);
   const favoriteEntries = (ranking?.entries ?? []).filter((e) => favoriteIds.has(e.product.id));
   const hasAnyActivity =
-    favoriteEntries.length > 0 || history.length > 0 || comparisons.length > 0 || alerts.length > 0;
+    favoriteEntries.length > 0 ||
+    history.length > 0 ||
+    comparisons.length > 0 ||
+    alerts.length > 0 ||
+    searches.length > 0 ||
+    recommendations.length > 0;
+
+  const lastRecommendation = recommendations[0] ?? null;
+  const lastProfile = lastRecommendation
+    ? decodeProfileFromSearchParams(new URLSearchParams(lastRecommendation.query))
+    : null;
+
+  const viewedProductsForInsights = history
+    .map((view) => {
+      const entry = resolveProduct(ranking, view.slug);
+      return entry
+        ? {
+            slug: view.slug,
+            productName: entry.product.name,
+            brandName: entry.product.brand.name,
+            visitCount: view.visitCount,
+          }
+        : null;
+    })
+    .filter((v): v is NonNullable<typeof v> => v !== null);
+
+  const comparisonSpreads = comparisons
+    .map((comparison) => {
+      const prices = comparison.slugs
+        .map((slug) => resolveProduct(ranking, slug)?.product.price?.cents ?? null)
+        .filter((v): v is number => v != null);
+      return prices.length >= 2 ? { spreadCents: Math.max(...prices) - Math.min(...prices) } : null;
+    })
+    .filter((v): v is NonNullable<typeof v> => v !== null);
+
+  const recommendationBudgetsCents = recommendations
+    .map((r) => decodeProfileFromSearchParams(new URLSearchParams(r.query)).budgetCents)
+    .filter((v): v is number => v != null);
+
+  const personalInsights = generatePersonalInsights({
+    viewedProducts: viewedProductsForInsights,
+    favoritesCount: favoriteEntries.length,
+    recommendationBudgetsCents,
+    comparisonSpreads,
+  });
 
   if (!hasAnyActivity) {
     return (
@@ -73,6 +144,64 @@ export function DashboardClient() {
         <StatCard label="Marca mais pesquisada" value={stats.topBrand ?? "—"} />
         <StatCard label="Categoria favorita" value={stats.topCategory ?? "—"} />
       </div>
+
+      {/* Insights pessoais */}
+      {personalInsights.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <h2 className="text-text flex items-center gap-2 text-lg font-bold">
+            <Sparkles className="size-4" aria-hidden />
+            Insights pessoais
+          </h2>
+          <PersonalInsightsList insights={personalInsights} />
+        </div>
+      ) : null}
+
+      {/* Resumo do perfil + última recomendação */}
+      {lastRecommendation && lastProfile ? (
+        <DashboardSection
+          icon={<UserRound className="size-4" aria-hidden />}
+          title="Resumo do perfil"
+          count={0}
+        >
+          <Card>
+            <CardContent className="flex flex-col gap-3 p-4">
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                <span className="text-text-muted">
+                  Prioridade:{" "}
+                  <span className="text-text font-medium">
+                    {PRIORITY_LABELS[lastProfile.priority]}
+                  </span>
+                </span>
+                {lastProfile.budgetCents != null ? (
+                  <span className="text-text-muted">
+                    Orçamento:{" "}
+                    <span className="text-text font-medium">
+                      {formatCurrencyBRL(lastProfile.budgetCents)}
+                    </span>
+                  </span>
+                ) : null}
+                {lastProfile.trainingLevel ? (
+                  <span className="text-text-muted">
+                    Nível:{" "}
+                    <span className="text-text font-medium">{lastProfile.trainingLevel}</span>
+                  </span>
+                ) : null}
+              </div>
+              <div className="border-border flex items-center justify-between gap-4 border-t pt-3">
+                <div>
+                  <p className="text-text-subtle text-xs uppercase">Última recomendação</p>
+                  <p className="text-text font-medium">
+                    {lastRecommendation.recommendedProductName}
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/assistente?${lastRecommendation.query}`}>Ver de novo</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </DashboardSection>
+      ) : null}
 
       {/* Favoritos */}
       <DashboardSection
@@ -144,11 +273,45 @@ export function DashboardClient() {
         )}
       </DashboardSection>
 
+      {/* Pesquisas recentes */}
+      <DashboardSection
+        icon={<Search className="size-4" aria-hidden />}
+        title="Pesquisas recentes"
+        count={searches.length}
+        action={
+          searches.length > 0 ? (
+            <Button variant="ghost" size="sm" onClick={clearSearches} className="gap-1.5">
+              <Trash2 className="size-4" aria-hidden />
+              Limpar histórico
+            </Button>
+          ) : null
+        }
+      >
+        {searches.length === 0 ? (
+          <p className="text-text-muted text-sm">
+            Nenhuma pesquisa registrada ainda — use a busca no ranking de creatinas.
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {searches.map((search) => (
+              <Link
+                key={search.term.toLowerCase()}
+                href={`/creatina`}
+                className="border-border hover:border-brand text-text-muted hover:text-brand rounded-full border px-3 py-1.5 text-sm transition-colors"
+              >
+                {search.term}
+              </Link>
+            ))}
+          </div>
+        )}
+      </DashboardSection>
+
       {/* Alertas de preço */}
       <DashboardSection
         icon={<Bell className="size-4" aria-hidden />}
         title="Alertas de preço"
         count={alerts.length}
+        viewAllHref="/alertas"
       >
         {alerts.length === 0 ? (
           <p className="text-text-muted text-sm">

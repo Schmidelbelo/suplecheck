@@ -26,15 +26,14 @@ function resolveEntries(
   if (!ranking) return [];
   const bySlug = new Map(ranking.entries.map((e) => [e.product.slug, e]));
 
-  const visitCounts = new Map<string, number>();
-  for (const view of history) {
-    visitCounts.set(view.slug, (visitCounts.get(view.slug) ?? 0) + 1);
-  }
-
-  return [...visitCounts.entries()]
-    .map(([slug, visits]) => {
-      const entry = bySlug.get(slug);
-      return entry ? { entry, visits } : null;
+  // `history` já é deduplicado por slug (`useRecentlyViewed`, "bump pro
+  // topo" em vez de acumular linhas) — a contagem real de visitas é o
+  // campo `visitCount` de cada item, não o número de linhas do array
+  // (que seria sempre 1 por produto).
+  return history
+    .map((view) => {
+      const entry = bySlug.get(view.slug);
+      return entry ? { entry, visits: view.visitCount } : null;
     })
     .filter((v): v is { entry: RankingViewEntry; visits: number } => v !== null)
     .sort((a, b) => b.visits - a.visits);

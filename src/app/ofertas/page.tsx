@@ -9,6 +9,7 @@ import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import type { RankingView } from "@/modules/evaluation/types";
 import { loadCatalogPriceInfo, buildOffersOverview } from "@/modules/pricing/lib/offersOverview";
 import { OfferCard } from "@/modules/pricing/components/OfferCard";
+import { PriceEvolutionTable } from "@/modules/pricing/components/PriceEvolutionTable";
 
 export const metadata: Metadata = buildMetadata({
   title: "Ofertas e Quedas de Preço",
@@ -128,6 +129,17 @@ export default async function OffersPage() {
                   mínimo histórico ainda.
                 </p>
               )}
+            </div>
+          </Section>
+
+          <Section className="border-border border-b">
+            <div className="flex flex-col gap-6">
+              <SectionTitle
+                icon={<TrendingDown className="size-5" aria-hidden />}
+                title="Evolução de preços"
+                description="Menor e maior preço já registrado, preço atual e tendência de cada produto — quando não há captura suficiente, isto é dito claramente, nunca uma variação inventada."
+              />
+              <PriceEvolutionTable products={products} />
             </div>
           </Section>
 
