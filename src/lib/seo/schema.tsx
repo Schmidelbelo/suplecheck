@@ -53,6 +53,20 @@ export function faqPageSchema(items: { question: string; answer: string }[]) {
   };
 }
 
+/** `ItemList` genérico — usado por páginas de listagem (ex.: `/ofertas`) que destacam um subconjunto de produtos, não o catálogo inteiro. */
+export function itemListSchema(items: { name: string; href: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      url: new URL(item.href, siteConfig.url).toString(),
+    })),
+  };
+}
+
 export function breadcrumbSchema(items: { label: string; href: string }[]) {
   return {
     "@context": "https://schema.org",

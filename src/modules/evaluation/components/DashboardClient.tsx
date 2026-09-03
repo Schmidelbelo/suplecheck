@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, History, GitCompareArrows, Trash2, BarChart3 } from "lucide-react";
+import { Heart, History, GitCompareArrows, Trash2, BarChart3, Bell, BellOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +14,8 @@ import { useFavorites } from "./FavoriteButton";
 import { useRecentlyViewed, useRecentComparisons } from "../lib/recentActivity";
 import { useCategoryRanking } from "../lib/useCategoryRanking";
 import { buildDashboardStats } from "../lib/dashboardStats";
+import { usePriceAlerts, isAlertTriggered } from "@/modules/pricing/lib/priceAlerts";
+import { formatCurrencyBRL } from "@/lib/utils/format";
 import type { RankingView } from "../types";
 
 function resolveProduct(ranking: RankingView | null, slug: string) {
@@ -24,9 +26,10 @@ export function DashboardClient() {
   const { values: favoriteIds, hydrated: favoritesHydrated } = useFavorites();
   const { items: history, hydrated: historyHydrated, clear: clearHistory } = useRecentlyViewed();
   const { items: comparisons, hydrated: comparisonsHydrated } = useRecentComparisons();
+  const { items: alerts, hydrated: alertsHydrated, remove: removeAlert } = usePriceAlerts();
   const { ranking, loading: rankingLoading } = useCategoryRanking();
 
-  const hydrated = favoritesHydrated && historyHydrated && comparisonsHydrated;
+  const hydrated = favoritesHydrated && historyHydrated && comparisonsHydrated && alertsHydrated;
 
   if (!hydrated || rankingLoading) {
     return (
@@ -40,7 +43,8 @@ export function DashboardClient() {
 
   const stats = buildDashboardStats(history, ranking);
   const favoriteEntries = (ranking?.entries ?? []).filter((e) => favoriteIds.has(e.product.id));
-  const hasAnyActivity = favoriteEntries.length > 0 || history.length > 0 || comparisons.length > 0;
+  const hasAnyActivity =
+    favoriteEntries.length > 0 || history.length > 0 || comparisons.length > 0 || alerts.length > 0;
 
   if (!hasAnyActivity) {
     return (
@@ -136,6 +140,55 @@ export function DashboardClient() {
               );
             })}
           </ul>
+        )}
+      </DashboardSection>
+
+      {/* Alertas de preço */}
+      <DashboardSection
+        icon={<Bell className="size-4" aria-hidden />}
+        title="Alertas de preço"
+        count={alerts.length}
+      >
+        {alerts.length === 0 ? (
+          <p className="text-text-muted text-sm">
+            Nenhum alerta configurado — abra a página de um produto e defina um preço alvo.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {alerts.map((alert) => {
+              const entry = resolveProduct(ranking, alert.slug);
+              const currentCents = entry?.product.price?.cents;
+              const triggered =
+                alert.type === "below" &&
+                currentCents != null &&
+                isAlertTriggered(alert, currentCents, currentCents);
+              return (
+                <div
+                  key={alert.productId}
+                  className="border-border flex items-center justify-between gap-4 rounded-lg border p-3"
+                >
+                  <Link href={`/creatina/${alert.slug}`} className="min-w-0 flex-1">
+                    <p className="text-text truncate text-sm font-medium">{alert.productName}</p>
+                    <p className="text-text-muted text-xs">
+                      {triggered
+                        ? "Condição atingida!"
+                        : alert.type === "lowest"
+                          ? "Avisar no menor preço já visto"
+                          : `Avisar abaixo de ${formatCurrencyBRL(alert.targetCents ?? 0)}`}
+                    </p>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeAlert(alert.productId)}
+                    aria-label={`Remover alerta de ${alert.productName}`}
+                  >
+                    <BellOff className="size-4" aria-hidden />
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
         )}
       </DashboardSection>
 

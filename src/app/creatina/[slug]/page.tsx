@@ -24,6 +24,7 @@ import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
 import { ProductSummary } from "@/modules/evaluation/components/ProductSummary";
 import { ProductHighlightBadges } from "@/modules/evaluation/components/ProductHighlightBadges";
 import { RecordProductVisit } from "@/modules/evaluation/components/RecordProductVisit";
+import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 interface PageProps {
@@ -135,6 +136,15 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
   const relatedProducts = categoryRanking ? pickRelatedProducts(categoryRanking, slug) : [];
   const averages = categoryRanking ? categoryAverages(categoryRanking) : null;
 
+  const priceHistory = presentation?.sku
+    ? ((await fetchApiOrNull<{ priceCents: number; capturedAt: string }[]>(
+        `/api/catalog/skus/${presentation.sku.id}/prices`,
+      )) ?? [])
+    : [];
+  const goodQuality = score
+    ? score.classificationTier === "EXCELLENT" || score.classificationTier === "GOOD"
+    : false;
+
   return (
     <>
       <RecordProductVisit slug={slug} />
@@ -178,6 +188,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
         hasTechnicalInfo
         hasComparison={!!averages}
         hasRelated={relatedProducts.length > 0}
+        hasPrice={priceHistory.length > 0}
       />
 
       <Section id="visao-geral" className="border-border scroll-mt-20 border-b">
@@ -266,6 +277,20 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
         <Section className="border-border border-b">
           <div className="mx-auto max-w-3xl">
             <ProductSummary score={score} />
+          </div>
+        </Section>
+      ) : null}
+
+      {priceHistory.length > 0 ? (
+        <Section id="preco" className="border-border scroll-mt-20 border-b">
+          <div className="mx-auto max-w-3xl">
+            <PriceIntelligenceSection
+              points={priceHistory}
+              goodQuality={goodQuality}
+              productId={product.id}
+              slug={slug}
+              productName={product.name}
+            />
           </div>
         </Section>
       ) : null}
@@ -481,6 +506,7 @@ function CategoryComparisonStat({
 const TOC_ITEMS = [
   { id: "visao-geral", label: "Visão geral" },
   { id: "pontuacao", label: "Pontuação", requires: "hasScore" as const },
+  { id: "preco", label: "Preço", requires: "hasPrice" as const },
   { id: "comparacao", label: "Comparação", requires: "hasComparison" as const },
   { id: "avaliacao", label: "Avaliação" },
   {
@@ -502,13 +528,15 @@ function ProductPageNav({
   hasComparison,
   hasTechnicalInfo,
   hasRelated,
+  hasPrice,
 }: {
   hasScore: boolean;
   hasComparison: boolean;
   hasTechnicalInfo: boolean;
   hasRelated: boolean;
+  hasPrice: boolean;
 }) {
-  const flags = { hasScore, hasComparison, hasTechnicalInfo, hasRelated };
+  const flags = { hasScore, hasComparison, hasTechnicalInfo, hasRelated, hasPrice };
   const items = TOC_ITEMS.filter((item) => !item.requires || flags[item.requires]);
 
   return (

@@ -19,6 +19,7 @@ export interface ProductPresentation {
   readonly manufacturer: { readonly slug: string; readonly name: string } | null;
   readonly imageUrl: string | null;
   readonly sku: {
+    readonly id: string;
     readonly variantLabel: string;
     readonly servingsPerUnit: number | null;
     readonly dosagePerServing: number | null;
@@ -65,6 +66,7 @@ function toPresentation(row: ProductWithPresentationData): ProductPresentation {
     imageUrl: row.images[0]?.url ?? null,
     sku: sku
       ? {
+          id: sku.id,
           variantLabel: sku.variantLabel,
           servingsPerUnit: sku.servingsPerUnit,
           dosagePerServing: sku.dosagePerServing,

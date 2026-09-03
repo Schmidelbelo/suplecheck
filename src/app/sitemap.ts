@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }[] = [
     { path: "", priority: 1, changeFrequency: "weekly" },
     { path: "/creatina", priority: 0.9, changeFrequency: "daily" },
+    { path: "/ofertas", priority: 0.8, changeFrequency: "daily" },
     { path: "/como-avaliamos", priority: 0.8, changeFrequency: "monthly" },
     { path: "/metodologia", priority: 0.8, changeFrequency: "monthly" },
     { path: "/sobre", priority: 0.6, changeFrequency: "monthly" },
