@@ -23,6 +23,7 @@ import { ScoreHistoryList } from "@/modules/evaluation/components/ScoreHistoryLi
 import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
 import { ProductSummary } from "@/modules/evaluation/components/ProductSummary";
 import { ProductHighlightBadges } from "@/modules/evaluation/components/ProductHighlightBadges";
+import { RecordProductVisit } from "@/modules/evaluation/components/RecordProductVisit";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 interface PageProps {
@@ -136,6 +137,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
 
   return (
     <>
+      <RecordProductVisit slug={slug} />
       <JsonLd
         data={breadcrumbSchema([
           { label: "Home", href: "/" },

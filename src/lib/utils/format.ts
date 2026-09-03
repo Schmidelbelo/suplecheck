@@ -30,6 +30,31 @@ export function slugify(input: string): string {
     .replace(/-+/g, "-");
 }
 
+/**
+ * "há 5 minutos"/"há 2 dias" etc. — usado nas áreas de dados locais do
+ * usuário (histórico de visitas, comparações recentes), onde a data
+ * exata importa menos que "isso foi recente ou não".
+ */
+export function formatRelativeTime(timestamp: number, now: number = Date.now()): string {
+  const diffSeconds = Math.round((timestamp - now) / 1000);
+  const rtf = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
+
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [
+    ["year", 60 * 60 * 24 * 365],
+    ["month", 60 * 60 * 24 * 30],
+    ["day", 60 * 60 * 24],
+    ["hour", 60 * 60],
+    ["minute", 60],
+  ];
+
+  for (const [unit, secondsInUnit] of units) {
+    if (Math.abs(diffSeconds) >= secondsInUnit) {
+      return rtf.format(Math.round(diffSeconds / secondsInUnit), unit);
+    }
+  }
+  return rtf.format(diffSeconds, "second");
+}
+
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return `${text.slice(0, maxLength).trimEnd()}…`;

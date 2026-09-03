@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Container } from "./Container";
 import { Logo } from "@/components/shared/Logo";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { WishlistNavButton } from "./WishlistNavButton";
 import { Button } from "@/components/ui/Button";
 import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/ui/Drawer";
 import { primaryNav } from "@/config/nav";
@@ -43,6 +44,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <WishlistNavButton />
           <Button variant="primary" size="sm" className="hidden sm:inline-flex" asChild>
             <Link href="/creatina">Ver ranking</Link>
           </Button>

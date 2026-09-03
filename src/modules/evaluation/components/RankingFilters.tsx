@@ -15,6 +15,7 @@ import { RankingEntryCard } from "./RankingEntryCard";
 import { CompareBar, MAX_COMPARE } from "./CompareBar";
 import { CompareTable } from "./CompareTable";
 import { useFavorites } from "./FavoriteButton";
+import { useRecentComparisons } from "../lib/recentActivity";
 import type { RankingViewEntry } from "../types";
 
 type SortKey = "score" | "price" | "pricePerDose" | "brand";
@@ -93,6 +94,7 @@ export function RankingFilters({ entries }: { entries: readonly RankingViewEntry
   const [compareIds, setCompareIds] = React.useState<Set<string>>(new Set());
   const [compareOpen, setCompareOpen] = React.useState(false);
   const { values: favoriteIds, hydrated: favoritesHydrated } = useFavorites();
+  const { push: pushComparison } = useRecentComparisons();
 
   // Comparação compartilhável: `?comparar=slug-a,slug-b` na URL — lido
   // uma vez ao montar (permite abrir um link enviado por alguém já com
@@ -112,9 +114,7 @@ export function RankingFilters({ entries }: { entries: readonly RankingViewEntry
   React.useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     if (compareIds.size > 0) {
-      const slugs = entries
-        .filter((e) => compareIds.has(e.product.id))
-        .map((e) => e.product.slug);
+      const slugs = entries.filter((e) => compareIds.has(e.product.id)).map((e) => e.product.slug);
       params.set(COMPARE_QUERY_PARAM, slugs.join(","));
     } else {
       params.delete(COMPARE_QUERY_PARAM);
@@ -254,7 +254,13 @@ export function RankingFilters({ entries }: { entries: readonly RankingViewEntry
 
       <CompareBar
         count={compareIds.size}
-        onCompare={() => setCompareOpen(true)}
+        onCompare={() => {
+          setCompareOpen(true);
+          pushComparison({
+            slugs: compareEntries.map((e) => e.product.slug),
+            comparedAt: Date.now(),
+          });
+        }}
         onClear={() => setCompareIds(new Set())}
       />
       <CompareTable entries={compareEntries} open={compareOpen} onOpenChange={setCompareOpen} />
