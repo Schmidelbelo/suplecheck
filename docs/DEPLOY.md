@@ -220,3 +220,19 @@ relevante, considerar capturar erros só em servidor/edge (remover
 - [ ] Lighthouse (Desktop + Mobile) rodado contra a URL final de produção — não foi possível rodar localmente nesta etapa (sem Chrome/Chromium disponível no ambiente de execução); rodar via PageSpeed Insights (<https://pagespeed.web.dev>) ou Lighthouse CI contra a URL de produção assim que houver deploy real
 - [ ] Content-Security-Policy validada em produção (checar console do navegador em `/`, `/creatina` e `/creatina/[slug]` — nenhum recurso bloqueado; GA4/Clarity/Sentry devem continuar funcionando)
 - [x] Rate limiting em `/api/leads` e `/api/contact` (5 requisições/minuto por IP, ver `src/middleware.ts`) — em memória, por instância; se o tráfego crescer a ponto de rodar múltiplas instâncias simultâneas, considerar migrar para um limiter distribuído (Upstash Redis/Vercel KV)
+
+## 8. Limitações conhecidas
+
+### `next dev` pode devolver 500 em vez de 404 num produto inexistente — não afeta produção
+
+**Status: encerrado, comportamento aceito.**
+
+Ao acessar `/creatina/<slug-inexistente>` rodando `npm run dev` (nunca em `next build`/`next start`/Vercel), a resposta pode vir como HTTP 500 em vez de 404. Causa raiz confirmada: duplicação de identidade de módulo no compilador de desenvolvimento do Next.js (Webpack, compilação sob demanda por rota) — quando a mesma classe `ApplicationError` (`packages/application/src/errors/ApplicationError.ts`) é alcançada por duas rotas compiladas em entradas separadas (`/creatina/[slug]` e `/api/evaluation/products/[idOrSlug]/view`, uma importando via alias `@application/*` do `tsconfig.json` e a outra via caminho relativo), o dev server às vezes não converge as duas para a mesma instância de classe — `error instanceof ApplicationError` resulta `false` mesmo com a cadeia de protótipos batendo por nome, e o erro cai no branch genérico de 500 de `handleApiError.ts` em vez do branch de 404.
+
+Confirmado com evidência direta (diagnóstico temporário, revertido) que a causa é exclusiva do bundler de desenvolvimento — não uma falha de lógica no código. Verificado repetidamente que:
+
+- `next start` (produção real) sempre devolve 404 correto para produto/marca/categoria/comparação inexistentes;
+- o comportamento de redirect (`/categorias/creatina` → `/creatina`, comparações fora de ordem canônica) sempre devolve 307 correto em produção;
+- nenhum rastreador de busca ou usuário final passa por `next dev`.
+
+**Decisão**: não corrigir. Corrigir exigiria unificar o estilo de import em todo `packages/application` (alias vs. relativo) ou mudar a estratégia de resolução de módulos do bundler — um refactor amplo sem nenhum ganho para produção. Revisitar apenas se o projeto migrar para pacotes reais via workspaces do npm/pnpm (resolução via `node_modules`, não `tsconfig.paths`) ou adotar Turbopack como padrão de dev.
