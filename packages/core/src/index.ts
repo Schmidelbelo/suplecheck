@@ -97,6 +97,15 @@ export {
   type ProductBadge,
 } from "./domain/scoring/ProductBadges";
 export {
+  recommendAlternatives,
+  type AlternativeCandidate,
+  type RecommendationSet,
+} from "./domain/scoring/AlternativeRecommendations";
+export {
+  buildComparisonNarrative,
+  type ComparisonCandidate,
+} from "./domain/scoring/ComparisonNarrative";
+export {
   rankCriteriaByImpact,
   type CriterionImpactInput,
   type CriterionImpact,

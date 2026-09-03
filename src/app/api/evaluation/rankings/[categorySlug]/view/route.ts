@@ -57,14 +57,15 @@ export async function GET(_request: Request, { params }: Params) {
         pricePerGramCents: product.price?.pricePerGramCents ?? null,
       })),
     );
-    const overallScoreByProduct = new Map(overallScores.map((r) => [r.productId, r.overallScore]));
+    const overallResultByProduct = new Map(overallScores.map((r) => [r.productId, r]));
 
     const badgesByProduct = assignProductBadges(
       validEntries.map(({ entry, product }) => ({
         productId: entry.supplementId,
         priceCents: product.price?.cents ?? null,
         finalScore: entry.finalScore,
-        overallScore: overallScoreByProduct.get(entry.supplementId) ?? entry.finalScore,
+        overallScore:
+          overallResultByProduct.get(entry.supplementId)?.overallScore ?? entry.finalScore,
         criteriaScores: breakdownByProduct.get(entry.supplementId) ?? {},
       })),
     );
@@ -74,15 +75,24 @@ export async function GET(_request: Request, { params }: Params) {
       methodologyId: ranking.methodologyId,
       methodologyVersion: ranking.methodologyVersion,
       generatedAt: ranking.generatedAt,
-      entries: validEntries.map(({ entry, product }) => ({
-        position: entry.position,
-        finalScore: entry.finalScore,
-        classificationTier: entry.classificationTier,
-        product,
-        overallScore: overallScoreByProduct.get(entry.supplementId) ?? entry.finalScore,
-        badges: badgesByProduct.get(entry.supplementId) ?? [],
-        criteriaScores: breakdownByProduct.get(entry.supplementId) ?? {},
-      })),
+      entries: validEntries.map(({ entry, product }) => {
+        const overallResult = overallResultByProduct.get(entry.supplementId);
+        return {
+          position: entry.position,
+          finalScore: entry.finalScore,
+          classificationTier: entry.classificationTier,
+          product,
+          overallScore: overallResult?.overallScore ?? entry.finalScore,
+          scoreComponents: overallResult?.components ?? {
+            quality: entry.finalScore,
+            price: null,
+            pricePerDose: null,
+            pricePerGram: null,
+          },
+          badges: badgesByProduct.get(entry.supplementId) ?? [],
+          criteriaScores: breakdownByProduct.get(entry.supplementId) ?? {},
+        };
+      }),
     });
   } catch (error) {
     return handleApiError(error);

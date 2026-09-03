@@ -22,7 +22,10 @@ import { ScoreBreakdownList } from "@/modules/evaluation/components/ScoreBreakdo
 import { ScoreHistoryList } from "@/modules/evaluation/components/ScoreHistoryList";
 import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
 import { ProductSummary } from "@/modules/evaluation/components/ProductSummary";
-import { rankCriteriaByImpact, type ProductBadge } from "@core/index";
+import { rankCriteriaByImpact, recommendAlternatives, type ProductBadge } from "@core/index";
+import { AlternativeRecommendationCard } from "@/modules/evaluation/components/AlternativeRecommendationCard";
+import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
+import { ScoreExplanationBars } from "@/modules/evaluation/components/ScoreExplanationBars";
 import { RecordProductVisit } from "@/modules/evaluation/components/RecordProductVisit";
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
@@ -139,21 +142,28 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
   const badges: readonly ProductBadge[] = currentEntry?.badges ?? [];
 
   const others = categoryRanking?.entries.filter((e) => e.product.slug !== slug) ?? [];
-  const betterAlternatives = currentEntry
-    ? others
-        .filter((e) => e.overallScore > currentEntry.overallScore)
-        .sort((a, b) => b.overallScore - a.overallScore)
-        .slice(0, 3)
-    : [];
-  const cheaperAlternatives = currentEntry?.product.price
-    ? others
-        .filter(
-          (e) =>
-            e.product.price != null && e.product.price.cents < currentEntry.product.price!.cents,
-        )
-        .sort((a, b) => a.product.price!.cents - b.product.price!.cents)
-        .slice(0, 3)
-    : [];
+  const recommendations = currentEntry
+    ? recommendAlternatives(
+        {
+          productId: currentEntry.product.id,
+          priceCents: currentEntry.product.price?.cents ?? null,
+          finalScore: currentEntry.finalScore,
+          overallScore: currentEntry.overallScore,
+        },
+        others.map((e) => ({
+          productId: e.product.id,
+          priceCents: e.product.price?.cents ?? null,
+          finalScore: e.finalScore,
+          overallScore: e.overallScore,
+        })),
+      )
+    : { cheapest: null, topRated: null, bestBalance: null };
+
+  const recommendationEntries = {
+    cheapest: others.find((e) => e.product.id === recommendations.cheapest) ?? null,
+    topRated: others.find((e) => e.product.id === recommendations.topRated) ?? null,
+    bestBalance: others.find((e) => e.product.id === recommendations.bestBalance) ?? null,
+  };
 
   const priceHistory = presentation?.sku
     ? ((await fetchApiOrNull<{ priceCents: number; capturedAt: string }[]>(
@@ -336,6 +346,12 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
               </Link>
             </div>
             <ScoreBreakdownList breakdown={score.breakdown} />
+            {currentEntry ? (
+              <ScoreExplanationBars
+                components={currentEntry.scoreComponents}
+                overallScore={currentEntry.overallScore}
+              />
+            ) : null}
           </div>
         </Section>
       ) : null}
@@ -421,33 +437,34 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
         </div>
       </Section>
 
-      {betterAlternatives.length > 0 ? (
+      {recommendationEntries.cheapest ||
+      recommendationEntries.topRated ||
+      recommendationEntries.bestBalance ? (
         <Section className="border-border border-b">
           <div className="mx-auto flex max-w-3xl flex-col gap-6">
-            <h2 className="font-display text-text text-2xl font-bold">Alternativas melhores</h2>
+            <h2 className="font-display text-text text-2xl font-bold">Melhor alternativa</h2>
             <p className="text-text-muted -mt-4 text-sm">
-              Produtos com Score Geral maior que este, considerando qualidade e preço juntos.
+              Escolhido automaticamente pelo Score Geral entre os demais produtos do ranking.
             </p>
             <div className="grid gap-4 sm:grid-cols-3">
-              {betterAlternatives.map((entry) => (
-                <RelatedProductCard key={entry.product.id} entry={entry} />
-              ))}
-            </div>
-          </div>
-        </Section>
-      ) : null}
-
-      {cheaperAlternatives.length > 0 ? (
-        <Section className="border-border border-b">
-          <div className="mx-auto flex max-w-3xl flex-col gap-6">
-            <h2 className="font-display text-text text-2xl font-bold">Alternativas mais baratas</h2>
-            <p className="text-text-muted -mt-4 text-sm">
-              Produtos do mesmo ranking custando menos que este.
-            </p>
-            <div className="grid gap-4 sm:grid-cols-3">
-              {cheaperAlternatives.map((entry) => (
-                <RelatedProductCard key={entry.product.id} entry={entry} />
-              ))}
+              {recommendationEntries.cheapest ? (
+                <AlternativeRecommendationCard
+                  slot="cheapest"
+                  entry={recommendationEntries.cheapest}
+                />
+              ) : null}
+              {recommendationEntries.topRated ? (
+                <AlternativeRecommendationCard
+                  slot="topRated"
+                  entry={recommendationEntries.topRated}
+                />
+              ) : null}
+              {recommendationEntries.bestBalance ? (
+                <AlternativeRecommendationCard
+                  slot="bestBalance"
+                  entry={recommendationEntries.bestBalance}
+                />
+              ) : null}
             </div>
           </div>
         </Section>
@@ -490,27 +507,14 @@ function RelatedProductCard({ entry }: { entry: RankingViewEntry }) {
   return (
     <Link href={`/creatina/${entry.product.slug}`}>
       <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-4 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
-        <Image
-          src={entry.product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
-          alt={entry.product.name}
-          width={64}
-          height={64}
-          className="border-border bg-bg-subtle size-16 rounded-md border object-cover"
+        <ProductMiniCard
+          imageUrl={entry.product.imageUrl}
+          name={entry.product.name}
+          brandName={entry.product.brand.name}
+          priceCents={entry.product.price?.cents ?? null}
+          classificationTier={entry.classificationTier}
+          score={entry.finalScore}
         />
-        <div className="flex-1">
-          <p className="text-text-muted text-xs font-medium tracking-wide uppercase">
-            {entry.product.brand.name}
-          </p>
-          <p className="text-text line-clamp-2 text-sm font-semibold">{entry.product.name}</p>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-text text-lg font-bold tabular-nums">
-            {entry.finalScore.toFixed(1)}
-          </span>
-          <Badge variant={classificationBadgeVariant(entry.classificationTier)}>
-            {classificationLabel(entry.classificationTier)}
-          </Badge>
-        </div>
       </Card>
     </Link>
   );

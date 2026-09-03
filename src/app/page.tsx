@@ -6,6 +6,7 @@ import { IndexExplainer } from "@/components/marketing/IndexExplainer";
 import { EvaluationCriteria } from "@/components/marketing/EvaluationCriteria";
 import { Benefits } from "@/components/marketing/Benefits";
 import { RankingPreview } from "@/components/marketing/RankingPreview";
+import { WeeklyHighlights } from "@/components/marketing/WeeklyHighlights";
 import { NewsletterSection } from "@/components/marketing/NewsletterSection";
 import { FAQSection } from "@/components/marketing/FAQSection";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
@@ -21,6 +22,7 @@ export default function HomePage() {
       <IndexExplainer />
       <EvaluationCriteria />
       <Benefits />
+      <WeeklyHighlights />
       <RankingPreview />
       <NewsletterSection />
       <FAQSection items={homeFaq} />

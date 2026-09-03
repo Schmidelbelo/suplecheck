@@ -1,5 +1,5 @@
 import type { IndexResultDTO, SupplementDTO } from "@application/index";
-import type { ProductBadge } from "@core/index";
+import type { ProductBadge, OverallScoreResult } from "@core/index";
 import type { ProductPresentation } from "./services/productView.service";
 
 export type { ProductPresentation, IndexResultDTO, SupplementDTO, ProductBadge };
@@ -11,6 +11,8 @@ export interface RankingViewEntry {
   readonly product: ProductPresentation;
   /** Score Geral (qualidade + preço/dose/grama) — calculado uma única vez por `calculateOverallScores`, nunca recomputado no cliente. */
   readonly overallScore: number;
+  /** Cada componente normalizado do Score Geral (0–100) — base da seção "Como chegamos nessa recomendação". */
+  readonly scoreComponents: OverallScoreResult["components"];
   /** Selos automáticos deste produto dentro do ranking atual (ver `assignProductBadges`). */
   readonly badges: readonly ProductBadge[];
   /** `criterionId` → nota (0–100) do breakdown mais recente — mesmo dado usado para calcular os selos, exposto para a tela de comparação. */

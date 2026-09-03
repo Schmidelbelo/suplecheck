@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { formatCurrencyBRL } from "@/lib/utils/format";
 import { toast } from "@/hooks/useToast";
+import { buildComparisonNarrative } from "@core/index";
 import { classificationLabel, classificationBadgeVariant } from "../lib/classification";
 import type { RankingViewEntry } from "../types";
 
@@ -142,7 +143,7 @@ export function CompareTable({
           ) : null}
         </ModalHeader>
 
-        {entries.length > 0 ? <OverallWinnerBanner entries={entries} /> : null}
+        {entries.length > 0 ? <ComparisonNarrativeBanner entries={entries} /> : null}
 
         {entries.length > 0 ? (
           <div className="overflow-x-auto">
@@ -216,22 +217,30 @@ export function CompareTable({
 }
 
 /**
- * Vencedor geral da comparação — maior Score Geral entre os
- * selecionados. Mesma regra defensável dos selos e das células
- * destacadas: só anuncia um vencedor quando não há empate exato.
+ * Resumo em linguagem natural — `buildComparisonNarrative` (Core
+ * Domain) já inclui a recomendação final, então substitui o antigo
+ * banner "só vencedor geral" em vez de duplicá-lo ao lado.
  */
-function OverallWinnerBanner({ entries }: { entries: readonly RankingViewEntry[] }) {
-  const best = Math.max(...entries.map((e) => e.overallScore));
-  const winners = entries.filter((e) => e.overallScore === best);
-  if (winners.length !== 1) return null;
+function ComparisonNarrativeBanner({ entries }: { entries: readonly RankingViewEntry[] }) {
+  const sentences = buildComparisonNarrative(
+    entries.map((e) => ({
+      productId: e.product.id,
+      name: e.product.name,
+      priceCents: e.product.price?.cents ?? null,
+      finalScore: e.finalScore,
+      overallScore: e.overallScore,
+    })),
+  );
+  if (sentences.length === 0) return null;
 
   return (
-    <div className="bg-brand-subtle mb-4 flex items-center gap-2 rounded-lg p-3 text-sm">
-      <Trophy className="text-brand size-4 shrink-0" aria-hidden />
-      <span className="text-text">
-        <strong>{winners[0]!.product.name}</strong> tem o melhor Score Geral entre os produtos
-        selecionados.
-      </span>
+    <div className="bg-brand-subtle mb-4 flex flex-col gap-1.5 rounded-lg p-3 text-sm">
+      {sentences.map((sentence) => (
+        <span key={sentence} className="text-text flex items-start gap-2">
+          <Trophy className="text-brand mt-0.5 size-4 shrink-0" aria-hidden />
+          {sentence}
+        </span>
+      ))}
     </div>
   );
 }

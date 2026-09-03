@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatRelativeTime } from "@/lib/utils/format";
-import { classificationBadgeVariant, classificationLabel } from "../lib/classification";
+import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { useFavorites } from "./FavoriteButton";
 import { useRecentlyViewed, useRecentComparisons } from "../lib/recentActivity";
 import { useCategoryRanking } from "../lib/useCategoryRanking";
@@ -92,6 +92,7 @@ export function DashboardClient() {
                 name={entry.product.name}
                 brand={entry.product.brand.name}
                 imageUrl={entry.product.imageUrl}
+                priceCents={entry.product.price?.cents ?? null}
                 score={entry.finalScore}
                 classificationTier={entry.classificationTier}
               />
@@ -256,6 +257,7 @@ export function DashboardClient() {
                 name={entry.product.name}
                 brand={entry.product.brand.name}
                 imageUrl={entry.product.imageUrl}
+                priceCents={entry.product.price?.cents ?? null}
                 score={entry.finalScore}
                 classificationTier={entry.classificationTier}
                 footer={`${visits} visita${visits > 1 ? "s" : ""}`}
@@ -324,6 +326,7 @@ function MiniProductCard({
   name,
   brand,
   imageUrl,
+  priceCents,
   score,
   classificationTier,
   footer,
@@ -332,6 +335,7 @@ function MiniProductCard({
   name: string;
   brand: string;
   imageUrl: string | null;
+  priceCents: number | null;
   score: number;
   classificationTier: string;
   footer?: string;
@@ -339,25 +343,14 @@ function MiniProductCard({
   return (
     <Link href={href}>
       <Card className="hover:border-border-strong flex h-full flex-col gap-2 p-3 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
-        <div className="flex items-center gap-2">
-          <Image
-            src={imageUrl ?? "/images/products/creatina-placeholder.svg"}
-            alt={name}
-            width={40}
-            height={40}
-            className="border-border bg-bg-subtle size-10 shrink-0 rounded-md border object-cover"
-          />
-          <div className="min-w-0">
-            <p className="text-text-muted truncate text-xs">{brand}</p>
-            <p className="text-text truncate text-sm font-semibold">{name}</p>
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-text text-sm font-bold tabular-nums">{score.toFixed(1)}</span>
-          <Badge variant={classificationBadgeVariant(classificationTier)}>
-            {classificationLabel(classificationTier)}
-          </Badge>
-        </div>
+        <ProductMiniCard
+          imageUrl={imageUrl}
+          name={name}
+          brandName={brand}
+          priceCents={priceCents}
+          classificationTier={classificationTier}
+          score={score}
+        />
         {footer ? <p className="text-text-subtle text-xs">{footer}</p> : null}
       </Card>
     </Link>
