@@ -82,6 +82,25 @@ export {
   SupleCheckIndexResult,
   type CriterionBreakdownEntry,
 } from "./domain/scoring/SupleCheckIndexResult";
+export {
+  DEFAULT_OVERALL_SCORE_WEIGHTS,
+  type OverallScoreWeights,
+} from "./domain/scoring/OverallScoreWeights";
+export {
+  calculateOverallScores,
+  type OverallScoreInput,
+  type OverallScoreResult,
+} from "./domain/scoring/OverallScoreCalculator";
+export {
+  assignProductBadges,
+  type ProductBadgeInput,
+  type ProductBadge,
+} from "./domain/scoring/ProductBadges";
+export {
+  rankCriteriaByImpact,
+  type CriterionImpactInput,
+  type CriterionImpact,
+} from "./domain/scoring/ScoreExplanation";
 
 // Erros de domínio
 export * from "./domain/errors/DomainError";

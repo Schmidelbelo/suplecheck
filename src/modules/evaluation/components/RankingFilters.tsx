@@ -18,11 +18,12 @@ import { useFavorites } from "./FavoriteButton";
 import { useRecentComparisons } from "../lib/recentActivity";
 import type { RankingViewEntry } from "../types";
 
-type SortKey = "score" | "price" | "pricePerDose" | "brand";
+type SortKey = "overall" | "score" | "price" | "pricePerDose" | "brand";
 
 const SORT_LABELS: Record<SortKey, string> = {
-  score: "Nota (maior primeiro)",
-  price: "Preço (menor primeiro)",
+  overall: "Melhor compra (Score Geral)",
+  score: "Maior nota geral (Índice SupleCheck)",
+  price: "Menor preço",
   pricePerDose: "Preço por dose (menor primeiro)",
   brand: "Marca (A–Z)",
 };
@@ -34,6 +35,11 @@ function sortEntries(entries: readonly RankingViewEntry[], sortBy: SortKey): Ran
 
   withIndex.sort((a, b) => {
     switch (sortBy) {
+      case "overall": {
+        if (a.entry.overallScore !== b.entry.overallScore)
+          return b.entry.overallScore - a.entry.overallScore;
+        break;
+      }
       case "price": {
         const priceA = a.entry.product.price?.cents;
         const priceB = b.entry.product.price?.cents;

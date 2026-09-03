@@ -27,6 +27,8 @@ export interface ProductPresentation {
   readonly price: {
     readonly cents: number;
     readonly pricePerDoseCents: number | null;
+    /** `null` quando o SKU não informa `dosagePerServing` (gramas por porção) — nunca estimado. */
+    readonly pricePerGramCents: number | null;
     readonly url: string | null;
     readonly store: { readonly slug: string; readonly name: string };
   } | null;
@@ -78,6 +80,10 @@ function toPresentation(row: ProductWithPresentationData): ProductPresentation {
           pricePerDoseCents:
             sku?.servingsPerUnit && sku.servingsPerUnit > 0
               ? Math.round(priceEntry.priceCents / sku.servingsPerUnit)
+              : null,
+          pricePerGramCents:
+            sku?.servingsPerUnit && sku.servingsPerUnit > 0 && sku.dosagePerServing
+              ? priceEntry.priceCents / (sku.servingsPerUnit * sku.dosagePerServing)
               : null,
           url: priceEntry.url,
           store: { slug: priceEntry.store.slug, name: priceEntry.store.name },

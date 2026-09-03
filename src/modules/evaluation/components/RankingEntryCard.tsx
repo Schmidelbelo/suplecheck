@@ -66,6 +66,16 @@ export function RankingEntryCard({
             {product.sku.servingsPerUnit ? ` · ${product.sku.servingsPerUnit} porções` : ""}
           </p>
         ) : null}
+        {entry.badges.length > 0 ? (
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {entry.badges.map((badge) => (
+              <Badge key={badge.label} variant="brand" className="gap-1">
+                <span aria-hidden>{badge.emoji}</span>
+                {badge.label}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="flex shrink-0 flex-col items-start gap-1 sm:items-end">

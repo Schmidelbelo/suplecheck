@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { fetchApiOrNull } from "@/lib/api/fetchApi";
-import { formatCurrencyBRL } from "@/lib/utils/format";
 import type { RankingView } from "@/modules/evaluation/types";
 import { loadCatalogPriceInfo, buildOffersOverview } from "@/modules/pricing/lib/offersOverview";
 import { OfferCard } from "@/modules/pricing/components/OfferCard";
@@ -72,11 +71,7 @@ export default async function OffersPage() {
               <SectionTitle
                 icon={<Star className="size-5" aria-hidden />}
                 title="Melhores oportunidades"
-                description={
-                  overview.categoryAverageCents != null
-                    ? `Produtos bem avaliados custando pelo menos 10% abaixo da média da categoria (${formatCurrencyBRL(overview.categoryAverageCents)}).`
-                    : "Produtos bem avaliados com preço competitivo."
-                }
+                description="Maior Score Geral do ranking — combina qualidade (Índice SupleCheck) com preço, preço por dose e preço por grama, ver docs/SCORING.md."
               />
               {overview.bestOpportunities.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

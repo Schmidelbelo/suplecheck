@@ -22,7 +22,7 @@ import { ScoreBreakdownList } from "@/modules/evaluation/components/ScoreBreakdo
 import { ScoreHistoryList } from "@/modules/evaluation/components/ScoreHistoryList";
 import { FavoriteButton } from "@/modules/evaluation/components/FavoriteButton";
 import { ProductSummary } from "@/modules/evaluation/components/ProductSummary";
-import { ProductHighlightBadges } from "@/modules/evaluation/components/ProductHighlightBadges";
+import { rankCriteriaByImpact, type ProductBadge } from "@core/index";
 import { RecordProductVisit } from "@/modules/evaluation/components/RecordProductVisit";
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
@@ -116,7 +116,7 @@ function buildProductDescription(view: ProductView): string {
 function explainScore(view: ProductView): string {
   if (!view.score) return "Este produto ainda não foi avaliado pelo Índice SupleCheck.";
 
-  const top = [...view.score.breakdown].sort((a, b) => b.weight * b.score - a.weight * a.score)[0];
+  const top = rankCriteriaByImpact(view.score.breakdown)[0];
   const label = classificationLabel(view.score.classificationTier).toLowerCase();
 
   const base = `Este produto recebeu nota ${view.score.finalScore.toFixed(1)} de 100, classificação "${label}".`;
@@ -135,6 +135,25 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
   const { product, presentation, score, history, ranking } = view;
   const relatedProducts = categoryRanking ? pickRelatedProducts(categoryRanking, slug) : [];
   const averages = categoryRanking ? categoryAverages(categoryRanking) : null;
+  const currentEntry = categoryRanking?.entries.find((e) => e.product.slug === slug) ?? null;
+  const badges: readonly ProductBadge[] = currentEntry?.badges ?? [];
+
+  const others = categoryRanking?.entries.filter((e) => e.product.slug !== slug) ?? [];
+  const betterAlternatives = currentEntry
+    ? others
+        .filter((e) => e.overallScore > currentEntry.overallScore)
+        .sort((a, b) => b.overallScore - a.overallScore)
+        .slice(0, 3)
+    : [];
+  const cheaperAlternatives = currentEntry?.product.price
+    ? others
+        .filter(
+          (e) =>
+            e.product.price != null && e.product.price.cents < currentEntry.product.price!.cents,
+        )
+        .sort((a, b) => a.product.price!.cents - b.product.price!.cents)
+        .slice(0, 3)
+    : [];
 
   const priceHistory = presentation?.sku
     ? ((await fetchApiOrNull<{ priceCents: number; capturedAt: string }[]>(
@@ -219,7 +238,16 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
               <Badge variant="outline">Ainda não avaliado</Badge>
             )}
 
-            {score ? <ProductHighlightBadges score={score} /> : null}
+            {badges.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {badges.map((badge) => (
+                  <Badge key={badge.label} variant="brand" className="gap-1">
+                    <span aria-hidden>{badge.emoji}</span>
+                    {badge.label}
+                  </Badge>
+                ))}
+              </div>
+            ) : null}
 
             {ranking ? (
               <div className="flex flex-wrap items-center gap-2">
@@ -392,6 +420,38 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
           </Link>
         </div>
       </Section>
+
+      {betterAlternatives.length > 0 ? (
+        <Section className="border-border border-b">
+          <div className="mx-auto flex max-w-3xl flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold">Alternativas melhores</h2>
+            <p className="text-text-muted -mt-4 text-sm">
+              Produtos com Score Geral maior que este, considerando qualidade e preço juntos.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {betterAlternatives.map((entry) => (
+                <RelatedProductCard key={entry.product.id} entry={entry} />
+              ))}
+            </div>
+          </div>
+        </Section>
+      ) : null}
+
+      {cheaperAlternatives.length > 0 ? (
+        <Section className="border-border border-b">
+          <div className="mx-auto flex max-w-3xl flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold">Alternativas mais baratas</h2>
+            <p className="text-text-muted -mt-4 text-sm">
+              Produtos do mesmo ranking custando menos que este.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {cheaperAlternatives.map((entry) => (
+                <RelatedProductCard key={entry.product.id} entry={entry} />
+              ))}
+            </div>
+          </div>
+        </Section>
+      ) : null}
 
       {relatedProducts.length > 0 ? (
         <Section id="relacionados" className="border-border bg-bg-subtle scroll-mt-20 border-t">

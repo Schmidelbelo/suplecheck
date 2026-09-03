@@ -1,4 +1,5 @@
-import type { CriterionBreakdownDTO, IndexResultDTO } from "@application/index";
+import type { IndexResultDTO } from "@application/index";
+import { rankCriteriaByImpact } from "@core/index";
 import { criterionLabel } from "./criteria";
 
 /**
@@ -7,14 +8,14 @@ import { criterionLabel } from "./criteria";
  * critério. Isso é deliberado: qualquer frase gerada aqui precisa
  * continuar verdadeira automaticamente se a nota do produto mudar
  * (reavaliação), sem exigir alguém reescrevendo copy manualmente.
+ *
+ * A ordenação por impacto real (nota × peso) vem de
+ * `rankCriteriaByImpact` (Core Domain) — nunca recalculada aqui (ver
+ * docs/SCORING.md, "eliminação de duplicação").
  */
 
 const STRONG_THRESHOLD = 75;
 const WEAK_THRESHOLD = 45;
-
-function weightedImpact(item: CriterionBreakdownDTO): number {
-  return item.weight * item.score;
-}
 
 export interface ProductSummary {
   readonly audience: string;
@@ -27,16 +28,14 @@ export interface ProductSummary {
 /**
  * Resumo "Em resumo" — construído inteiramente a partir de
  * `breakdown`/`classificationTier` já calculados pelo Core Domain.
- * Sem `score` (produto não avaliado ainda), retorna `null` — o
- * componente decide o que mostrar nesse caso, não este helper.
  */
 export function buildProductSummary(score: IndexResultDTO): ProductSummary {
-  const sorted = [...score.breakdown].sort((a, b) => weightedImpact(b) - weightedImpact(a));
-  const strongest = sorted.filter((c) => c.score >= STRONG_THRESHOLD);
-  const weakest = [...score.breakdown]
+  const ranked = rankCriteriaByImpact(score.breakdown);
+  const strongest = ranked.filter((c) => c.score >= STRONG_THRESHOLD);
+  const weakest = [...ranked]
     .filter((c) => c.score < WEAK_THRESHOLD)
     .sort((a, b) => a.score - b.score);
-  const topCriterion = sorted[0];
+  const topCriterion = ranked[0];
   const worstCriterion = weakest[0];
 
   const pros = strongest
@@ -68,38 +67,6 @@ export function buildProductSummary(score: IndexResultDTO): ProductSummary {
     : null;
 
   return { audience, pros, cons, buyIf, skipIf };
-}
-
-export interface HighlightBadge {
-  readonly label: string;
-  readonly criterionId: string;
-}
-
-/**
- * Badges automáticos — só existem para os 6 critérios reais da
- * metodologia (ver `packages/core/src/domain/criteria/builtin`).
- * Deliberadamente NÃO inclui badges como "Alta concentração", "Boa
- * solubilidade", "Excelente sabor" ou "Boa pureza": nenhum desses dados
- * é capturado em nenhum lugar do domínio (a plataforma nunca testa
- * laboratorialmente um produto) — inventar esse selo seria uma
- * alegação falsa sobre o produto, o oposto do que o Índice SupleCheck
- * se propõe a ser.
- */
-const BADGE_LABELS: Record<string, string> = {
-  "cost-benefit": "Melhor custo-benefício",
-  "label-transparency": "Rótulo transparente",
-  reputation: "Muito bem avaliado",
-  "store-reliability": "Loja confiável",
-  "exaggerated-claims": "Marketing honesto",
-  "price-per-dose": "Ótimo preço por dose",
-};
-
-export function buildHighlightBadges(score: IndexResultDTO): HighlightBadge[] {
-  return score.breakdown
-    .filter((c) => c.score >= STRONG_THRESHOLD && BADGE_LABELS[c.criterionId])
-    .sort((a, b) => weightedImpact(b) - weightedImpact(a))
-    .slice(0, 3)
-    .map((c) => ({ label: BADGE_LABELS[c.criterionId]!, criterionId: c.criterionId }));
 }
 
 /** Faixa de cor por nota — reaproveitada pela barra de progresso e pelo texto de cada critério. */

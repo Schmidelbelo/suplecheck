@@ -22,7 +22,16 @@ interface CompareRow {
 
 const ROWS: CompareRow[] = [
   {
-    label: "Índice SupleCheck",
+    label: "Score Geral",
+    value: (entry) => entry.overallScore,
+    render: (entry) => (
+      <span className="text-brand text-xl font-bold tabular-nums">
+        {entry.overallScore.toFixed(1)}
+      </span>
+    ),
+  },
+  {
+    label: "Índice SupleCheck (nota)",
     value: (entry) => entry.finalScore,
     render: (entry) => (
       <div className="flex items-center gap-2">
@@ -34,6 +43,14 @@ const ROWS: CompareRow[] = [
         </Badge>
       </div>
     ),
+  },
+  {
+    label: "Custo-benefício",
+    value: (entry) => entry.criteriaScores["cost-benefit"] ?? null,
+    render: (entry) =>
+      entry.criteriaScores["cost-benefit"] != null
+        ? entry.criteriaScores["cost-benefit"]!.toFixed(1)
+        : "Não informado",
   },
   {
     label: "Preço",
@@ -125,6 +142,8 @@ export function CompareTable({
           ) : null}
         </ModalHeader>
 
+        {entries.length > 0 ? <OverallWinnerBanner entries={entries} /> : null}
+
         {entries.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[480px] border-collapse text-sm">
@@ -193,5 +212,26 @@ export function CompareTable({
         )}
       </ModalContent>
     </Modal>
+  );
+}
+
+/**
+ * Vencedor geral da comparação — maior Score Geral entre os
+ * selecionados. Mesma regra defensável dos selos e das células
+ * destacadas: só anuncia um vencedor quando não há empate exato.
+ */
+function OverallWinnerBanner({ entries }: { entries: readonly RankingViewEntry[] }) {
+  const best = Math.max(...entries.map((e) => e.overallScore));
+  const winners = entries.filter((e) => e.overallScore === best);
+  if (winners.length !== 1) return null;
+
+  return (
+    <div className="bg-brand-subtle mb-4 flex items-center gap-2 rounded-lg p-3 text-sm">
+      <Trophy className="text-brand size-4 shrink-0" aria-hidden />
+      <span className="text-text">
+        <strong>{winners[0]!.product.name}</strong> tem o melhor Score Geral entre os produtos
+        selecionados.
+      </span>
+    </div>
   );
 }

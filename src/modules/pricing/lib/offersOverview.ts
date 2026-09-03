@@ -40,8 +40,6 @@ export function categoryAveragePriceCents(products: readonly ProductPriceInfo[])
   return prices.reduce((sum, v) => sum + v, 0) / prices.length;
 }
 
-const GOOD_TIERS = new Set(["EXCELLENT", "GOOD"]);
-
 export interface OffersOverview {
   readonly priceDrops: readonly ProductPriceInfo[];
   readonly bestOpportunities: readonly ProductPriceInfo[];
@@ -58,16 +56,12 @@ export function buildOffersOverview(products: readonly ProductPriceInfo[]): Offe
     .filter((p) => p.stats!.changeDirection === "down")
     .sort((a, b) => (a.stats!.changePercent ?? 0) - (b.stats!.changePercent ?? 0));
 
-  const bestOpportunities =
-    categoryAverageCents != null
-      ? [...withStats]
-          .filter(
-            (p) =>
-              p.stats!.currentCents <= categoryAverageCents * 0.9 &&
-              GOOD_TIERS.has(p.entry.classificationTier),
-          )
-          .sort((a, b) => a.stats!.currentCents - b.stats!.currentCents)
-      : [];
+  // "Melhor oportunidade" reaproveita o Score Geral já calculado (Core
+  // Domain, ver docs/SCORING.md) — nunca uma segunda heurística de
+  // "bom preço + boa nota" recriada aqui.
+  const bestOpportunities = [...withStats]
+    .sort((a, b) => b.entry.overallScore - a.entry.overallScore)
+    .slice(0, 6);
 
   const allTimeLows = withStats.filter((p) => p.stats!.capturesCount > 1 && p.stats!.isAllTimeLow);
 
