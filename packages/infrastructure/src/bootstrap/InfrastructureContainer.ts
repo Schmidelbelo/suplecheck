@@ -29,6 +29,7 @@ import { SystemClockAdapter, RandomUuidAdapter } from "../adapters/SystemProvide
 import { HealthCheckRegistry } from "../monitoring/HealthCheckRegistry";
 import { MemoryIndicator } from "../monitoring/indicators/MemoryIndicator";
 import { DatabaseIndicator } from "../monitoring/indicators/DatabaseIndicator";
+import { PriceCaptureIndicator } from "../monitoring/indicators/PriceCaptureIndicator";
 import { NoopTelemetryProvider } from "../telemetry/NoopTelemetryProvider";
 import type { TelemetryProvider } from "../telemetry/TelemetryProvider";
 
@@ -145,6 +146,7 @@ export function buildInfrastructureContainer(
   const health = new HealthCheckRegistry();
   health.register(new MemoryIndicator());
   health.register(new DatabaseIndicator(prisma));
+  health.register(new PriceCaptureIndicator(prisma.client));
 
   // --- Providers transversais (escolhidos por config; stub quando a integração real não existe ainda) ---
   const cache: CacheProvider =

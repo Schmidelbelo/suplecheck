@@ -11,6 +11,27 @@ const PROTECTED_API_PREFIXES = ["/api/catalog", "/api/evaluation"];
 const WRITE_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
 /**
+ * `/api/admin/*` (dashboard de jobs) e `/api/cron/*` (gatilho de
+ * captura de preço) são protegidos em TODO método, inclusive GET — ao
+ * contrário de catálogo/avaliação, cujas leituras são públicas por
+ * design, aqui até "ver o status do último job" é informação
+ * operacional interna.
+ */
+const FULLY_PROTECTED_API_PREFIXES = ["/api/admin", "/api/cron"];
+
+function extractApiKey(request: NextRequest): string | null {
+  const headerKey = request.headers.get("x-api-key");
+  if (headerKey) return headerKey;
+  // Vercel Cron (e a maioria dos agendadores externos) envia
+  // `Authorization: Bearer <segredo>`, não `x-api-key` — aceitar os
+  // dois formatos evita reinventar uma segunda variável de ambiente só
+  // para o cron.
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return authHeader.slice("Bearer ".length);
+  return null;
+}
+
+/**
  * Endpoints públicos de escrita (sem API Key, por design — qualquer
  * visitante pode enviar) — os únicos que precisam de rate limiting real,
  * já que os de catálogo/avaliação já exigem `ADMIN_API_KEY`.
@@ -62,10 +83,13 @@ function clientIp(request: NextRequest): string {
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isProtectedPath = PROTECTED_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const isWriteProtectedPath = PROTECTED_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const isFullyProtectedPath = FULLY_PROTECTED_API_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix),
+  );
   const isWriteMethod = WRITE_METHODS.has(request.method);
 
-  if (isProtectedPath && isWriteMethod) {
+  if ((isWriteProtectedPath && isWriteMethod) || isFullyProtectedPath) {
     const expectedKey = process.env.ADMIN_API_KEY;
     if (!expectedKey) {
       return NextResponse.json(
@@ -74,10 +98,13 @@ export function middleware(request: NextRequest) {
       );
     }
 
-    const providedKey = request.headers.get("x-api-key");
+    const providedKey = extractApiKey(request);
     if (!providedKey) {
       return NextResponse.json(
-        { code: "UNAUTHORIZED", message: "Cabeçalho x-api-key ausente." },
+        {
+          code: "UNAUTHORIZED",
+          message: "Cabeçalho x-api-key (ou Authorization: Bearer) ausente.",
+        },
         { status: 401 },
       );
     }

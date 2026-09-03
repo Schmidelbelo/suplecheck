@@ -33,18 +33,18 @@ até aqui) for configurado:
 
 ## 2. Variáveis de ambiente
 
-| Variável                                              | Obrigatória | Descrição                                                                                                                                                                      |
-| ----------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `DATABASE_URL`                                        | Sim         | Connection string "pooled" (com `-pooler`) do Postgres de produção — usada em runtime                                                                                          |
-| `DIRECT_URL`                                          | Sim         | Connection string direta (sem `-pooler`) — usada só por `prisma migrate deploy`                                                                                                |
+| Variável                                              | Obrigatória | Descrição                                                                                                                                                                                                                                                                             |
+| ----------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                        | Sim         | Connection string "pooled" (com `-pooler`) do Postgres de produção — usada em runtime                                                                                                                                                                                                 |
+| `DIRECT_URL`                                          | Sim         | Connection string direta (sem `-pooler`) — usada só por `prisma migrate deploy`                                                                                                                                                                                                       |
 | `ADMIN_API_KEY`                                       | Sim         | Autentica toda escrita (`POST`/`PUT`/`PATCH`/`DELETE`) em `/api/catalog/*` e `/api/evaluation/*` (ver `src/middleware.ts`) — sem ela, essas rotas respondem 500. Gerar com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, enviar como header `x-api-key` |
-| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final (ex.: `https://www.suplecheck.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.          |
-| `NEXT_PUBLIC_GA_ID`                                   | Não         | ID do Google Analytics 4 (`G-XXXXXXXXXX`) — sem isso, GA4 simplesmente não carrega (ver `AnalyticsScripts.tsx`)                                                                |
-| `NEXT_PUBLIC_CLARITY_ID`                              | Não         | ID do projeto Microsoft Clarity                                                                                                                                                |
-| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`                | Não         | Código de verificação "meta tag HTML" do Google Search Console                                                                                                                 |
-| `NEXT_PUBLIC_SENTRY_DSN`                              | Não         | DSN do projeto Sentry — sem isso, o SDK fica instalado mas inativo (não envia nada, não quebra nada)                                                                           |
-| `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` | Não         | Só necessárias para o upload automático de source maps no build (stack traces legíveis no Sentry) — sem elas, o monitoramento de erros funciona normalmente, só sem source map |
-| `RESEND_API_KEY`                                      | Não         | E-mail transacional (captura de lead) — hoje sem isso o envio é só logado (`NullMailProvider`)                                                                                 |
+| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final (ex.: `https://www.suplecheck.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                 |
+| `NEXT_PUBLIC_GA_ID`                                   | Não         | ID do Google Analytics 4 (`G-XXXXXXXXXX`) — sem isso, GA4 simplesmente não carrega (ver `AnalyticsScripts.tsx`)                                                                                                                                                                       |
+| `NEXT_PUBLIC_CLARITY_ID`                              | Não         | ID do projeto Microsoft Clarity                                                                                                                                                                                                                                                       |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`                | Não         | Código de verificação "meta tag HTML" do Google Search Console                                                                                                                                                                                                                        |
+| `NEXT_PUBLIC_SENTRY_DSN`                              | Não         | DSN do projeto Sentry — sem isso, o SDK fica instalado mas inativo (não envia nada, não quebra nada)                                                                                                                                                                                  |
+| `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` | Não         | Só necessárias para o upload automático de source maps no build (stack traces legíveis no Sentry) — sem elas, o monitoramento de erros funciona normalmente, só sem source map                                                                                                        |
+| `RESEND_API_KEY`                                      | Não         | E-mail transacional (captura de lead) — hoje sem isso o envio é só logado (`NullMailProvider`)                                                                                                                                                                                        |
 
 Todas documentadas com comentário em `.env.example`.
 
@@ -119,6 +119,71 @@ próprio (5 requisições/minuto por IP, também em `src/middleware.ts`) —
 excesso responde `429` com header `Retry-After`. Limitação conhecida:
 o contador vive em memória do processo, então reseta a cada
 redeploy/restart e não é compartilhado entre instâncias simultâneas.
+
+## 5c. Captura automática de preço (cron)
+
+O pipeline completo (`src/modules/pricing/pipeline/`) já existe e
+funciona — testado manualmente contra os 10 produtos reais do catálogo
+(ver `ImportBatch` com `source = "price-capture-job"`). O que falta é
+só **agendar** a chamada; nenhum cron está ativo por padrão.
+
+**Implementação atual do "scraper"**: `LastKnownPriceScraperProvider`
+não faz nenhuma requisição HTTP a lojas externas — apenas confirma o
+último preço já conhecido, para o pipeline (validação → normalização →
+comparação → persistência → histórico → atualização do produto) ficar
+executável e testável de ponta a ponta sem depender de scraping real.
+**Antes de ativar um cron em produção**, decidir e implementar um
+scraper real (`PriceScraperPort`) é decisão de produto — envolve Termos
+de Serviço de cada loja, possível necessidade de proxy/anti-bot e um
+parser por site.
+
+Endpoint pronto: `GET /api/cron/price-capture` — aceita `x-api-key: <ADMIN_API_KEY>`
+ou `Authorization: Bearer <ADMIN_API_KEY>` (formato que a maioria dos
+agendadores usa nativamente).
+
+**Opção A — Vercel Cron.** Adicionar ao `vercel.json` (não incluído por
+padrão — só ative quando decidir a cadência):
+
+```json
+{
+  "crons": [{ "path": "/api/cron/price-capture", "schedule": "0 6 * * *" }]
+}
+```
+
+Vercel Cron chama automaticamente com um header de autorização próprio
+se `CRON_SECRET` estiver configurado no projeto — nesse caso, usar
+`ADMIN_API_KEY` como valor de `CRON_SECRET` faz o `Authorization: Bearer`
+que a Vercel já envia bater com o que o middleware espera.
+
+**Opção B — GitHub Actions.** Criar `.github/workflows/price-capture.yml`
+(não criado por padrão):
+
+```yaml
+name: Price Capture
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar endpoint de captura
+        run: |
+          curl -f -H "Authorization: Bearer ${{ secrets.ADMIN_API_KEY }}" \
+            https://SEU_DOMINIO/api/cron/price-capture
+```
+
+Requer cadastrar `ADMIN_API_KEY` como secret do repositório GitHub
+(Settings → Secrets and variables → Actions).
+
+**Opção C — serviço externo** (cron-job.org, EasyCron etc.): configurar
+uma chamada `GET` periódica para `https://SEU_DOMINIO/api/cron/price-capture`
+com o header `Authorization: Bearer <ADMIN_API_KEY>`.
+
+**Dashboard**: `/admin/jobs` mostra o histórico de execuções e permite
+disparar manualmente — pede a `ADMIN_API_KEY` na própria página (guardada
+só em `sessionStorage`, nunca persistida).
 
 ## 6. Monitoramento de erros (Sentry)
 
