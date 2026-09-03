@@ -57,4 +57,44 @@ describe("buildAffiliateUrl", () => {
       `https://rede.example/go?u=${encodeURIComponent("https://loja.example/busca?q=creatina+300g&ref=site")}`,
     );
   });
+
+  it("appends a query-string affiliateBaseUrl to the destination URL (Amazon Associates-style tag)", () => {
+    const result = buildAffiliateUrl({
+      destinationUrl: "https://amazon.com.br/produto/dp/B123",
+      store: { isAffiliate: true, affiliateBaseUrl: "tag=nossatag-20" },
+    });
+
+    expect(result).toEqual({
+      url: "https://amazon.com.br/produto/dp/B123?tag=nossatag-20",
+      isAffiliateLink: true,
+    });
+  });
+
+  it("preserves existing query params while appending the affiliate tag", () => {
+    const result = buildAffiliateUrl({
+      destinationUrl: "https://amazon.com.br/produto/dp/B123?th=1",
+      store: { isAffiliate: true, affiliateBaseUrl: "tag=nossatag-20" },
+    });
+
+    expect(result.url).toBe("https://amazon.com.br/produto/dp/B123?th=1&tag=nossatag-20");
+    expect(result.isAffiliateLink).toBe(true);
+  });
+
+  it("accepts a leading '?' on the query-string affiliateBaseUrl", () => {
+    const result = buildAffiliateUrl({
+      destinationUrl: "https://amazon.com.br/produto/dp/B123",
+      store: { isAffiliate: true, affiliateBaseUrl: "?tag=nossatag-20" },
+    });
+
+    expect(result.url).toBe("https://amazon.com.br/produto/dp/B123?tag=nossatag-20");
+  });
+
+  it("falls back to the destination URL when the query-string affiliateBaseUrl doesn't match a valid destination URL", () => {
+    const result = buildAffiliateUrl({
+      destinationUrl: "not a valid url",
+      store: { isAffiliate: true, affiliateBaseUrl: "tag=nossatag-20" },
+    });
+
+    expect(result).toEqual({ url: "not a valid url", isAffiliateLink: false });
+  });
 });

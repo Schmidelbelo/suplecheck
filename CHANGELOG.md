@@ -2,6 +2,17 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.8.0] — 2026-09-03 — Preparação Comercial para Monetização Real
+
+### Adicionado
+
+- `buildAffiliateUrl()` agora aceita um segundo formato de `Store.affiliateBaseUrl`: uma querystring pura (sem `{url}`, sem `://`), mesclada nos parâmetros já existentes da URL de destino em vez de substituir um template — cobre o modelo de *tag* da Amazon Associates (query param na própria URL do produto, não um wrapper de terceiro), a única lacuna estrutural real encontrada na auditoria da sprint anterior. Nenhum valor real foi inventado — o campo continua vazio no banco.
+- `AFFILIATES.md` ganhou uma tabela única de preparação comercial (loja, programa, status, cadastro/aprovação/extensão/API necessários, formato esperado de `affiliateBaseUrl`, observações) cobrindo as 3 lojas hoje no catálogo (Amazon, Netshoes, Loja Oficial da Marca — placeholder) e as 5 marcas pesquisadas para expansão (Growth, Soldiers Nutrition, Dark Lab, Integralmédica, Max Titanium, Adaptogen), e uma confirmação explícita, loja a loja, de que nenhum ajuste técnico adicional é necessário após aprovação — só a configuração de `Store.isAffiliate`/`Store.affiliateBaseUrl`.
+
+### Testes
+
+- 4 testes novos para o modo "anexar parâmetro" de `buildAffiliateUrl` (tag simples, preservação de query params existentes, `?` opcional no início, fallback seguro para URL de destino inválida).
+
 ## [0.7.0] — 2026-09-03 — Captura de Leads e Preparação para Alertas por E-mail
 
 ### Adicionado

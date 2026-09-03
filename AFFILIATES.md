@@ -53,15 +53,15 @@ Sim, para redes de **deep-link com wrapper** (a maioria das redes brasileiras re
 | **Lomadee**             | `https://redir.lomadee.com/v2/deeplink?url={url}&sourceId={sourceId}`                                                            | ✅ direto — `affiliateBaseUrl = "https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_SOURCE_ID"`  |
 | **Awin**                | `https://www.awin1.com/cread.php?awinmid=X&awinaffid=Y&ued={url}`                                                                | ✅ direto — `affiliateBaseUrl = "https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_AFFID&ued={url}"` |
 | **Rakuten Advertising** | Formato de wrapper equivalente (mesma família de redes de deep-link)                                                             | ✅ mesmo padrão, `id`/`u` conforme documentação do programa específico                                       |
-| **Amazon Associates**   | Sem wrapper — a _tag_ é anexada como query param na PRÓPRIA URL amazon.com.br (`?...&tag=nossa-tag-20`), não uma URL de terceiro | ⚠️ **não se encaixa igual** — ver nota abaixo                                                                |
+| **Amazon Associates**   | Sem wrapper — a _tag_ é anexada como query param na PRÓPRIA URL amazon.com.br (`?...&tag=nossa-tag-20`), não uma URL de terceiro | ✅ — segundo formato de `affiliateBaseUrl` (querystring pura, sem `{url}`), ver nota abaixo                  |
 
-**Nota técnica sobre Amazon**: o modelo de tag da Amazon não é um wrapper, então `{url}` sozinho não cobre o caso de "acrescentar `&tag=` a uma URL que talvez já tenha ou não outros parâmetros". Duas rotas quando for ativar: (a) usar a Amazon via um agregador que já expõe formato de wrapper (o material pesquisado indica que a Rakuten Advertising também intermedia links de produtos Amazon em alguns contextos — confirmar antes de assumir), ou (b) uma pequena extensão em `affiliateUrl.ts` para um segundo modo "anexar parâmetro" além do atual "substituir template" — **não implementado nesta sprint**, fora do escopo pedido ("sem implementar integrações ainda").
+**Nota técnica sobre Amazon — RESOLVIDA nesta sprint**: o modelo de tag da Amazon não é um wrapper, então `{url}` sozinho não cobria o caso de "acrescentar `&tag=` a uma URL que talvez já tenha ou não outros parâmetros". `buildAffiliateUrl()` agora aceita um segundo formato de `affiliateBaseUrl`: uma querystring pura (sem `{url}`, sem `://`), ex. `"tag=nossatag-20"`, mesclada nos parâmetros já existentes da URL de destino em vez de substituir um template. Nenhum valor real foi inventado — o campo continua vazio no banco até a aprovação no programa Amazon Associates; ver testes em `affiliateUrl.test.ts`.
 
 ## 4. Como adicionar uma nova loja
 
 1. Confirmar que a loja já existe em `Store` (`slug`, `name`) — se não existir, criar via seed/admin.
 2. Assim que o programa de afiliado for aprovado, obter da rede: URL de wrapper e o(s) parâmetro(s) de identificação do publisher.
-3. `UPDATE stores SET "isAffiliate" = true, "affiliateBaseUrl" = '<wrapper com {url}>' WHERE slug = '<loja>';`
+3. `UPDATE stores SET "isAffiliate" = true, "affiliateBaseUrl" = '<wrapper com {url}, ou querystring pura para redes de tag própria como Amazon>' WHERE slug = '<loja>';`
 4. Nenhum redeploy de código é necessário — `/go/[productId]` lê `Store` a cada clique.
 5. Testar: abrir `/go/{slug-de-um-produto-desta-loja}` e confirmar no `outbound_clicks` que `wasAffiliate = true` e que o `Location` do redirect é a URL de wrapper esperada.
 
@@ -201,7 +201,7 @@ _(marca **não existe** no catálogo hoje)_
 
 | Loja/Marca         | No catálogo hoje?   | Programa confirmado?             | Rede                | Compatível com `{url}` sem adaptação? |
 | ------------------ | ------------------- | -------------------------------- | ------------------- | ------------------------------------- |
-| Amazon             | Store ✅            | ✅                               | Própria             | ⚠️ precisa de modo "anexar parâmetro" |
+| Amazon             | Store ✅            | ✅                               | Própria             | ✅ (modo "anexar parâmetro", implementado nesta sprint) |
 | Netshoes           | Store ✅            | ✅                               | Rakuten Advertising | ✅ (padrão wrapper)                   |
 | Growth             | Brand ✅ / Store ❌ | ⚠️ possivelmente inativo         | Lomadee             | ✅                                    |
 | Soldiers Nutrition | ❌                  | ✅                               | Awin                | ✅                                    |
@@ -209,3 +209,40 @@ _(marca **não existe** no catálogo hoje)_
 | Integralmédica     | Brand ✅ / Store ❌ | ❌ não encontrado                | —                   | —                                     |
 | Max Titanium       | Brand ✅ / Store ❌ | ✅ (2 programas, confirmar qual) | Não confirmada      | Provável ✅, a confirmar              |
 | Adaptogen          | ❌                  | ✅ (formato cupom, não URL)      | Própria             | ❌ precisa de nova arquitetura        |
+
+## 8. Tabela única de preparação comercial
+
+Cobre as 3 lojas hoje cadastradas em `Store` (as únicas com produto/preço real no catálogo) e as marcas/lojas pesquisadas para expansão futura. "AffiliateBaseUrl esperado" é o **formato**, não um valor — nenhum ID real existe ainda; o campo continua `null` no banco para todas.
+
+| Loja | Programa | Status | Cadastro? | Aprovação? | Extensão? | API? | `AffiliateBaseUrl` esperado (formato) | Observações |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Amazon** | Amazon Associates | No catálogo, `isAffiliate: true` | Sim (grátis, portal próprio) | Sim (geralmente automática/rápida) | Não — implementado nesta sprint (modo "anexar parâmetro") | Não | `"tag=NOSSA-TAG-20"` (querystring pura) | Risco de desativação por volume mínimo de vendas em 180 dias — considerar timing de ativação. |
+| **Netshoes** | Parceiro Netshoes (via Rakuten Advertising) | No catálogo, `isAffiliate: true` | Sim (via Rakuten Advertising) | Sim (Rakuten + aceite da Netshoes como anunciante) | Não — formato wrapper já suportado | Não (portal da Rakuten) | `"https://track.rakuten.../click?...&u={url}"` (formato exato a confirmar no portal) | Confirmar se o catálogo de suplementos específico participa do programa. |
+| **Loja Oficial da Marca** | N/A — placeholder de seed | No catálogo, `isAffiliate: false` | N/A | N/A | N/A | N/A | N/A | Não é entidade comercial real; substituir por lojas específicas conforme forem confirmadas. |
+| **Growth Supplements** | Programa próprio via Lomadee | Fora do catálogo (`Brand` existe, `Store` não) | Sim (Lomadee) | Sim (Lomadee + aceite do anunciante) | Não — formato wrapper já suportado | Não | `"https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_ID"` | Status do programa direto "possivelmente inativo" numa fonte — confirmar antes de negociar. |
+| **Soldiers Nutrition** | Programa próprio via Awin | Fora do catálogo (`Brand` não existe) | Sim (Awin) | Sim (Awin + aceite do anunciante) | Não — formato wrapper já suportado | Não | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"` | Nenhum produto Soldiers no catálogo hoje — pré-requisito antes de ativar. |
+| **Dark Lab** | Programa próprio via Awin | Fora do catálogo (`Brand` não existe) | Sim (Awin) | Sim (Awin + aceite do anunciante) | Não — formato wrapper já suportado | Não | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"` | Comissão paga em Euro — atenção à conciliação financeira e fiscal. |
+| **Integralmédica** | Não encontrado (só fidelidade B2C, "Integral Club") | Fora do catálogo (`Brand` existe, `Store` não) | — | — | — | — | — | Confirmar diretamente com o time comercial da marca antes de descartar. |
+| **Max Titanium** | 2 programas distintos (eCommerce CPA / BrandLovrs influenciadores) | Fora do catálogo (`Brand` existe, `Store` não) | A confirmar qual dos dois | A confirmar | Provavelmente não (perfil eCommerce CPA é compatível com wrapper) | A confirmar | A confirmar após decidir qual programa | Confirmar qual dos dois programas antes de qualquer contato comercial. |
+| **Adaptogen** | Cupom de desconto (não é link rastreável por URL) | Fora do catálogo (`Brand` não existe) | Sim (formulário próprio) | Não detalhado | **Sim — modelo de cupom não se encaixa no redirect atual** | Não | Não aplicável no contrato atual | Precisaria de uma feature nova (exibir/aplicar cupom), fora do escopo desta arquitetura de redirect. |
+
+## 9. Confirmação: nenhum ajuste técnico pendente para as lojas ativas
+
+Revisão da arquitetura completa (`affiliateUrl.ts`, `outboundLinkHref.ts`, `outboundClick.service.ts`, `/go/[productId]/route.ts`) confirma:
+
+- **Amazon** e **Netshoes** — as 2 lojas de afiliado já no catálogo — têm hoje suporte técnico completo (wrapper e "anexar parâmetro"). Ativação após aprovação é puramente um `UPDATE` de `Store.isAffiliate`/`Store.affiliateBaseUrl`, sem deploy de código.
+- **Growth, Soldiers Nutrition, Dark Lab** usam o formato wrapper já suportado — nenhuma extensão necessária quando (e se) entrarem no catálogo.
+- **Adaptogen** é a única exceção real: seu programa não é rastreável por URL (cupom), então não se encaixa em `affiliateBaseUrl` de forma alguma — precisaria de uma feature nova, não uma configuração. Não implementado (não há produto Adaptogen no catálogo hoje, e o requisito é de outra natureza — exibição de cupom, não redirecionamento).
+- **Integralmédica** e **Max Titanium** não têm formato técnico a validar ainda (falta confirmar se há programa e qual, respectivamente) — sem impacto na arquitetura até essa confirmação comercial.
+- A arquitetura continua funcionando com `affiliateBaseUrl` vazio para todas as lojas — comportamento hoje em produção, coberto pelos testes de fallback em `affiliateUrl.test.ts`.
+
+### Campos a preencher quando cada programa for aprovado (nenhum ajuste de código)
+
+Para cada loja, só isto muda no banco:
+
+```sql
+UPDATE stores
+SET "isAffiliate" = true,
+    "affiliateBaseUrl" = '<formato conforme a tabela da seção 8, com o ID real fornecido pela rede>'
+WHERE slug = '<slug-da-loja>';
+```
