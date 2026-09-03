@@ -32,6 +32,7 @@ import { ScoreExplanationBars } from "@/modules/evaluation/components/ScoreExpla
 import { ProductViewTimeline } from "@/modules/evaluation/components/ProductViewTimeline";
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import { encodeComparisonSlug } from "@/modules/comparison/lib/comparisonSlug";
+import { buildOutboundHref } from "@/modules/monetization/lib/outboundLinkHref";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 interface PageProps {
@@ -320,7 +321,11 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                 <div className="flex flex-wrap items-center gap-3">
                   <Button asChild size="lg">
                     <a
-                      href={presentation.price.url ?? "#"}
+                      href={buildOutboundHref({
+                        productSlug: slug,
+                        source: "product-page",
+                        position: currentEntry?.position,
+                      })}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                     >
@@ -518,9 +523,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
       {sameBrandProducts.length > 0 ? (
         <Section className="border-border border-t">
           <div className="mx-auto flex max-w-3xl flex-col gap-6">
-            <h2 className="font-display text-text text-2xl font-bold">
-              Produtos da mesma marca
-            </h2>
+            <h2 className="font-display text-text text-2xl font-bold">Produtos da mesma marca</h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {sameBrandProducts.map((entry) => (
                 <RelatedProductCard key={entry.product.id} entry={entry} currentSlug={slug} />
@@ -549,7 +552,11 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
         <div className="border-border bg-surface-raised fixed inset-x-0 bottom-0 z-(--z-overlay) border-t p-3 shadow-lg md:hidden">
           <Button asChild size="lg" className="w-full">
             <a
-              href={presentation.price.url ?? "#"}
+              href={buildOutboundHref({
+                productSlug: slug,
+                source: "product-page-mobile-bar",
+                position: currentEntry?.position,
+              })}
               target="_blank"
               rel="noopener noreferrer nofollow"
             >

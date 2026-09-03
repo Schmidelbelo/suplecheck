@@ -55,6 +55,7 @@ model Category {
   rankings             Ranking[]
   /// Denormalizado — ver PERSISTENCE_MODEL.md §4 (ProductScore.categoryId).
   productScores        ProductScore[]
+  outboundClicks       OutboundClick[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,6 +135,7 @@ model Product {
   favorites      Favorite[]
   alerts         Alert[]
   rankingEntries RankingEntry[]
+  outboundClicks OutboundClick[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -221,7 +223,8 @@ model Store {
   trustScore       Float?
   active           Boolean @default(true)
 
-  priceEntries PriceEntry[]
+  priceEntries   PriceEntry[]
+  outboundClicks OutboundClick[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -260,6 +263,43 @@ model PriceEntry {
   @@index([skuId, storeId, capturedAt])
   @@index([storeId, capturedAt])
   @@map("price_entries")
+}
+
+/// Fato imutável de "usuário clicou num botão que sai do SupleCheck para
+/// a loja" — append-only, nunca editado. Toda a monetização por
+/// afiliados passa por `/go/[productId]`, que grava uma linha aqui antes
+/// de redirecionar (best-effort: falha ao gravar nunca bloqueia o
+/// redirect). `categoryId` denormalizado como em `ProductScore` — "CTR
+/// por categoria" é a consulta que mais interessa ao time comercial, e
+/// sem isso exigiria JOIN em Product a cada relatório.
+model OutboundClick {
+  id           String   @id @default(cuid())
+  productId    String
+  storeId      String
+  categoryId   String
+  /// Qual superfície da UI originou o clique (ex.: "product-page",
+  /// "product-page-mobile-bar") — string livre, não enum: novas
+  /// superfícies não devem exigir migração de schema.
+  source       String
+  /// Posição no ranking no momento do clique, quando a superfície tiver
+  /// uma (ex.: card de ranking) — nulo quando não se aplica (ex.: página
+  /// de produto isolada).
+  position     Int?
+  /// Se o redirect efetivamente saiu com URL de afiliado — `false` tanto
+  /// para lojas sem programa quanto para lojas com `isAffiliate = true`
+  /// mas `affiliateBaseUrl` ainda não configurado (nunca inventamos o
+  /// link nesse caso, caímos para a URL normal).
+  wasAffiliate Boolean
+  createdAt    DateTime @default(now())
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store    Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@index([productId, createdAt])
+  @@index([storeId, createdAt])
+  @@index([categoryId, createdAt])
+  @@map("outbound_clicks")
 }
 
 // =============================================================================
