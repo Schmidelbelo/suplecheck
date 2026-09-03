@@ -6,6 +6,7 @@ export interface NavItem {
 /** Navegação principal do header institucional. */
 export const primaryNav: NavItem[] = [
   { label: "Home", href: "/" },
+  { label: "Assistente", href: "/assistente" },
   { label: "Ranking", href: "/ranking" },
   { label: "Mercado", href: "/mercado" },
   { label: "Ofertas", href: "/ofertas" },

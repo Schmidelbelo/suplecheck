@@ -132,6 +132,25 @@ export {
   type CategoryStatistics,
 } from "./domain/market/CategoryStatistics";
 export { generateMarketInsights, type MarketInsightsInput } from "./domain/market/MarketInsights";
+export {
+  resolvePersonalizedWeights,
+  PERSONALIZED_WEIGHTS_BY_PRIORITY,
+  type RecommendationPriority,
+  type PersonalizedWeights,
+} from "./domain/recommendation/PersonalizedWeights";
+export {
+  calculatePersonalizedScores,
+  type PersonalizedScoreInput,
+  type PersonalizedScoreResult,
+} from "./domain/recommendation/PersonalizedScoreCalculator";
+export { filterWithinBudget } from "./domain/recommendation/BudgetFilter";
+export {
+  buildRecommendation,
+  type RecommendationCandidate,
+  type RecommendationProfile,
+  type RecommendationEntry,
+  type RecommendationResult,
+} from "./domain/recommendation/RecommendationEngine";
 
 // Erros de domínio
 export * from "./domain/errors/DomainError";
