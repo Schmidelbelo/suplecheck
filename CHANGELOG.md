@@ -2,6 +2,19 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.7.0] — 2026-09-03 — Captura de Leads e Preparação para Alertas por E-mail
+
+### Adicionado
+
+- Captura de e-mail agora presente em 3 pontos além do rodapé/home: criação de alerta de preço (`PriceAlertForm` — opcional, exibida só depois que o alerta já existe), e a área "Minha Área" (`DashboardClient` — exibida só quando este navegador ainda não deu um e-mail em nenhum formulário). Todos os formulários reutilizam o mesmo `LeadCaptureForm`, integrado ao `/api/leads` já existente (upsert idempotente por e-mail).
+- `useCapturedEmail` — hook local (mesmo padrão de `useFavorites`/`usePriceAlerts`) que lembra, só neste navegador, que o visitante já deu o e-mail em algum formulário, para não pedir de novo; nunca é a fonte da verdade (o `Lead` real é sempre persistido no servidor).
+- `LeadCaptureForm` ganhou `successMessage` e `onSuccess` customizáveis (antes só usados com o texto padrão de "ranking"), além de tratamento explícito de erro de rede (antes uma falha no `fetch` não tinha handler e não avisava o usuário).
+- Ao criar um alerta de preço, o e-mail informado (opcional) é salvo tanto no `Lead` real quanto no próprio `PriceAlert.email` local — campo que já existia reservado para isso, agora finalmente usado.
+
+### Não incluído (intencional)
+
+- Nenhum envio de e-mail foi implementado nesta sprint — toda a cópia de UI deixa isso explícito ("assim que ativarmos o envio"). Fica para a sprint seguinte.
+
 ## [0.6.0] — 2026-09-03 — Monetização por Afiliados
 
 ### Adicionado

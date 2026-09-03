@@ -13,6 +13,7 @@ import {
   Search,
   Sparkles,
   UserRound,
+  Mail,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -36,6 +37,8 @@ import {
   PRIORITY_LABELS,
 } from "@/modules/recommendation/lib/profileQuery";
 import type { RankingView } from "../types";
+import { useCapturedEmail } from "@/modules/leads/lib/useCapturedEmail";
+import { LeadCaptureForm } from "@/modules/leads/components/LeadCaptureForm";
 
 function resolveProduct(ranking: RankingView | null, slug: string) {
   return ranking?.entries.find((e) => e.product.slug === slug) ?? null;
@@ -49,6 +52,7 @@ export function DashboardClient() {
   const { items: searches, hydrated: searchesHydrated, clear: clearSearches } = useSearchHistory();
   const { items: recommendations, hydrated: recommendationsHydrated } = useRecommendationHistory();
   const { ranking, loading: rankingLoading } = useCategoryRanking();
+  const { email: capturedEmail, hydrated: emailHydrated } = useCapturedEmail();
 
   const hydrated =
     favoritesHydrated &&
@@ -56,7 +60,8 @@ export function DashboardClient() {
     comparisonsHydrated &&
     alertsHydrated &&
     searchesHydrated &&
-    recommendationsHydrated;
+    recommendationsHydrated &&
+    emailHydrated;
 
   if (!hydrated || rankingLoading) {
     return (
@@ -144,6 +149,27 @@ export function DashboardClient() {
         <StatCard label="Marca mais pesquisada" value={stats.topBrand ?? "—"} />
         <StatCard label="Categoria favorita" value={stats.topCategory ?? "—"} />
       </div>
+
+      {/* Captura de e-mail — só aparece quando este navegador ainda não deu um e-mail em nenhum formulário */}
+      {!capturedEmail ? (
+        <Card>
+          <CardContent className="flex flex-col gap-3 p-5">
+            <p className="text-text flex items-center gap-2 text-sm font-medium">
+              <Mail className="size-4" aria-hidden />
+              Quer receber novidades por e-mail?
+            </p>
+            <p className="text-text-muted text-sm">
+              Deixe seu e-mail para receber o ranking e futuras notificações de preço, quando o
+              envio automático estiver ativo.
+            </p>
+            <LeadCaptureForm
+              source="dashboard_minha_area"
+              submitLabel="Salvar e-mail"
+              successMessage="E-mail salvo! Em breve você poderá receber notificações por aqui."
+            />
+          </CardContent>
+        </Card>
+      ) : null}
 
       {/* Insights pessoais */}
       {personalInsights.length > 0 ? (
