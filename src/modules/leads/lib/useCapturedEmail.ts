@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-const STORAGE_KEY = "suplecheck:captured-email";
+const STORAGE_KEY = "suplescore:captured-email";
 
 /**
  * Lembra, só neste navegador, que o visitante já deu o e-mail em algum

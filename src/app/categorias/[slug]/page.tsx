@@ -23,8 +23,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return buildMetadata({
     title: `${data.category.name}: Ranking e Avaliações`,
     description:
-      data.category.description ??
-      `Página da categoria ${data.category.name} no SupleCheck.`,
+      data.category.description ?? `Página da categoria ${data.category.name} no SupleScore.`,
     path: `/categorias/${slug}`,
   });
 }
@@ -43,11 +42,11 @@ export default async function CategoryDetailPage({ params }: Params) {
 
   const faqItems: FaqItem[] = [
     {
-      question: `Já existe ranking de ${data.category.name} no SupleCheck?`,
+      question: `Já existe ranking de ${data.category.name} no SupleScore?`,
       answer:
         data.products.length > 0
-          ? `Sim — ${data.products.length} produto${data.products.length === 1 ? "" : "s"} de ${data.category.name} já ${data.products.length === 1 ? "foi avaliado" : "foram avaliados"} pelo Índice SupleCheck.`
-          : `Ainda não. A categoria ${data.category.name} está cadastrada no catálogo, mas nenhum produto foi avaliado pela metodologia SupleCheck até o momento.`,
+          ? `Sim — ${data.products.length} produto${data.products.length === 1 ? "" : "s"} de ${data.category.name} já ${data.products.length === 1 ? "foi avaliado" : "foram avaliados"} pelo Índice SupleScore.`
+          : `Ainda não. A categoria ${data.category.name} está cadastrada no catálogo, mas nenhum produto foi avaliado pela metodologia SupleScore até o momento.`,
     },
   ];
 
@@ -76,7 +75,7 @@ export default async function CategoryDetailPage({ params }: Params) {
       <Section>
         <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
           <p className="text-text-muted text-lg">
-            Esta categoria ainda não tem produtos avaliados pela metodologia SupleCheck — assim que
+            Esta categoria ainda não tem produtos avaliados pela metodologia SupleScore — assim que
             tiver, o ranking completo aparece aqui automaticamente.
           </p>
           <Link href="/creatina" className="text-brand font-medium hover:underline">

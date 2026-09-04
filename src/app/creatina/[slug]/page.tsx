@@ -96,8 +96,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildMetadata({
     title: view.product.name,
     description: view.score
-      ? `${view.product.name}: nota ${view.score.finalScore.toFixed(1)} no Índice SupleCheck (${classificationLabel(view.score.classificationTier)}).`
-      : `Detalhes de ${view.product.name} no SupleCheck.`,
+      ? `${view.product.name}: nota ${view.score.finalScore.toFixed(1)} no Índice SupleScore (${classificationLabel(view.score.classificationTier)}).`
+      : `Detalhes de ${view.product.name} no SupleScore.`,
     path: `/creatina/${slug}`,
   });
 }
@@ -111,7 +111,7 @@ function buildProductDescription(view: ProductView): string {
 
   if (score) {
     parts.push(
-      `Nota ${score.finalScore.toFixed(1)} no Índice SupleCheck (${classificationLabel(score.classificationTier)}).`,
+      `Nota ${score.finalScore.toFixed(1)} no Índice SupleScore (${classificationLabel(score.classificationTier)}).`,
     );
   }
   if (presentation?.price) {
@@ -122,7 +122,7 @@ function buildProductDescription(view: ProductView): string {
 }
 
 function explainScore(view: ProductView): string {
-  if (!view.score) return "Este produto ainda não foi avaliado pelo Índice SupleCheck.";
+  if (!view.score) return "Este produto ainda não foi avaliado pelo Índice SupleScore.";
 
   const top = rankCriteriaByImpact(view.score.breakdown)[0];
   const label = classificationLabel(view.score.classificationTier).toLowerCase();
@@ -274,7 +274,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                 <Badge variant={classificationBadgeVariant(score.classificationTier)}>
                   {classificationLabel(score.classificationTier)}
                 </Badge>
-                <span className="text-text-muted text-sm">Índice SupleCheck</span>
+                <span className="text-text-muted text-sm">Índice SupleScore</span>
               </div>
             ) : (
               <Badge variant="outline">Ainda não avaliado</Badge>
@@ -333,7 +333,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
                     </a>
                   </Button>
                   <FavoriteButton productId={product.id} productName={product.name} />
-                  <ShareButton title={product.name} text={`${product.name} no SupleCheck`} />
+                  <ShareButton title={product.name} text={`${product.name} no SupleScore`} />
                 </div>
               </div>
             ) : (
@@ -401,7 +401,7 @@ export default async function CreatinaDetailPage({ params }: PageProps) {
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <CategoryComparisonStat
-                label="Índice SupleCheck"
+                label="Índice SupleScore"
                 productValue={score ? score.finalScore.toFixed(1) : "—"}
                 categoryValue={averages.score.toFixed(1)}
                 isBetter={score ? score.finalScore >= averages.score : null}

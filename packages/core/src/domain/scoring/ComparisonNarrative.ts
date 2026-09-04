@@ -11,7 +11,7 @@ export interface ComparisonCandidate {
  * cada uma só aparece quando o dado que a sustenta existe e a
  * diferença é real (nunca "0% mais barato" ou "0 pontos maior"). Nada
  * de geração de texto livre/IA externa: são templates preenchidos com
- * números calculados a partir do Score Geral e do Índice SupleCheck já
+ * números calculados a partir do Score Geral e do Índice SupleScore já
  * existentes — a mesma fonte usada em toda a plataforma.
  */
 export function buildComparisonNarrative(
@@ -41,7 +41,7 @@ export function buildComparisonNarrative(
     const diff = Math.round((bestRated.finalScore - worstRated.finalScore) * 10) / 10;
     if (diff > 0) {
       sentences.push(
-        `${bestRated.name} tem nota ${diff.toFixed(1)} ponto${diff >= 2 ? "s" : ""} maior no Índice SupleCheck que ${worstRated.name}.`,
+        `${bestRated.name} tem nota ${diff.toFixed(1)} ponto${diff >= 2 ? "s" : ""} maior no Índice SupleScore que ${worstRated.name}.`,
       );
     }
   }

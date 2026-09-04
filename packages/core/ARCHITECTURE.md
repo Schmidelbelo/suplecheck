@@ -1,7 +1,7 @@
-# SupleCheck Core Domain — Arquitetura
+# SupleScore Core Domain — Arquitetura
 
 > Este documento descreve `packages/core`, o motor de cálculo do Índice
-> SupleCheck. É a camada mais interna da plataforma: zero dependência de
+> SupleScore. É a camada mais interna da plataforma: zero dependência de
 > React, Next.js, Prisma ou qualquer framework. Se este pacote fosse
 > extraído para um repositório separado amanhã, ele continuaria
 > compilando e funcionando sozinho.

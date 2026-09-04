@@ -5,12 +5,12 @@ export interface FaqItem {
 
 export const homeFaq: FaqItem[] = [
   {
-    question: "O SupleCheck vende suplementos?",
+    question: "O SupleScore vende suplementos?",
     answer:
-      "Não. O SupleCheck não vende produtos. Somos uma plataforma independente de comparação: analisamos rótulos, composição e preço para ajudar você a decidir — a compra sempre acontece na loja de sua escolha.",
+      "Não. O SupleScore não vende produtos. Somos uma plataforma independente de comparação: analisamos rótulos, composição e preço para ajudar você a decidir — a compra sempre acontece na loja de sua escolha.",
   },
   {
-    question: "Como o Índice SupleCheck é calculado?",
+    question: "Como o Índice SupleScore é calculado?",
     answer:
       "O Índice combina seis critérios objetivos e verificáveis — custo-benefício, transparência do rótulo, preço por dose, reputação, promessas exageradas de marketing e confiabilidade da loja — em uma nota única de 0 a 100, cada um com peso público. O detalhamento completo está na página de Metodologia.",
   },

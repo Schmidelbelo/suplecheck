@@ -1,9 +1,9 @@
-# SupleCheck — Domain Data Model
+# SupleScore — Domain Data Model
 
 > Modelo conceitual do negócio, não do banco de dados. Nenhuma tabela,
 > nenhum tipo de coluna, nenhuma decisão do Prisma aparece aqui — isso é
 > tradução, e vem depois. Este documento descreve o mundo real que o
-> SupleCheck representa: suplementos, lojas, preços, avaliações, pessoas.
+> SupleScore representa: suplementos, lojas, preços, avaliações, pessoas.
 > Ver [`../../ARCHITECTURE.md`](../../ARCHITECTURE.md) para a arquitetura
 > de código (Domain/Application/Infrastructure) que _implementa_ este
 > modelo — este documento é o que vem **antes** dela conceitualmente,
@@ -100,7 +100,7 @@ duplicaria responsabilidade e confundiria quem ler o modelo depois.
 1. **"Suplemento" e "Produto" são o mesmo agregado.** Na linguagem do
    negócio (marketing, UI, este próprio parágrafo) as duas palavras são
    usadas de forma intercambiável para "o item comercial que o
-   SupleCheck avalia e compara" — não há nenhuma responsabilidade,
+   SupleScore avalia e compara" — não há nenhuma responsabilidade,
    atributo ou regra que diferencie um do outro. O nome canônico do
    agregado é `Suplemento`; `Produto` é sinônimo de uso corrente, nunca
    uma entidade separada.
@@ -135,7 +135,7 @@ duplicaria responsabilidade e confundiria quem ler o modelo depois.
 #### `Suplemento` (Aggregate Root)
 
 **Responsabilidade**: representar um item comercial distinto que o
-SupleCheck cataloga e avalia — a unidade central de toda a plataforma.
+SupleScore cataloga e avalia — a unidade central de toda a plataforma.
 
 **Atributos**: nome, slug, descrição, categoria (ref), marca (ref),
 fabricante (ref, opcional), atributos específicos da categoria

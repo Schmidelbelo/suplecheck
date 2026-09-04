@@ -1,6 +1,6 @@
-# Deploy de produção — SupleCheck
+# Deploy de produção — SupleScore
 
-Checklist e referência para colocar o SupleCheck no ar. Escrito na FASE 1.5
+Checklist e referência para colocar o SupleScore no ar. Escrito na FASE 1.5
 ("Beta Público") — cobre só infraestrutura/configuração, nenhuma
 funcionalidade de negócio nova.
 
@@ -38,7 +38,7 @@ até aqui) for configurado:
 | `DATABASE_URL`                                        | Sim         | Connection string "pooled" (com `-pooler`) do Postgres de produção — usada em runtime                                                                                                                                                                                                 |
 | `DIRECT_URL`                                          | Sim         | Connection string direta (sem `-pooler`) — usada só por `prisma migrate deploy`                                                                                                                                                                                                       |
 | `ADMIN_API_KEY`                                       | Sim         | Autentica toda escrita (`POST`/`PUT`/`PATCH`/`DELETE`) em `/api/catalog/*` e `/api/evaluation/*` (ver `src/middleware.ts`) — sem ela, essas rotas respondem 500. Gerar com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, enviar como header `x-api-key` |
-| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final (ex.: `https://www.suplecheck.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                 |
+| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final (ex.: `https://www.suplescore.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                 |
 | `NEXT_PUBLIC_GA_ID`                                   | Não         | ID do Google Analytics 4 (`G-XXXXXXXXXX`) — sem isso, GA4 simplesmente não carrega (ver `AnalyticsScripts.tsx`)                                                                                                                                                                       |
 | `NEXT_PUBLIC_CLARITY_ID`                              | Não         | ID do projeto Microsoft Clarity                                                                                                                                                                                                                                                       |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`                | Não         | Código de verificação "meta tag HTML" do Google Search Console                                                                                                                                                                                                                        |
@@ -52,7 +52,7 @@ Todas documentadas com comentário em `.env.example`.
 
 Este é um passo manual, fora do código:
 
-1. Comprar/ter o domínio (`suplecheck.com.br` é o valor-padrão hardcoded
+1. Comprar/ter o domínio (`suplescore.com.br` é o valor-padrão hardcoded
    em `src/config/site.ts` como fallback — **o valor real vem sempre de
    `NEXT_PUBLIC_SITE_URL` em produção**, o fallback só existe para
    nunca deixar a variável undefined).

@@ -11,7 +11,7 @@ import {
 /**
  * Único objetivo hoje mapeado para uma categoria com avaliação real —
  * "objetivo principal" só oferece, na UI, motivos reais para tomar
- * creatina (não existe outra categoria com Índice SupleCheck calculado
+ * creatina (não existe outra categoria com Índice SupleScore calculado
  * ainda). Nunca inventamos uma recomendação para uma categoria sem
  * dado — ver `resolveCategoryForGoal`.
  */

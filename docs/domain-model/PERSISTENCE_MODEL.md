@@ -1,4 +1,4 @@
-# SupleCheck — Persistence Model & Audit
+# SupleScore — Persistence Model & Audit
 
 > Como [`../../prisma/schema.prisma`](../../prisma/schema.prisma) traduz,
 > entidade por entidade, o que [`DOMAIN_MODEL.md`](./DOMAIN_MODEL.md) e

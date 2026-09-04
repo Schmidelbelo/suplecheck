@@ -9,7 +9,7 @@ export type RecommendationPriority =
   "economy" | "quality" | "bestRating" | "transparency" | "costBenefit";
 
 export interface PersonalizedWeights {
-  /** Peso do Índice SupleCheck (nota geral da metodologia). */
+  /** Peso do Índice SupleScore (nota geral da metodologia). */
   readonly quality: number;
   readonly price: number;
   readonly pricePerDose: number;

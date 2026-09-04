@@ -38,8 +38,8 @@ export async function RankingPreview() {
         </h2>
         <p className="text-text-muted mt-4 text-lg">
           {ranking && ranking.entries.length > 0
-            ? `${ranking.entries.length} produtos avaliados pelo Índice SupleCheck — nota, preço e preço por dose, tudo comparável.`
-            : "O ranking de creatinas, com nota do Índice, transparência do rótulo e preço por dose, é a primeira categoria avaliada pelo SupleCheck."}
+            ? `${ranking.entries.length} produtos avaliados pelo Índice SupleScore — nota, preço e preço por dose, tudo comparável.`
+            : "O ranking de creatinas, com nota do Índice, transparência do rótulo e preço por dose, é a primeira categoria avaliada pelo SupleScore."}
         </p>
         {ranking && ranking.entries.length > 0 ? (
           <p className="text-text-subtle mt-2 text-sm">
@@ -87,7 +87,7 @@ export async function RankingPreview() {
         <EmptyState
           className="mx-auto mt-10 max-w-2xl"
           title="Nenhum produto avaliado ainda nesta categoria"
-          description="Assim que o Índice SupleCheck calcular a primeira nota, ela aparece aqui."
+          description="Assim que o Índice SupleScore calcular a primeira nota, ela aparece aqui."
         />
       )}
 

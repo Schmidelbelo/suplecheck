@@ -13,7 +13,7 @@ import { listBrandsWithStats } from "@/modules/brand/services/brandPage.service"
 export const metadata: Metadata = buildMetadata({
   title: "Marcas de Suplementos Avaliadas",
   description:
-    "Todas as marcas de suplementos avaliadas pelo SupleCheck — nota média, quantidade de produtos e preço médio, calculados a partir de dados reais.",
+    "Todas as marcas de suplementos avaliadas pelo SupleScore — nota média, quantidade de produtos e preço médio, calculados a partir de dados reais.",
   path: "/marcas",
 });
 
@@ -33,16 +33,14 @@ export default async function BrandsIndexPage() {
       />
       {withStats.length > 0 ? (
         <JsonLd
-          data={itemListSchema(
-            withStats.map((b) => ({ name: b.name, href: `/marcas/${b.slug}` })),
-          )}
+          data={itemListSchema(withStats.map((b) => ({ name: b.name, href: `/marcas/${b.slug}` })))}
         />
       ) : null}
 
       <PageHeader
         eyebrow="Marcas"
         title="Marcas de suplementos avaliadas"
-        description="Todas as marcas do catálogo do SupleCheck, com nota média, quantidade de produtos avaliados e preço médio — calculado em tempo real, nunca patrocinado."
+        description="Todas as marcas do catálogo do SupleScore, com nota média, quantidade de produtos avaliados e preço médio — calculado em tempo real, nunca patrocinado."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Marcas" }]}
       />
 
@@ -65,7 +63,8 @@ export default async function BrandsIndexPage() {
                           </span>
                         </span>
                         <span className="text-text-muted">
-                          {brand.stats.productCount} produto{brand.stats.productCount === 1 ? "" : "s"}
+                          {brand.stats.productCount} produto
+                          {brand.stats.productCount === 1 ? "" : "s"}
                         </span>
                       </div>
                     ) : (

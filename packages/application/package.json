@@ -2,7 +2,7 @@
   "name": "@suplecheck/application",
   "version": "0.1.0",
   "private": true,
-  "description": "Application Layer do SupleCheck — orquestra o Core Domain via Use Cases, Ports e DTOs. Depende de @suplecheck/core; nunca o contrário.",
+  "description": "Application Layer do SupleScore — orquestra o Core Domain via Use Cases, Ports e DTOs. Depende de @suplecheck/core; nunca o contrário.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

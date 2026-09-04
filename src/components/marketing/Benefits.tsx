@@ -30,7 +30,7 @@ export function Benefits() {
     <Section className="border-border bg-bg-subtle border-b">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="font-display text-text text-3xl font-bold md:text-4xl">
-          Por que usar o SupleCheck
+          Por que usar o SupleScore
         </h2>
       </div>
 

@@ -1,4 +1,4 @@
-// SupleCheck Application Layer — orquestra o Core Domain via Use Cases,
+// SupleScore Application Layer — orquestra o Core Domain via Use Cases,
 // Ports, Commands/Queries e DTOs. Depende de @suplecheck/core; nenhuma
 // entidade de Domain atravessa esta fronteira para fora (ver
 // packages/application/ARCHITECTURE.md).

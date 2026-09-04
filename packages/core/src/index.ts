@@ -1,4 +1,4 @@
-// SupleCheck Core Domain — motor de cálculo do Índice SupleCheck.
+// SupleScore Core Domain — motor de cálculo do Índice SupleScore.
 // Camada 100% livre de framework: sem React, sem Next.js, sem Prisma.
 // Ver packages/core/ARCHITECTURE.md para a documentação completa.
 

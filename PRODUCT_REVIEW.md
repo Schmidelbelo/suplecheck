@@ -1,6 +1,6 @@
 # PRODUCT_REVIEW.md
 
-Auditoria de experiência do produto — SupleCheck
+Auditoria de experiência do produto — SupleScore
 Papel: Head de Produto / UX Designer / SEO & Conversão
 Metodologia: leitura direta do código-fonte real (copy, componentes, tokens visuais, metadata) simulando a chegada de um visitante vindo do Google buscando "qual a melhor creatina", "creatina vale a pena", "melhor creatina custo benefício".
 
@@ -24,7 +24,7 @@ Isso não é um detalhe de copywriting — é a promessa central do produto ("cr
 
 - Badge: "Comparação independente de suplementos"
 - H1: **"Escolha suplementos com dados, não com marketing"**
-- Subheadline: "O SupleCheck avalia composição, pureza e custo-benefício de cada produto e resume tudo em uma nota única: o Índice SupleCheck. Sem publicidade paga influenciando o resultado." _(menciona "pureza" — [MISMATCH])_
+- Subheadline: "O SupleScore avalia composição, pureza e custo-benefício de cada produto e resume tudo em uma nota única: o Índice SupleScore. Sem publicidade paga influenciando o resultado." _(menciona "pureza" — [MISMATCH])_
 - CTA primário: "Ver o ranking" → `/ranking` (redireciona corretamente para `/creatina`)
 - CTA secundário: "Como avaliamos"
 - Microcopy de confiança: "Metodologia pública · Sem venda de posição no ranking"
@@ -55,7 +55,7 @@ Isso não é um detalhe de copywriting — é a promessa central do produto ("cr
 
 **Informações faltantes na própria página de ranking (não no card, na página como um todo):**
 
-- Nenhuma explicação de _como ler a nota_ nesta página específica — quem chega direto em `/creatina` via link/busca, sem ter passado pela home, vê "92.2" e um selo "Excelente" sem nenhum link contextual explicando o que é o Índice SupleCheck antes de precisar ir a outra página.
+- Nenhuma explicação de _como ler a nota_ nesta página específica — quem chega direto em `/creatina` via link/busca, sem ter passado pela home, vê "92.2" e um selo "Excelente" sem nenhum link contextual explicando o que é o Índice SupleScore antes de precisar ir a outra página.
 - Nenhum contador tipo "10 produtos avaliados" reforçando volume/atualidade.
 - Nenhuma indicação de "atualizado em [data]" fora do topo (fácil de perder ao rolar).
 
@@ -127,7 +127,7 @@ Isso não é um detalhe de copywriting — é a promessa central do produto ("cr
 
 **Conteúdo.** Forte nas páginas institucionais (Metodologia, Como Avaliamos, Sobre — texto substancial e original), fraco nas páginas de produto/categoria, que são a superfície que precisa competir por "melhor creatina" nos resultados de busca. A página `/creatina` tem pouquíssimo texto original além da lista de produtos — não há um parágrafo introdutório rico em contexto (o que é creatina, como escolher, o que o índice considera) que ajude tanto SEO quanto o usuário que chega sem contexto algum.
 
-**Títulos.** Home usa o título institucional genérico ("SupleCheck — Comparação inteligente de suplementos"), sem a palavra "creatina" — para quem busca intenção comercial específica, a home nunca vai competir bem nesse termo. `/creatina` tem título correto e específico ("Ranking de Creatinas | SupleCheck"), mas não captura variações de cauda longa de alta intenção como "melhor creatina" ou "creatina vale a pena" no `<title>` nem na meta description.
+**Títulos.** Home usa o título institucional genérico ("SupleScore — Comparação inteligente de suplementos"), sem a palavra "creatina" — para quem busca intenção comercial específica, a home nunca vai competir bem nesse termo. `/creatina` tem título correto e específico ("Ranking de Creatinas | SupleScore"), mas não captura variações de cauda longa de alta intenção como "melhor creatina" ou "creatina vale a pena" no `<title>` nem na meta description.
 
 **Headings.** H1 da home não contém "creatina" nem "suplemento" de forma específica — é genérico por design (a home cobre a marca inteira, não uma categoria), o que é aceitável, mas significa que toda a carga de ranqueamento para os termos-alvo do usuário recai sobre `/creatina`, que por sua vez tem H1 correto ("Ranking de Creatinas") mas nenhum H2/H3 de apoio semântico (não há, por exemplo, um H2 "Como escolher a melhor creatina" ou "Creatina vale a pena?" respondendo diretamente às intenções de busca mencionadas no briefing).
 
@@ -151,16 +151,16 @@ Isso não é um detalhe de copywriting — é a promessa central do produto ("cr
 
 Comparando princípios (não visual) com Wirecutter, RTINGS, TechGearLab e PCPartPicker:
 
-**O que esses sites fazem que o SupleCheck ainda não faz:**
+**O que esses sites fazem que o SupleScore ainda não faz:**
 
-1. **Metodologia sempre visível a um clique da nota, nunca só em outra página institucional isolada.** RTINGS e Wirecutter colocam "como testamos isso" como link direto dentro do card/seção de cada critério, não apenas num menu global — o SupleCheck já tem a página `/metodologia`, só falta a costura contextual.
-2. **Comparação lado a lado como recurso central, não periférico.** PCPartPicker inteiro é organizado em torno de comparar N itens ao mesmo tempo; o SupleCheck já tem o `CompareSupplementsUseCase` pronto no backend e zero superfície de uso — é a lacuna mais alinhada com esse padrão de benchmark e a mais barata de fechar (a lógica já existe).
-3. **Consistência absoluta entre a nota mostrada e a explicação da nota.** Nenhum desses sites sobrevive à contradição que o SupleCheck tem hoje entre marketing e produto — é a característica não-negociável desse tipo de site.
+1. **Metodologia sempre visível a um clique da nota, nunca só em outra página institucional isolada.** RTINGS e Wirecutter colocam "como testamos isso" como link direto dentro do card/seção de cada critério, não apenas num menu global — o SupleScore já tem a página `/metodologia`, só falta a costura contextual.
+2. **Comparação lado a lado como recurso central, não periférico.** PCPartPicker inteiro é organizado em torno de comparar N itens ao mesmo tempo; o SupleScore já tem o `CompareSupplementsUseCase` pronto no backend e zero superfície de uso — é a lacuna mais alinhada com esse padrão de benchmark e a mais barata de fechar (a lógica já existe).
+3. **Consistência absoluta entre a nota mostrada e a explicação da nota.** Nenhum desses sites sobrevive à contradição que o SupleScore tem hoje entre marketing e produto — é a característica não-negociável desse tipo de site.
 4. **Volume como sinal de autoridade.** Todos eles cobrem dezenas/centenas de itens por categoria antes de se apresentarem como referência — reforça a priorização de "mais produtos/categorias" no roadmap.
 5. **Prova de manuseio físico do produto** (fotos próprias, não imagens de fabricante/placeholder) — RTINGS e Wirecutter fazem disso o centro da credibilidade visual.
 6. **Ranqueamento reordenável pelo usuário** (por preço, por categoria de uso, por critério específico) — PCPartPicker e Wirecutter deixam o usuário reordenar a lista pelo que importa para ele, não só aceitar a ordem editorial.
 
-**O que o SupleCheck já faz bem, no mesmo padrão desses sites:**
+**O que o SupleScore já faz bem, no mesmo padrão desses sites:**
 
 - Nota única + explicação decomposta em critérios com peso (mesmo padrão RTINGS).
 - Metodologia pública e versionada (mesmo princípio editorial do Wirecutter).

@@ -6,11 +6,11 @@
  * lógica de cálculo.
  *
  * Interpretação de cada peso: quanto o fator pesa no Score Geral
- * (0–100) que combina qualidade (Índice SupleCheck já calculado pela
+ * (0–100) que combina qualidade (Índice SupleScore já calculado pela
  * metodologia) com sinais de preço dentro da categoria comparada.
  */
 export interface OverallScoreWeights {
-  /** Peso do Índice SupleCheck (qualidade) já calculado pela metodologia vigente. */
+  /** Peso do Índice SupleScore (qualidade) já calculado pela metodologia vigente. */
   readonly quality: number;
   /** Peso do preço absoluto do produto, comparado aos demais da mesma categoria. */
   readonly price: number;

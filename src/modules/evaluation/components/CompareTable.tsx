@@ -32,7 +32,7 @@ const ROWS: CompareRow[] = [
     ),
   },
   {
-    label: "Índice SupleCheck (nota)",
+    label: "Índice SupleScore (nota)",
     value: (entry) => entry.finalScore,
     render: (entry) => (
       <div className="flex items-center gap-2">

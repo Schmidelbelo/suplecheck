@@ -23,7 +23,7 @@ type SortKey = "overall" | "score" | "price" | "pricePerDose" | "brand";
 
 const SORT_LABELS: Record<SortKey, string> = {
   overall: "Melhor compra (Score Geral)",
-  score: "Maior nota geral (Índice SupleCheck)",
+  score: "Maior nota geral (Índice SupleScore)",
   price: "Menor preço",
   pricePerDose: "Preço por dose (menor primeiro)",
   brand: "Marca (A–Z)",

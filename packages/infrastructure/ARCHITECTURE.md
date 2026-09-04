@@ -1,4 +1,4 @@
-# SupleCheck Infrastructure Layer — Arquitetura
+# SupleScore Infrastructure Layer — Arquitetura
 
 > Este documento descreve `packages/infrastructure`, a camada que
 > implementa os Ports declarados pela Application Layer

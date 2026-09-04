@@ -17,7 +17,7 @@ export interface MethodologyProps {
 }
 
 /**
- * A metodologia é o "coração configurável" do Índice SupleCheck: qual
+ * A metodologia é o "coração configurável" do Índice SupleScore: qual
  * conjunto de critérios entra na fórmula, com qual peso, agregados de
  * qual forma, e traduzidos em qual sistema de classificação — tudo dado,
  * nada hardcoded no motor (`ScoringEngine`).

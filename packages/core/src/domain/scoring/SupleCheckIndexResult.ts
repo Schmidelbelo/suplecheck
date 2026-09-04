@@ -14,7 +14,7 @@ export interface CriterionBreakdownEntry {
 }
 
 /**
- * Resultado imutável de um cálculo do Índice SupleCheck. Equivale, em
+ * Resultado imutável de um cálculo do Índice SupleScore. Equivale, em
  * conceito, ao `ProductScore` do Prisma (packages/database) — mas é um
  * objeto de domínio puro, sem id de banco nem acoplamento de
  * persistência. Cada cálculo produz uma NOVA instância; nunca existe uma

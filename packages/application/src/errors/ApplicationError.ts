@@ -98,7 +98,7 @@ export class CriterionNotFoundError extends ApplicationError {
 export class IndexResultNotFoundError extends ApplicationError {
   readonly code = "INDEX_RESULT_NOT_FOUND";
   constructor(supplementId: string) {
-    super(`Nenhum Índice SupleCheck calculado ainda para o suplemento "${supplementId}".`);
+    super(`Nenhum Índice SupleScore calculado ainda para o suplemento "${supplementId}".`);
   }
 }
 

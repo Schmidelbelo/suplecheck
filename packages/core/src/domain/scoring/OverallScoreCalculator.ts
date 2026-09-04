@@ -2,7 +2,7 @@ import { DEFAULT_OVERALL_SCORE_WEIGHTS, type OverallScoreWeights } from "./Overa
 
 export interface OverallScoreInput {
   readonly productId: string;
-  /** Índice SupleCheck (0–100) já calculado pela metodologia vigente. */
+  /** Índice SupleScore (0–100) já calculado pela metodologia vigente. */
   readonly qualityScore: number;
   readonly priceCents: number | null;
   readonly pricePerDoseCents: number | null;

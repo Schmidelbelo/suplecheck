@@ -1,9 +1,9 @@
 export const siteConfig = {
-  name: "SupleCheck",
-  title: "SupleCheck — Comparação inteligente de suplementos",
+  name: "SupleScore",
+  title: "SupleScore — Comparação inteligente de suplementos",
   description:
-    "Rankings independentes de suplementos baseados em dados: o Índice SupleCheck compara qualidade, custo-benefício e composição para você decidir com segurança.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.suplecheck.com.br",
+    "Rankings independentes de suplementos baseados em dados: o Índice SupleScore compara qualidade, custo-benefício e composição para você decidir com segurança.",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.suplescore.com.br",
   locale: "pt_BR",
   themeColor: "#127c47",
   keywords: [
@@ -11,11 +11,11 @@ export const siteConfig = {
     "creatina",
     "comparador de suplementos",
     "ranking de suplementos",
-    "índice suplecheck",
+    "índice suplescore",
     "whey protein",
   ],
   links: {
-    instagram: "https://instagram.com/suplecheck",
+    instagram: "https://instagram.com/suplescore",
   },
 } as const;
 

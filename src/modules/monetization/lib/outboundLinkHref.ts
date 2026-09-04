@@ -1,5 +1,5 @@
 /**
- * Toda a UI usa esta função para linkar para fora do SupleCheck — nunca
+ * Toda a UI usa esta função para linkar para fora do SupleScore — nunca
  * um `href` direto para `presentation.price.url`. Devolve sempre uma
  * URL interna (`/go/...`), que decide o link real (afiliado ou não) e
  * registra o clique antes de redirecionar (ver `src/app/go/[productId]/route.ts`).

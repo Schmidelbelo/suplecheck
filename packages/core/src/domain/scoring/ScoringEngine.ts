@@ -5,7 +5,7 @@ import { SupleCheckIndexResult, type CriterionBreakdownEntry } from "./SupleChec
 import type { WeightedScore } from "./AggregationStrategy";
 
 /**
- * O motor de cálculo do Índice SupleCheck. Deliberadamente "burro": não
+ * O motor de cálculo do Índice SupleScore. Deliberadamente "burro": não
  * sabe o que é um critério específico, não sabe o que é uma categoria,
  * não sabe como pesos são decididos — apenas executa os critérios já
  * resolvidos por `MethodologyResolver`, agrega segundo a

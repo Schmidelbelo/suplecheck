@@ -11,7 +11,7 @@ import { decodeProfileFromSearchParams } from "@/modules/recommendation/lib/prof
  * parâmetros da URL compartilhável de `/assistente`) e devolve o
  * ranking personalizado, a justificativa (vantagens/desvantagens reais
  * de cada produto) e os pesos usados no cálculo. Score Geral e Índice
- * SupleCheck nunca são alterados — o Score Personalizado é recalculado
+ * SupleScore nunca são alterados — o Score Personalizado é recalculado
  * a cada chamada, nunca persistido (ver docs/SCORING.md).
  */
 export async function GET(request: Request) {

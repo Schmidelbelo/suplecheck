@@ -1,7 +1,7 @@
 export interface ProductBadgeInput {
   readonly productId: string;
   readonly priceCents: number | null;
-  /** Índice SupleCheck (0–100) já calculado pela metodologia vigente. */
+  /** Índice SupleScore (0–100) já calculado pela metodologia vigente. */
   readonly finalScore: number;
   /** Score Geral já calculado por `calculateOverallScores` — nunca recalculado aqui. */
   readonly overallScore: number;

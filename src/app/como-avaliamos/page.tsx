@@ -20,7 +20,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 export const metadata: Metadata = buildMetadata({
   title: "Como Avaliamos",
   description:
-    "Entenda o processo de avaliação do SupleCheck: de onde vêm os dados, quais critérios compõem o Índice e com que frequência revisamos cada produto.",
+    "Entenda o processo de avaliação do SupleScore: de onde vêm os dados, quais critérios compõem o Índice e com que frequência revisamos cada produto.",
   path: "/como-avaliamos",
 });
 
@@ -116,7 +116,7 @@ export default function ComoAvaliamosPage() {
             Seis critérios, com pesos definidos
           </h2>
           <p className="text-text-muted mt-4">
-            A nota final (Índice SupleCheck) é a soma ponderada dos seis critérios abaixo. Nenhum
+            A nota final (Índice SupleScore) é a soma ponderada dos seis critérios abaixo. Nenhum
             critério é atribuído subjetivamente.
           </p>
         </div>

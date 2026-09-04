@@ -44,7 +44,7 @@ export function Footer() {
 
       <Container className="border-border text-text-subtle flex flex-col gap-4 border-t py-6 text-xs sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <p>© {year} SupleCheck. Todos os direitos reservados.</p>
+          <p>© {year} SupleScore. Todos os direitos reservados.</p>
           <p>Conteúdo editorial independente. Alguns links podem ser de afiliados.</p>
         </div>
         <SocialLinks />

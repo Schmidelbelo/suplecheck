@@ -1,4 +1,4 @@
-# SupleCheck Application Layer — Arquitetura
+# SupleScore Application Layer — Arquitetura
 
 > Este documento descreve `packages/application`, a camada de
 > orquestração entre o Core Domain (`packages/core`) e o resto do mundo

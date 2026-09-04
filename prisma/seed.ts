@@ -4,7 +4,7 @@ import { buildInfrastructureContainer } from "../packages/infrastructure/src/ind
 /**
  * Seed inicial da plataforma — Categorias/Marcas/Fabricantes mínimos
  * (módulo Catálogo) + as 10 creatinas do MVP, avaliadas pelo Índice
- * SupleCheck de verdade (Core Domain via `EvaluateSupplementUseCase`) e
+ * SupleScore de verdade (Core Domain via `EvaluateSupplementUseCase`) e
  * com um Ranking gerado ao final — é isto que a página pública `/creatina`
  * consome. Idempotente: `upsert` por slug/gtin, e reavaliação/ranking só
  * rodam se ainda não existirem, então `prisma db seed` pode rodar várias
@@ -470,7 +470,7 @@ async function seedMethodologyAndScores() {
     evaluated++;
   }
   console.warn(
-    `Seed: ${evaluated} creatinas avaliadas pelo Índice SupleCheck (${CREATINAS.length - evaluated} já tinham nota).`,
+    `Seed: ${evaluated} creatinas avaliadas pelo Índice SupleScore (${CREATINAS.length - evaluated} já tinham nota).`,
   );
 
   const existingRanking = await container.ports.rankings.findLatest("creatina");

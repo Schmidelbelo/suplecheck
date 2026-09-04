@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { productA, productB } = view.data;
   return buildMetadata({
     title: `${productA.product.name} vs ${productB.product.name}`,
-    description: `Compare ${productA.product.name} e ${productB.product.name}: score, preco, criterios, vantagens, desvantagens e conclusao com dados reais do SupleCheck.`,
+    description: `Compare ${productA.product.name} e ${productB.product.name}: score, preco, criterios, vantagens, desvantagens e conclusao com dados reais do SupleScore.`,
     path: `/comparar/${view.canonicalPair}`,
   });
 }
@@ -78,7 +78,7 @@ export default async function ComparisonPage({ params }: Params) {
       <PageHeader
         eyebrow="Comparacao"
         title={`${productA.product.name} vs ${productB.product.name}`}
-        description={`Score, preco, criterios e conclusao calculados a partir das avaliacoes reais do SupleCheck.`}
+        description={`Score, preco, criterios e conclusao calculados a partir das avaliacoes reais do SupleScore.`}
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Comparar" },
@@ -94,7 +94,7 @@ export default async function ComparisonPage({ params }: Params) {
           </div>
           <ShareButton
             title={`${productA.product.name} vs ${productB.product.name}`}
-            text="Comparacao SupleCheck"
+            text="Comparacao SupleScore"
             label="Compartilhar comparacao"
           />
         </div>

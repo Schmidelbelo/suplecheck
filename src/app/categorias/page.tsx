@@ -12,7 +12,7 @@ import { listCategoriesWithCounts } from "@/modules/category/services/categoryPa
 export const metadata: Metadata = buildMetadata({
   title: "Categorias de Suplementos",
   description:
-    "Todas as categorias de suplementos do SupleCheck — veja quais já têm ranking real calculado e quais ainda estão em avaliação.",
+    "Todas as categorias de suplementos do SupleScore — veja quais já têm ranking real calculado e quais ainda estão em avaliação.",
   path: "/categorias",
 });
 
@@ -47,7 +47,7 @@ export default async function CategoriesIndexPage() {
       <PageHeader
         eyebrow="Categorias"
         title="Categorias de suplementos"
-        description="Cada categoria ganha um ranking real assim que houver produtos avaliados com a metodologia SupleCheck."
+        description="Cada categoria ganha um ranking real assim que houver produtos avaliados com a metodologia SupleScore."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Categorias" }]}
       />
 

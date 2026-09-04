@@ -9,7 +9,7 @@ import { Section } from "@/components/layout/Section";
 export const metadata: Metadata = buildMetadata({
   title: "Sobre",
   description:
-    "Conheça o SupleCheck: a missão, os valores e a razão de existir de uma plataforma independente de comparação de suplementos.",
+    "Conheça o SupleScore: a missão, os valores e a razão de existir de uma plataforma independente de comparação de suplementos.",
   path: "/sobre",
 });
 
@@ -44,7 +44,7 @@ export default function SobrePage() {
         ])}
       />
       <PageHeader
-        eyebrow="Sobre o SupleCheck"
+        eyebrow="Sobre o SupleScore"
         title="Comparação de suplementos que não depende de quem paga mais"
         description="Nascemos da frustração de tentar comparar dois potes de creatina e descobrir que isso era muito mais difícil do que deveria ser."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Sobre" }]}
@@ -60,7 +60,7 @@ export default function SobrePage() {
             competindo por atenção.
           </p>
           <p>
-            O SupleCheck existe para resolver um problema específico: transformar a composição real
+            O SupleScore existe para resolver um problema específico: transformar a composição real
             de um produto — o que está de fato no rótulo — em uma comparação simples, pública e
             auditável. Não somos uma loja, não recomendamos marcas por patrocínio e não escondemos
             como calculamos cada nota.

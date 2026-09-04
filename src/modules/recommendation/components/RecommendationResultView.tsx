@@ -212,7 +212,7 @@ export function RecommendationResultView({
       <details className="text-text-muted text-xs">
         <summary className="cursor-pointer">Pesos usados nesta recomendação</summary>
         <ul className="mt-2 flex flex-col gap-1">
-          <li>Nota (Índice SupleCheck): {(weightsUsed.quality * 100).toFixed(0)}%</li>
+          <li>Nota (Índice SupleScore): {(weightsUsed.quality * 100).toFixed(0)}%</li>
           <li>Preço: {(weightsUsed.price * 100).toFixed(0)}%</li>
           <li>Preço por dose: {(weightsUsed.pricePerDose * 100).toFixed(0)}%</li>
           <li>Preço por grama: {(weightsUsed.pricePerGram * 100).toFixed(0)}%</li>

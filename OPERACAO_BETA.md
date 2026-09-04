@@ -1,4 +1,4 @@
-# Operacao Beta — SupleCheck
+# Operacao Beta — SupleScore
 
 Documento operacional para o Beta publico. Ele descreve como operar o estado atual do codigo, sem pressupor funcionalidades administrativas que ainda nao existem.
 

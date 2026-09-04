@@ -28,7 +28,7 @@ export function ProductMiniCard({
   brandName: string;
   priceCents: number | null;
   classificationTier: string;
-  /** Nota a exibir (Índice SupleCheck ou Score Geral, conforme o contexto do chamador). */
+  /** Nota a exibir (Índice SupleScore ou Score Geral, conforme o contexto do chamador). */
   score: number;
 }) {
   return (

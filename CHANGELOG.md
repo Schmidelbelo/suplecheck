@@ -2,11 +2,26 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.9.0] — 2026-09-04 — Rebranding: SupleCheck → SupleScore
+
+### Alterado
+
+- **Rebranding completo**: todas as ocorrências do nome do produto foram substituídas de "SupleCheck" para "SupleScore" — interface, metadata, SEO, OpenGraph, Twitter Cards, JSON-LD (`Organization`, `Product`/`Review`, `WebSite`/`SearchAction`), `robots.txt`, sitemaps, logotipo textual (`Logo.tsx`, `brandMark.tsx` — inclusive imagens OG/Twitter/ícones geradas via `next/og`), páginas institucionais (sobre, metodologia, como avaliamos, como ganhamos dinheiro, contato, privacidade, cookies, termos), README, ARCHITECTURE.md e demais documentação técnica.
+- `NEXT_PUBLIC_SITE_URL` — fallback padrão em `src/config/site.ts` atualizado para `https://www.suplescore.com.br` (preparado para quando o DNS propagar; a variável real de produção, gerenciada no painel da Vercel, segue com o operador do projeto).
+- `package.json` (raiz) renomeado para `suplescore`; `package-lock.json` resincronizado.
+- Chaves de `localStorage` (favoritos, histórico, alertas de preço, e-mail capturado etc.) migradas do prefixo `suplecheck:` para `suplescore:` — decisão segura porque o projeto ainda está pré-Beta (nenhum usuário real teria dado local a perder).
+
+### Não alterado (deliberado — fora do escopo de rebranding, arquitetura preservada)
+
+- Escopos de pacote interno do monorepo (`@suplecheck/core`, `@suplecheck/application`, `@suplecheck/infrastructure`) e a classe de domínio `SupleCheckIndexResult` — identificadores internos de arquitetura, não texto de marca voltado ao usuário; renomeá-los exigiria tocar imports, `package.json` de cada pacote e resolução de workspace, fora do que a sprint pediu ("não alterar arquitetura").
+- Banco de dados: nenhum nome de tabela/coluna/model foi alterado, só comentários (`prisma/schema.prisma`).
+- Rotas públicas e contratos de API: inalterados.
+
 ## [0.8.0] — 2026-09-03 — Preparação Comercial para Monetização Real
 
 ### Adicionado
 
-- `buildAffiliateUrl()` agora aceita um segundo formato de `Store.affiliateBaseUrl`: uma querystring pura (sem `{url}`, sem `://`), mesclada nos parâmetros já existentes da URL de destino em vez de substituir um template — cobre o modelo de *tag* da Amazon Associates (query param na própria URL do produto, não um wrapper de terceiro), a única lacuna estrutural real encontrada na auditoria da sprint anterior. Nenhum valor real foi inventado — o campo continua vazio no banco.
+- `buildAffiliateUrl()` agora aceita um segundo formato de `Store.affiliateBaseUrl`: uma querystring pura (sem `{url}`, sem `://`), mesclada nos parâmetros já existentes da URL de destino em vez de substituir um template — cobre o modelo de _tag_ da Amazon Associates (query param na própria URL do produto, não um wrapper de terceiro), a única lacuna estrutural real encontrada na auditoria da sprint anterior. Nenhum valor real foi inventado — o campo continua vazio no banco.
 - `AFFILIATES.md` ganhou uma tabela única de preparação comercial (loja, programa, status, cadastro/aprovação/extensão/API necessários, formato esperado de `affiliateBaseUrl`, observações) cobrindo as 3 lojas hoje no catálogo (Amazon, Netshoes, Loja Oficial da Marca — placeholder) e as 5 marcas pesquisadas para expansão (Growth, Soldiers Nutrition, Dark Lab, Integralmédica, Max Titanium, Adaptogen), e uma confirmação explícita, loja a loja, de que nenhum ajuste técnico adicional é necessário após aprovação — só a configuração de `Store.isAffiliate`/`Store.affiliateBaseUrl`.
 
 ### Testes

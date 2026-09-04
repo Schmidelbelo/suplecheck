@@ -2,7 +2,7 @@
 
 import { useLocalStorageList } from "@/hooks/useLocalStorageList";
 
-const ALERTS_STORAGE_KEY = "suplecheck:price-alerts";
+const ALERTS_STORAGE_KEY = "suplescore:price-alerts";
 const ALERTS_MAX_ITEMS = 50;
 
 export type PriceAlertType = "below" | "lowest";

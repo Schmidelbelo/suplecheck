@@ -3,10 +3,10 @@
 import * as React from "react";
 import { useLocalStorageList } from "@/hooks/useLocalStorageList";
 
-const HISTORY_STORAGE_KEY = "suplecheck:recently-viewed";
+const HISTORY_STORAGE_KEY = "suplescore:recently-viewed";
 const HISTORY_MAX_ITEMS = 10;
 
-const COMPARISONS_STORAGE_KEY = "suplecheck:recent-comparisons";
+const COMPARISONS_STORAGE_KEY = "suplescore:recent-comparisons";
 const COMPARISONS_MAX_ITEMS = 5;
 
 export interface ViewedProductEntry {

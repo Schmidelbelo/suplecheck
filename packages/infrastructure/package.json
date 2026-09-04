@@ -2,7 +2,7 @@
   "name": "@suplecheck/infrastructure",
   "version": "0.1.0",
   "private": true,
-  "description": "Infrastructure Layer do SupleCheck — implementa os Ports da Application Layer (persistência, cache, storage, mail, filas, APIs externas...). Depende de @suplecheck/application; nunca o contrário.",
+  "description": "Infrastructure Layer do SupleScore — implementa os Ports da Application Layer (persistência, cache, storage, mail, filas, APIs externas...). Depende de @suplecheck/application; nunca o contrário.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

@@ -1,4 +1,4 @@
-# SupleCheck
+# SupleScore
 
 Plataforma de comparação inteligente de suplementos. Ver [`ARCHITECTURE.md`](./ARCHITECTURE.md) para a arquitetura completa e o raciocínio por trás das decisões estruturais, e [`docs/DEPLOY.md`](./docs/DEPLOY.md) para o processo de deploy em produção.
 
@@ -23,20 +23,20 @@ npm run dev
 
 ## Scripts
 
-| Script                 | Descrição                                             |
-| ---------------------- | ------------------------------------------------------ |
-| `npm run dev`          | Ambiente de desenvolvimento                             |
-| `npm run build`        | Build de produção                                       |
-| `npm run start`        | Sobe o build de produção localmente                     |
-| `npm run lint`         | ESLint                                                  |
-| `npm run format`       | Formata o projeto com Prettier                          |
-| `npm run typecheck`    | Checagem de tipos sem build                             |
-| `npm test`             | Testes (Vitest) — integração/repository/API contra o Postgres real de `DATABASE_URL` |
-| `npm run db:generate`  | Gera o Prisma Client                                    |
-| `npm run db:push`      | Sincroniza o schema com o banco sem gerar migration (dev only) |
-| `npm run db:migrate`   | Cria/aplica migrations em desenvolvimento                |
-| `npm run db:studio`    | Abre o Prisma Studio                                     |
-| `npm run db:seed`      | Roda o seed oficial (categorias/marcas/fabricantes/10 creatinas avaliadas/ranking) — idempotente |
+| Script                | Descrição                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm run dev`         | Ambiente de desenvolvimento                                                                      |
+| `npm run build`       | Build de produção                                                                                |
+| `npm run start`       | Sobe o build de produção localmente                                                              |
+| `npm run lint`        | ESLint                                                                                           |
+| `npm run format`      | Formata o projeto com Prettier                                                                   |
+| `npm run typecheck`   | Checagem de tipos sem build                                                                      |
+| `npm test`            | Testes (Vitest) — integração/repository/API contra o Postgres real de `DATABASE_URL`             |
+| `npm run db:generate` | Gera o Prisma Client                                                                             |
+| `npm run db:push`     | Sincroniza o schema com o banco sem gerar migration (dev only)                                   |
+| `npm run db:migrate`  | Cria/aplica migrations em desenvolvimento                                                        |
+| `npm run db:studio`   | Abre o Prisma Studio                                                                             |
+| `npm run db:seed`     | Roda o seed oficial (categorias/marcas/fabricantes/10 creatinas avaliadas/ranking) — idempotente |
 
 Em produção, migrations são aplicadas com `npx prisma migrate deploy` (nunca `migrate dev`), ver `docs/DEPLOY.md`.
 

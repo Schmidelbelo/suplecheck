@@ -11,7 +11,7 @@ import { ContactForm } from "@/components/marketing/ContactForm";
 export const metadata: Metadata = buildMetadata({
   title: "Contato",
   description:
-    "Fale com o SupleCheck: dúvidas, sugestões de produtos para avaliar, parcerias comerciais ou correção de dados.",
+    "Fale com o SupleScore: dúvidas, sugestões de produtos para avaliar, parcerias comerciais ou correção de dados.",
   path: "/contato",
 });
 
@@ -46,7 +46,7 @@ export default function ContatoPage() {
               </div>
               <div>
                 <h2 className="text-text text-sm font-semibold">E-mail</h2>
-                <p className="text-text-muted text-sm">contato@suplecheck.com.br</p>
+                <p className="text-text-muted text-sm">contato@suplescore.com.br</p>
               </div>
             </div>
 
@@ -56,7 +56,7 @@ export default function ContatoPage() {
               </div>
               <div>
                 <h2 className="text-text text-sm font-semibold">Redes sociais</h2>
-                <p className="text-text-muted text-sm">@suplecheck em todas as redes</p>
+                <p className="text-text-muted text-sm">@suplescore em todas as redes</p>
               </div>
             </div>
 

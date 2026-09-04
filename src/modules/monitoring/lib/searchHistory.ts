@@ -2,7 +2,7 @@
 
 import { useLocalStorageList } from "@/hooks/useLocalStorageList";
 
-const STORAGE_KEY = "suplecheck:search-history";
+const STORAGE_KEY = "suplescore:search-history";
 const MAX_ITEMS = 15;
 
 export interface SearchHistoryEntry {

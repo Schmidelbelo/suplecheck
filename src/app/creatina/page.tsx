@@ -17,7 +17,7 @@ import type { MarketApiResponse } from "@/modules/market/types";
 export const metadata: Metadata = buildMetadata({
   title: "Qual a Melhor Creatina? Ranking Comparativo",
   description:
-    "Qual a melhor creatina em custo-benefício? Ranking comparativo com nota do Índice SupleCheck, preço por dose e transparência do rótulo — calculado a partir de dados reais, sem posição paga.",
+    "Qual a melhor creatina em custo-benefício? Ranking comparativo com nota do Índice SupleScore, preço por dose e transparência do rótulo — calculado a partir de dados reais, sem posição paga.",
   path: "/creatina",
 });
 
@@ -38,7 +38,7 @@ export default async function CreatinaRankingPage() {
       <PageHeader
         eyebrow="Ranking"
         title="Qual a melhor creatina? Ranking comparativo"
-        description="Cada produto abaixo foi avaliado pelo Índice SupleCheck a partir de custo-benefício, transparência do rótulo, preço por dose, reputação, promessas de marketing e confiabilidade da loja — nunca patrocinado."
+        description="Cada produto abaixo foi avaliado pelo Índice SupleScore a partir de custo-benefício, transparência do rótulo, preço por dose, reputação, promessas de marketing e confiabilidade da loja — nunca patrocinado."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Creatina" }]}
       />
 
@@ -65,14 +65,14 @@ export default async function CreatinaRankingPage() {
                 Ranking gerado em {formatDate(ranking.generatedAt)} · {ranking.entries.length}{" "}
                 produtos avaliados
               </p>
-              <ShareButton title="Ranking de creatina — SupleCheck" label="Compartilhar ranking" />
+              <ShareButton title="Ranking de creatina — SupleScore" label="Compartilhar ranking" />
             </div>
             <RankingFilters entries={ranking.entries} />
           </div>
         ) : (
           <EmptyState
             title="O ranking de creatinas ainda não foi gerado"
-            description="Assim que o Índice SupleCheck for calculado para os produtos desta categoria, eles aparecerão aqui."
+            description="Assim que o Índice SupleScore for calculado para os produtos desta categoria, eles aparecerão aqui."
           />
         )}
       </Section>
@@ -119,7 +119,7 @@ export default async function CreatinaRankingPage() {
             costuma valer a pena — mas &ldquo;vale a pena&rdquo; depende do produto específico, não
             só do ingrediente. Um produto com dosagem abaixo da faixa eficaz, preço por dose alto ou
             rótulo pouco transparente pode não valer o que custa, mesmo sendo tecnicamente
-            &ldquo;creatina&rdquo;. O SupleCheck não faz recomendação de uso ou de saúde —
+            &ldquo;creatina&rdquo;. O SupleScore não faz recomendação de uso ou de saúde —
             comparamos os produtos disponíveis para que essa decisão seja seguida com dados, não com
             a embalagem mais chamativa.
           </p>

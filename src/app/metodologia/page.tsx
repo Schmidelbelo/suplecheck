@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 export const metadata: Metadata = buildMetadata({
   title: "Metodologia",
   description:
-    "O cálculo completo do Índice SupleCheck: fórmula, pesos, versionamento e como o histórico de cada nota é preservado.",
+    "O cálculo completo do Índice SupleScore: fórmula, pesos, versionamento e como o histórico de cada nota é preservado.",
   path: "/metodologia",
 });
 
@@ -25,7 +25,7 @@ export default function MetodologiaPage() {
       />
       <PageHeader
         eyebrow="Metodologia"
-        title="A fórmula por trás do Índice SupleCheck"
+        title="A fórmula por trás do Índice SupleScore"
         description="Documentação completa e pública do cálculo — a mesma fórmula é aplicada a todo produto, de toda marca."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Metodologia" }]}
       />
@@ -34,7 +34,7 @@ export default function MetodologiaPage() {
         <div className="mx-auto flex max-w-3xl flex-col gap-6">
           <h2 className="font-display text-text text-2xl font-bold">A fórmula</h2>
           <p className="text-text-muted">
-            O Índice SupleCheck é uma média ponderada de seis subnotas, cada uma calculada em uma
+            O Índice SupleScore é uma média ponderada de seis subnotas, cada uma calculada em uma
             escala de 0 a 100 e depois combinada pelos pesos definidos em{" "}
             <Link href="/como-avaliamos" className="text-brand font-medium hover:underline">
               Como Avaliamos

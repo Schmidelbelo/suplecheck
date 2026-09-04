@@ -57,7 +57,7 @@ export function ogImageElement() {
       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
         {brandMarkIcon(96)}
         <span style={{ color: "#ffffff", fontSize: 72, fontWeight: 700, fontFamily: "sans-serif" }}>
-          Suple<span style={{ color: "#46dc8b" }}>Check</span>
+          Suple<span style={{ color: "#46dc8b" }}>Score</span>
         </span>
       </div>
       <span style={{ color: "#ced4da", fontSize: 32, fontFamily: "sans-serif" }}>

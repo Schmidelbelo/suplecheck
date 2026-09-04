@@ -21,7 +21,7 @@ const steps = [
     icon: ClipboardList,
     title: "Calculamos o Índice",
     description:
-      "Seis critérios objetivos e ponderados — de custo-benefício a confiabilidade da loja — viram uma nota única de 0 a 100: o Índice SupleCheck.",
+      "Seis critérios objetivos e ponderados — de custo-benefício a confiabilidade da loja — viram uma nota única de 0 a 100: o Índice SupleScore.",
   },
   {
     number: "04",

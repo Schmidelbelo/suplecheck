@@ -2,7 +2,7 @@ import type { PersonalizedWeights } from "./PersonalizedWeights";
 
 export interface PersonalizedScoreInput {
   readonly productId: string;
-  /** Índice SupleCheck (0–100) — o Score Geral em si NUNCA é alterado por este cálculo. */
+  /** Índice SupleScore (0–100) — o Score Geral em si NUNCA é alterado por este cálculo. */
   readonly qualityScore: number;
   readonly priceCents: number | null;
   readonly pricePerDoseCents: number | null;

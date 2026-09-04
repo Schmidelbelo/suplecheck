@@ -73,7 +73,7 @@ export default async function OffersPage() {
               <SectionTitle
                 icon={<Star className="size-5" aria-hidden />}
                 title="Melhores oportunidades"
-                description="Maior Score Geral do ranking — combina qualidade (Índice SupleCheck) com preço, preço por dose e preço por grama, ver docs/SCORING.md."
+                description="Maior Score Geral do ranking — combina qualidade (Índice SupleScore) com preço, preço por dose e preço por grama, ver docs/SCORING.md."
               />
               {overview.bestOpportunities.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

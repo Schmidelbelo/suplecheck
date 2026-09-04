@@ -1,6 +1,6 @@
 # Monetização por Afiliados — Arquitetura e Auditoria de Programas
 
-Este documento cobre a arquitetura de monetização por afiliados do SupleCheck (implementada) e uma auditoria técnica dos programas de afiliado reais das lojas/marcas prioritárias (pesquisa, sem nenhuma integração ativada ainda).
+Este documento cobre a arquitetura de monetização por afiliados do SupleScore (implementada) e uma auditoria técnica dos programas de afiliado reais das lojas/marcas prioritárias (pesquisa, sem nenhuma integração ativada ainda).
 
 ## 1. Arquitetura criada
 
@@ -133,7 +133,7 @@ _(marca **não existe** no catálogo hoje — precisa ser cadastrada em `Brand`/
 - **Comissão**: 7,5% do valor final da compra.
 - **Aprovação**: cadastro gratuito, maiores de 18 anos, sujeito a aprovação como publisher na Awin e depois aceite do anunciante.
 - **Prazo médio**: não confirmado.
-- **Observações**: programa relativamente novo (fontes de 2026); nenhum produto Soldiers está no catálogo do SupleCheck hoje — pré-requisito de catálogo antes de qualquer ativação.
+- **Observações**: programa relativamente novo (fontes de 2026); nenhum produto Soldiers está no catálogo do SupleScore hoje — pré-requisito de catálogo antes de qualquer ativação.
 
 ### Dark Lab
 
@@ -171,7 +171,7 @@ _(marca já existe no catálogo — `max-titanium`; **não existe como `Store`**
   1. **Max Titanium Affiliate Program** — modelo eCommerce CPA tradicional.
   2. **Max Team Influencers** — programa de influenciadores via plataforma BrandLovrs, com níveis (ex.: nível PRO).
 - **Plataforma**: rede de afiliados eCommerce (CPA) para o programa 1; **BrandLovrs** para o programa 2.
-- **Documentação**: não encontrada uma URL de documentação técnica pública direta nas fontes consultadas — recomenda-se contato direto com a marca para confirmar qual dos dois programas é o adequado para uma plataforma de comparação (o SupleCheck é mais próximo do perfil "afiliado eCommerce" do programa 1 do que "influenciador" do programa 2).
+- **Documentação**: não encontrada uma URL de documentação técnica pública direta nas fontes consultadas — recomenda-se contato direto com a marca para confirmar qual dos dois programas é o adequado para uma plataforma de comparação (o SupleScore é mais próximo do perfil "afiliado eCommerce" do programa 1 do que "influenciador" do programa 2).
 - **Parâmetros necessários**: não confirmado — depende de qual dos dois programas for confirmado como aplicável.
 - **Cookie**: 30 dias (programa 1, "período de validação").
 - **Comissão**: 3,8% por pedido válido (programa 1); programa 2 cita 10% + 2% sobre vendas totais no nível PRO, mais benefícios não-monetários (cartões-presente mensais).
@@ -199,32 +199,32 @@ _(marca **não existe** no catálogo hoje)_
 
 ## 7. Resumo executivo da auditoria
 
-| Loja/Marca         | No catálogo hoje?   | Programa confirmado?             | Rede                | Compatível com `{url}` sem adaptação? |
-| ------------------ | ------------------- | -------------------------------- | ------------------- | ------------------------------------- |
+| Loja/Marca         | No catálogo hoje?   | Programa confirmado?             | Rede                | Compatível com `{url}` sem adaptação?                   |
+| ------------------ | ------------------- | -------------------------------- | ------------------- | ------------------------------------------------------- |
 | Amazon             | Store ✅            | ✅                               | Própria             | ✅ (modo "anexar parâmetro", implementado nesta sprint) |
-| Netshoes           | Store ✅            | ✅                               | Rakuten Advertising | ✅ (padrão wrapper)                   |
-| Growth             | Brand ✅ / Store ❌ | ⚠️ possivelmente inativo         | Lomadee             | ✅                                    |
-| Soldiers Nutrition | ❌                  | ✅                               | Awin                | ✅                                    |
-| Dark Lab           | ❌                  | ✅                               | Awin                | ✅                                    |
-| Integralmédica     | Brand ✅ / Store ❌ | ❌ não encontrado                | —                   | —                                     |
-| Max Titanium       | Brand ✅ / Store ❌ | ✅ (2 programas, confirmar qual) | Não confirmada      | Provável ✅, a confirmar              |
-| Adaptogen          | ❌                  | ✅ (formato cupom, não URL)      | Própria             | ❌ precisa de nova arquitetura        |
+| Netshoes           | Store ✅            | ✅                               | Rakuten Advertising | ✅ (padrão wrapper)                                     |
+| Growth             | Brand ✅ / Store ❌ | ⚠️ possivelmente inativo         | Lomadee             | ✅                                                      |
+| Soldiers Nutrition | ❌                  | ✅                               | Awin                | ✅                                                      |
+| Dark Lab           | ❌                  | ✅                               | Awin                | ✅                                                      |
+| Integralmédica     | Brand ✅ / Store ❌ | ❌ não encontrado                | —                   | —                                                       |
+| Max Titanium       | Brand ✅ / Store ❌ | ✅ (2 programas, confirmar qual) | Não confirmada      | Provável ✅, a confirmar                                |
+| Adaptogen          | ❌                  | ✅ (formato cupom, não URL)      | Própria             | ❌ precisa de nova arquitetura                          |
 
 ## 8. Tabela única de preparação comercial
 
 Cobre as 3 lojas hoje cadastradas em `Store` (as únicas com produto/preço real no catálogo) e as marcas/lojas pesquisadas para expansão futura. "AffiliateBaseUrl esperado" é o **formato**, não um valor — nenhum ID real existe ainda; o campo continua `null` no banco para todas.
 
-| Loja | Programa | Status | Cadastro? | Aprovação? | Extensão? | API? | `AffiliateBaseUrl` esperado (formato) | Observações |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Amazon** | Amazon Associates | No catálogo, `isAffiliate: true` | Sim (grátis, portal próprio) | Sim (geralmente automática/rápida) | Não — implementado nesta sprint (modo "anexar parâmetro") | Não | `"tag=NOSSA-TAG-20"` (querystring pura) | Risco de desativação por volume mínimo de vendas em 180 dias — considerar timing de ativação. |
-| **Netshoes** | Parceiro Netshoes (via Rakuten Advertising) | No catálogo, `isAffiliate: true` | Sim (via Rakuten Advertising) | Sim (Rakuten + aceite da Netshoes como anunciante) | Não — formato wrapper já suportado | Não (portal da Rakuten) | `"https://track.rakuten.../click?...&u={url}"` (formato exato a confirmar no portal) | Confirmar se o catálogo de suplementos específico participa do programa. |
-| **Loja Oficial da Marca** | N/A — placeholder de seed | No catálogo, `isAffiliate: false` | N/A | N/A | N/A | N/A | N/A | Não é entidade comercial real; substituir por lojas específicas conforme forem confirmadas. |
-| **Growth Supplements** | Programa próprio via Lomadee | Fora do catálogo (`Brand` existe, `Store` não) | Sim (Lomadee) | Sim (Lomadee + aceite do anunciante) | Não — formato wrapper já suportado | Não | `"https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_ID"` | Status do programa direto "possivelmente inativo" numa fonte — confirmar antes de negociar. |
-| **Soldiers Nutrition** | Programa próprio via Awin | Fora do catálogo (`Brand` não existe) | Sim (Awin) | Sim (Awin + aceite do anunciante) | Não — formato wrapper já suportado | Não | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"` | Nenhum produto Soldiers no catálogo hoje — pré-requisito antes de ativar. |
-| **Dark Lab** | Programa próprio via Awin | Fora do catálogo (`Brand` não existe) | Sim (Awin) | Sim (Awin + aceite do anunciante) | Não — formato wrapper já suportado | Não | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"` | Comissão paga em Euro — atenção à conciliação financeira e fiscal. |
-| **Integralmédica** | Não encontrado (só fidelidade B2C, "Integral Club") | Fora do catálogo (`Brand` existe, `Store` não) | — | — | — | — | — | Confirmar diretamente com o time comercial da marca antes de descartar. |
-| **Max Titanium** | 2 programas distintos (eCommerce CPA / BrandLovrs influenciadores) | Fora do catálogo (`Brand` existe, `Store` não) | A confirmar qual dos dois | A confirmar | Provavelmente não (perfil eCommerce CPA é compatível com wrapper) | A confirmar | A confirmar após decidir qual programa | Confirmar qual dos dois programas antes de qualquer contato comercial. |
-| **Adaptogen** | Cupom de desconto (não é link rastreável por URL) | Fora do catálogo (`Brand` não existe) | Sim (formulário próprio) | Não detalhado | **Sim — modelo de cupom não se encaixa no redirect atual** | Não | Não aplicável no contrato atual | Precisaria de uma feature nova (exibir/aplicar cupom), fora do escopo desta arquitetura de redirect. |
+| Loja                      | Programa                                                           | Status                                         | Cadastro?                     | Aprovação?                                         | Extensão?                                                         | API?                    | `AffiliateBaseUrl` esperado (formato)                                                | Observações                                                                                          |
+| ------------------------- | ------------------------------------------------------------------ | ---------------------------------------------- | ----------------------------- | -------------------------------------------------- | ----------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Amazon**                | Amazon Associates                                                  | No catálogo, `isAffiliate: true`               | Sim (grátis, portal próprio)  | Sim (geralmente automática/rápida)                 | Não — implementado nesta sprint (modo "anexar parâmetro")         | Não                     | `"tag=NOSSA-TAG-20"` (querystring pura)                                              | Risco de desativação por volume mínimo de vendas em 180 dias — considerar timing de ativação.        |
+| **Netshoes**              | Parceiro Netshoes (via Rakuten Advertising)                        | No catálogo, `isAffiliate: true`               | Sim (via Rakuten Advertising) | Sim (Rakuten + aceite da Netshoes como anunciante) | Não — formato wrapper já suportado                                | Não (portal da Rakuten) | `"https://track.rakuten.../click?...&u={url}"` (formato exato a confirmar no portal) | Confirmar se o catálogo de suplementos específico participa do programa.                             |
+| **Loja Oficial da Marca** | N/A — placeholder de seed                                          | No catálogo, `isAffiliate: false`              | N/A                           | N/A                                                | N/A                                                               | N/A                     | N/A                                                                                  | Não é entidade comercial real; substituir por lojas específicas conforme forem confirmadas.          |
+| **Growth Supplements**    | Programa próprio via Lomadee                                       | Fora do catálogo (`Brand` existe, `Store` não) | Sim (Lomadee)                 | Sim (Lomadee + aceite do anunciante)               | Não — formato wrapper já suportado                                | Não                     | `"https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_ID"`                | Status do programa direto "possivelmente inativo" numa fonte — confirmar antes de negociar.          |
+| **Soldiers Nutrition**    | Programa próprio via Awin                                          | Fora do catálogo (`Brand` não existe)          | Sim (Awin)                    | Sim (Awin + aceite do anunciante)                  | Não — formato wrapper já suportado                                | Não                     | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"`           | Nenhum produto Soldiers no catálogo hoje — pré-requisito antes de ativar.                            |
+| **Dark Lab**              | Programa próprio via Awin                                          | Fora do catálogo (`Brand` não existe)          | Sim (Awin)                    | Sim (Awin + aceite do anunciante)                  | Não — formato wrapper já suportado                                | Não                     | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"`           | Comissão paga em Euro — atenção à conciliação financeira e fiscal.                                   |
+| **Integralmédica**        | Não encontrado (só fidelidade B2C, "Integral Club")                | Fora do catálogo (`Brand` existe, `Store` não) | —                             | —                                                  | —                                                                 | —                       | —                                                                                    | Confirmar diretamente com o time comercial da marca antes de descartar.                              |
+| **Max Titanium**          | 2 programas distintos (eCommerce CPA / BrandLovrs influenciadores) | Fora do catálogo (`Brand` existe, `Store` não) | A confirmar qual dos dois     | A confirmar                                        | Provavelmente não (perfil eCommerce CPA é compatível com wrapper) | A confirmar             | A confirmar após decidir qual programa                                               | Confirmar qual dos dois programas antes de qualquer contato comercial.                               |
+| **Adaptogen**             | Cupom de desconto (não é link rastreável por URL)                  | Fora do catálogo (`Brand` não existe)          | Sim (formulário próprio)      | Não detalhado                                      | **Sim — modelo de cupom não se encaixa no redirect atual**        | Não                     | Não aplicável no contrato atual                                                      | Precisaria de uma feature nova (exibir/aplicar cupom), fora do escopo desta arquitetura de redirect. |
 
 ## 9. Confirmação: nenhum ajuste técnico pendente para as lojas ativas
 

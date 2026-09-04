@@ -22,7 +22,7 @@ export interface RecommendationCandidate {
   readonly brandName: string;
   readonly classificationTier: string;
   readonly priceCents: number | null;
-  /** Índice SupleCheck (0–100). */
+  /** Índice SupleScore (0–100). */
   readonly qualityScore: number;
   /** Score Geral (0–100) já calculado pelo Core Domain de scoring — exibido, nunca recalculado aqui. */
   readonly overallScore: number;

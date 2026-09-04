@@ -62,7 +62,7 @@ describe("buildComparisonNarrative", () => {
     const sentences = buildComparisonNarrative(entries);
 
     expect(sentences).toContain(
-      "Produto A tem nota 6.0 pontos maior no Índice SupleCheck que Produto B.",
+      "Produto A tem nota 6.0 pontos maior no Índice SupleScore que Produto B.",
     );
   });
 

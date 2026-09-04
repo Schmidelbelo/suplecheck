@@ -2,7 +2,7 @@
   "name": "@suplecheck/core",
   "version": "0.1.0",
   "private": true,
-  "description": "Core Domain do SupleCheck — motor de cálculo do Índice SupleCheck. Zero dependências de framework.",
+  "description": "Core Domain do SupleScore — motor de cálculo do Índice SupleScore. Zero dependências de framework.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

@@ -88,7 +88,7 @@ export interface ProductSchemaInput {
   image: string;
   slug: string;
   brand: string;
-  /** Índice SupleCheck já calculado para este produto — omitir quando ainda não houver avaliação. */
+  /** Índice SupleScore já calculado para este produto — omitir quando ainda não houver avaliação. */
   score?: {
     /** 0–100. */
     value: number;
@@ -104,7 +104,7 @@ export interface ProductSchemaInput {
 
 /**
  * `Product` + `Offer` + `Review` (nunca `AggregateRating`): o Índice
- * SupleCheck é UMA nota editorial calculada pelo Core Domain, não uma
+ * SupleScore é UMA nota editorial calculada pelo Core Domain, não uma
  * média de várias avaliações de usuários independentes — usar
  * `AggregateRating` aqui seria estruturalmente incorreto (as diretrizes
  * de dados estruturados do Google reservam `AggregateRating` para
@@ -129,7 +129,7 @@ export function productSchema(input: ProductSchemaInput) {
       ? {
           review: {
             "@type": "Review",
-            name: `Avaliação SupleCheck: ${input.score.label}`,
+            name: `Avaliação SupleScore: ${input.score.label}`,
             reviewRating: {
               "@type": "Rating",
               ratingValue: Math.round(input.score.value * 10) / 10,

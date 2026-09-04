@@ -2,7 +2,7 @@
 
 import { useLocalStorageList } from "@/hooks/useLocalStorageList";
 
-const STORAGE_KEY = "suplecheck:recommendation-history";
+const STORAGE_KEY = "suplescore:recommendation-history";
 const MAX_ITEMS = 10;
 
 export interface RecommendationHistoryEntry {

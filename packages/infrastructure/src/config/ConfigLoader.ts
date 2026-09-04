@@ -26,7 +26,7 @@ export class ConfigLoader {
       },
       mail: {
         provider: ConfigLoader.parseMailProvider(source.MAIL_PROVIDER),
-        fromAddress: source.MAIL_FROM_ADDRESS ?? "no-reply@suplecheck.com.br",
+        fromAddress: source.MAIL_FROM_ADDRESS ?? "no-reply@suplescore.com.br",
         resendApiKey: source.RESEND_API_KEY,
         smtp: source.SMTP_HOST
           ? {

@@ -37,7 +37,7 @@ function toRef(p: BrandRankingProductInput): BrandRankingProductRef {
 }
 
 /**
- * Ranking de marcas — ordenado por nota média (Índice SupleCheck) das
+ * Ranking de marcas — ordenado por nota média (Índice SupleScore) das
  * avaliações mais recentes de cada produto, do catálogo real. Uma
  * marca com um único produto tem `bestProduct === worstProduct`, o que
  * é o resultado honesto (não há "melhor" e "pior" reais quando só

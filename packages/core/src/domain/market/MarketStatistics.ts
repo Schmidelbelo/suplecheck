@@ -2,7 +2,7 @@ export interface MarketProductInput {
   readonly productId: string;
   readonly brandId: string;
   readonly priceCents: number | null;
-  /** Índice SupleCheck (0–100) da avaliação mais recente do produto. */
+  /** Índice SupleScore (0–100) da avaliação mais recente do produto. */
   readonly finalScore: number;
   /** Score Geral (0–100), combinação de qualidade + preço. */
   readonly overallScore: number;

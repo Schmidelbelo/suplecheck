@@ -1,4 +1,4 @@
-# SupleCheck — Arquitetura Técnica
+# SupleScore — Arquitetura Técnica
 
 > Documento vivo. Define a arquitetura completa da plataforma, da Fase 0 (landing page) até o produto final (comparador inteligente com área de usuário, painel admin, API própria e programa premium). Toda decisão de estrutura abaixo é feita pensando no produto final — a Fase 0 é um subconjunto funcional dessa arquitetura, não uma base descartável.
 
@@ -6,7 +6,7 @@
 
 | Fase             | Escopo                                                                                        | Objetivo                                                |
 | ---------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| **Fase 0** (MVP) | Landing page, Índice SupleCheck, ranking manual de 10 creatinas, captura de e-mail, analytics | Validar proposta de valor e começar a coletar audiência |
+| **Fase 0** (MVP) | Landing page, Índice SupleScore, ranking manual de 10 creatinas, captura de e-mail, analytics | Validar proposta de valor e começar a coletar audiência |
 | **Fase 1**       | Múltiplas categorias, dezenas de produtos, busca/filtro                                       | Expandir catálogo                                       |
 | **Fase 2**       | Comparador inteligente (side-by-side, scoring automático)                                     | Diferencial competitivo                                 |
 | **Fase 3**       | Histórico de preços, alertas                                                                  | Retenção                                                |
@@ -40,7 +40,7 @@ Todas as fases compartilham o **mesmo schema de dados, o mesmo design system e a
 Estrutura pensada para **monorepo modular desde o dia 1**, mesmo a Fase 0 rodando como um único app Next.js. Isso evita reescrita quando a API própria e o painel admin nascerem.
 
 ```
-suplecheck/
+suplescore/
 ├── apps/
 │   ├── web/                      # App principal (público): landing, catálogo, comparador, conta
 │   │   ├── src/
@@ -78,7 +78,7 @@ suplecheck/
 
 Cada módulo é uma fatia vertical de domínio, não uma camada técnica. Um módulo contém seus próprios: hooks, server actions/queries, tipos locais, e sub-componentes que não fazem sentido fora dele.
 
-- **`catalog`** — produtos, categorias, atributos, o Índice SupleCheck (fórmula de score). Fase 0 já usa este módulo (10 creatinas = catálogo com 1 categoria).
+- **`catalog`** — produtos, categorias, atributos, o Índice SupleScore (fórmula de score). Fase 0 já usa este módulo (10 creatinas = catálogo com 1 categoria).
 - **`compare`** — motor de comparação (Fase 2), consome `catalog` e `core` (regras de scoring).
 - **`pricing`** — histórico de preços, integrações com lojas/afiliados (Fase 3 e 7).
 - **`user`** — conta, autenticação, perfil (Fase 4).
@@ -177,7 +177,7 @@ Convenção: se um componente é usado em 2+ módulos, ele sobe de nível (de m�
 - **De 10 para centenas de produtos**: o schema (`Category`/`Product`/`ProductScore`) já é relacional e paginável — a Fase 0 lista 10 produtos com a mesma query que listaria 500, apenas sem paginação visível ainda.
 - **De 1 para dezenas de categorias**: `Category` já suporta `parentId` para hierarquia (categoria → subcategoria) mesmo que não usado na Fase 0.
 - **Curadoria manual → curadoria assistida**: o ranking da Fase 0 é preenchido manualmente via `scripts/seed`, mas grava nas mesmas tabelas (`Product`, `ProductScore`) que uma futura importação automatizada/admin (Fase 5) vai popular — trocar "quem escreve" não muda "onde e como os dados vivem".
-- **Comparador inteligente**: a lógica de scoring vive em `packages/core` como funções puras e testáveis, desacopladas de UI e de banco — reusável tanto no ranking simples (Fase 0) quanto no comparador (Fase 2) quanto numa futura API pública (Fase 7). `packages/core` já existe e implementa o motor de cálculo do Índice SupleCheck (critérios, metodologias versionadas, engine de agregação) — ver [`packages/core/ARCHITECTURE.md`](./packages/core/ARCHITECTURE.md) para o detalhamento completo. Por cima dele, `packages/application` já existe e implementa a camada de orquestração (Use Cases, Ports, DTOs, Application Services) descrita em [`packages/application/ARCHITECTURE.md`](./packages/application/ARCHITECTURE.md) — nenhum Controller, API ou página pode falar com o Domain sem passar por ali. Por cima da Application, `packages/infrastructure` já existe e implementa todos os Ports (persistência, cache, storage, mail, fila, APIs externas) com adapters in-memory/Null Object reais e stubs documentados para Prisma/Redis/S3/marketplaces — ver [`packages/infrastructure/ARCHITECTURE.md`](./packages/infrastructure/ARCHITECTURE.md). Nenhum dos três pacotes está conectado a nenhuma rota/página ainda; a Presentation (e o Prisma de verdade) ficam para uma etapa futura.
+- **Comparador inteligente**: a lógica de scoring vive em `packages/core` como funções puras e testáveis, desacopladas de UI e de banco — reusável tanto no ranking simples (Fase 0) quanto no comparador (Fase 2) quanto numa futura API pública (Fase 7). `packages/core` já existe e implementa o motor de cálculo do Índice SupleScore (critérios, metodologias versionadas, engine de agregação) — ver [`packages/core/ARCHITECTURE.md`](./packages/core/ARCHITECTURE.md) para o detalhamento completo. Por cima dele, `packages/application` já existe e implementa a camada de orquestração (Use Cases, Ports, DTOs, Application Services) descrita em [`packages/application/ARCHITECTURE.md`](./packages/application/ARCHITECTURE.md) — nenhum Controller, API ou página pode falar com o Domain sem passar por ali. Por cima da Application, `packages/infrastructure` já existe e implementa todos os Ports (persistência, cache, storage, mail, fila, APIs externas) com adapters in-memory/Null Object reais e stubs documentados para Prisma/Redis/S3/marketplaces — ver [`packages/infrastructure/ARCHITECTURE.md`](./packages/infrastructure/ARCHITECTURE.md). Nenhum dos três pacotes está conectado a nenhuma rota/página ainda; a Presentation (e o Prisma de verdade) ficam para uma etapa futura.
 - **Área do usuário/premium**: gating de feature centralizado (`lib/entitlements` ou similar) que módulos consultam (`user.isPremium`) em vez de checar `plan === 'premium'` espalhado pelo código — permite adicionar planos sem caçar checagens.
 - **API própria**: como as rotas internas (`app/api`) já seguem contrato tipado com Zod desde a Fase 0 (ex: endpoint de captura de lead), a extração para uma API pública versionada (Fase 7) é uma questão de expor contratos já existentes com autenticação por API key, não de redesenhar endpoints.
 - **Painel admin**: por já existir `packages/ui` e `packages/database` compartilhados, `apps/admin` nasce na Fase 5 como um novo app Next.js fino, sem duplicar design system nem schema.

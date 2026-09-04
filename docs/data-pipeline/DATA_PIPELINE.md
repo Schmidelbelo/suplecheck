@@ -1,4 +1,4 @@
-# SupleCheck — Data Pipeline Architecture
+# SupleScore — Data Pipeline Architecture
 
 > Como a plataforma recebe, valida, normaliza, deduplica, enriquece,
 > avalia, persiste e torna descobrível qualquer dado — de qualquer
@@ -136,7 +136,7 @@ Inclui: `slugify` de nome/marca (já existe em
 equivalente de Application, deve ser reaproveitada aqui, não
 reescrita); conversão de unidade de dosagem para uma unidade canônica
 por categoria; mapeamento de categoria/taxonomia externa (ex: a
-categoria do feed da Amazon) para o slug de `Categoria` do SupleCheck;
+categoria do feed da Amazon) para o slug de `Categoria` do SupleScore;
 normalização de moeda para centavos (`Money`/`Preco`, já um Value
 Object no Domain).
 

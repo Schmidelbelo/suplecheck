@@ -22,7 +22,7 @@ export function ScoreExplanationBars({
   overallScore: number;
 }) {
   const bars: BarItem[] = [
-    { label: "Nota (Índice SupleCheck)", value: components.quality },
+    { label: "Nota (Índice SupleScore)", value: components.quality },
     { label: "Preço", value: components.price },
     { label: "Preço por dose", value: components.pricePerDose },
     { label: "Preço por grama", value: components.pricePerGram },

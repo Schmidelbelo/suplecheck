@@ -7,7 +7,7 @@ import { LegalContent, type LegalSection } from "@/components/shared/LegalConten
 
 export const metadata: Metadata = buildMetadata({
   title: "Política de Cookies",
-  description: "Quais cookies e tecnologias similares o SupleCheck utiliza e como controlá-los.",
+  description: "Quais cookies e tecnologias similares o SupleScore utiliza e como controlá-los.",
   path: "/cookies",
 });
 

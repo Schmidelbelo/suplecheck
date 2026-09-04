@@ -17,7 +17,7 @@ export function Logo({ className }: { className?: string }) {
         S
       </span>
       <span>
-        Suple<span className="text-brand">Check</span>
+        Suple<span className="text-brand">Score</span>
       </span>
     </Link>
   );

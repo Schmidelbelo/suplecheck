@@ -1,4 +1,4 @@
-// SupleCheck — Schema de persistência definitivo
+// SupleScore — Schema de persistência definitivo
 //
 // Cada model abaixo é a tradução física de uma entidade já modelada em
 // docs/domain-model/DOMAIN_MODEL.md (o "porquê de negócio") e cada
@@ -265,7 +265,7 @@ model PriceEntry {
   @@map("price_entries")
 }
 
-/// Fato imutável de "usuário clicou num botão que sai do SupleCheck para
+/// Fato imutável de "usuário clicou num botão que sai do SupleScore para
 /// a loja" — append-only, nunca editado. Toda a monetização por
 /// afiliados passa por `/go/[productId]`, que grava uma linha aqui antes
 /// de redirecionar (best-effort: falha ao gravar nunca bloqueia o

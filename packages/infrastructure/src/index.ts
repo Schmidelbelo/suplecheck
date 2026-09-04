@@ -1,4 +1,4 @@
-// SupleCheck Infrastructure Layer — implementa os Ports da Application
+// SupleScore Infrastructure Layer — implementa os Ports da Application
 // Layer (persistência, cache, storage, mail, filas, APIs externas...).
 // Depende de @suplecheck/application (e, só via PrismaCriterionCatalogAdapter,
 // de @suplecheck/core). Nenhum Use Case conhece este pacote — é o

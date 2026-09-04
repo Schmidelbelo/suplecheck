@@ -10,7 +10,7 @@ import { Section } from "@/components/layout/Section";
 export const metadata: Metadata = buildMetadata({
   title: "Como Ganhamos Dinheiro",
   description:
-    "Transparência sobre o modelo de negócio do SupleCheck: links de afiliados, o que isso significa e o que nunca influencia o ranking.",
+    "Transparência sobre o modelo de negócio do SupleScore: links de afiliados, o que isso significa e o que nunca influencia o ranking.",
   path: "/como-ganhamos-dinheiro",
 });
 
@@ -19,7 +19,7 @@ const points = [
     icon: Link2,
     title: "Links de afiliados",
     description:
-      "Quando você clica para comprar um produto avaliado, esse link pode ser de afiliado — a loja paga uma pequena comissão ao SupleCheck sem custo adicional para você.",
+      "Quando você clica para comprar um produto avaliado, esse link pode ser de afiliado — a loja paga uma pequena comissão ao SupleScore sem custo adicional para você.",
   },
   {
     icon: Ban,
@@ -52,7 +52,7 @@ export default function ComoGanhamosDinheiroPage() {
       />
       <PageHeader
         eyebrow="Transparência"
-        title="Como o SupleCheck se sustenta financeiramente"
+        title="Como o SupleScore se sustenta financeiramente"
         description="Se um site de comparação depende de quem ele compara para sobreviver, o leitor merece saber exatamente como."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Como Ganhamos Dinheiro" }]}
       />

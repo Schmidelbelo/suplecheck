@@ -1,7 +1,7 @@
 # Score Geral, Selos e Explicação Automática
 
 Documentação técnica do algoritmo introduzido na sprint "Inteligência de
-Comparação e Ranking". Complementa (não substitui) o Índice SupleCheck
+Comparação e Ranking". Complementa (não substitui) o Índice SupleScore
 já documentado em `/metodologia` e `/como-avaliamos` — o Score Geral é
 uma camada **a mais**, que combina o Índice já calculado com sinais de
 preço, para responder "qual é a melhor compra", não só "qual produto é
@@ -24,7 +24,7 @@ depois do cálculo, só embutido em texto de nota).
 | Fator                               | Origem                                                                                                   |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Nota dos 6 critérios da metodologia | `ProductScoreCriterionBreakdown` (já persistido)                                                         |
-| Índice SupleCheck (nota geral)      | `ProductScore.finalScore` (já persistido)                                                                |
+| Índice SupleScore (nota geral)      | `ProductScore.finalScore` (já persistido)                                                                |
 | Preço                               | `PriceEntry.priceCents` (última captura)                                                                 |
 | Preço por dose                      | `priceCents / servingsPerUnit`                                                                           |
 | Preço por grama                     | `priceCents / (servingsPerUnit × dosagePerServing)` — `null` quando o SKU não informa `dosagePerServing` |
@@ -56,7 +56,7 @@ Código: `packages/core/src/domain/scoring/OverallScoreCalculator.ts`.
 
 ```ts
 export const DEFAULT_OVERALL_SCORE_WEIGHTS = {
-  quality: 0.4, // Índice SupleCheck
+  quality: 0.4, // Índice SupleScore
   price: 0.2, // preço absoluto
   pricePerDose: 0.25, // preço por dose
   pricePerGram: 0.15, // preço por grama
@@ -76,7 +76,7 @@ Código: `packages/core/src/domain/scoring/ProductBadges.ts`.
 | 🏆 Melhor Compra          | Score Geral                      | Maior valor do conjunto |
 | ⭐ Melhor Avaliado        | Critério `reputation`            | Maior nota do conjunto  |
 | 💰 Melhor Preço           | Preço absoluto                   | Menor valor do conjunto |
-| 📊 Maior Nota Geral       | Índice SupleCheck (`finalScore`) | Maior valor do conjunto |
+| 📊 Maior Nota Geral       | Índice SupleScore (`finalScore`) | Maior valor do conjunto |
 | 🔥 Melhor Custo-Benefício | Critério `cost-benefit`          | Maior nota do conjunto  |
 
 **Regra de desempate**: um selo só é atribuído quando há um vencedor

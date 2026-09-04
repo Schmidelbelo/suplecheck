@@ -4,7 +4,7 @@ import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLocalStorageSet } from "@/hooks/useLocalStorageSet";
 
-const FAVORITES_STORAGE_KEY = "suplecheck:favorites";
+const FAVORITES_STORAGE_KEY = "suplescore:favorites";
 
 export function useFavorites() {
   return useLocalStorageSet(FAVORITES_STORAGE_KEY);
@@ -28,7 +28,9 @@ export function FavoriteButton({
       onClick={() => toggle(productId)}
       aria-pressed={isFavorite}
       aria-label={
-        isFavorite ? `Remover ${productName} dos favoritos` : `Adicionar ${productName} aos favoritos`
+        isFavorite
+          ? `Remover ${productName} dos favoritos`
+          : `Adicionar ${productName} aos favoritos`
       }
       className={cn(
         "border-border bg-surface text-text-muted hover:text-danger flex size-9 shrink-0 items-center justify-center rounded-full border transition-colors",

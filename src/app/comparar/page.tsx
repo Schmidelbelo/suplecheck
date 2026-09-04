@@ -14,7 +14,7 @@ import { encodeComparisonSlug } from "@/modules/comparison/lib/comparisonSlug";
 export const metadata: Metadata = buildMetadata({
   title: "Comparar Produtos de Creatina",
   description:
-    "Comparações lado a lado entre os produtos de creatina mais bem avaliados do SupleCheck — score, preço, critérios e conclusão calculados a partir de dados reais.",
+    "Comparações lado a lado entre os produtos de creatina mais bem avaliados do SupleScore — score, preço, critérios e conclusão calculados a partir de dados reais.",
   path: "/comparar",
 });
 
@@ -25,7 +25,9 @@ const TOP_N = 5;
 
 export default async function ComparisonsIndexPage() {
   const ranking = await loadRankingView("creatina");
-  const top = ranking ? [...ranking.entries].sort((a, b) => a.position - b.position).slice(0, TOP_N) : [];
+  const top = ranking
+    ? [...ranking.entries].sort((a, b) => a.position - b.position).slice(0, TOP_N)
+    : [];
 
   const pairs: { label: string; href: string }[] = [];
   for (let i = 0; i < top.length; i += 1) {

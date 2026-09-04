@@ -4,7 +4,7 @@ import { handleApiError } from "@/lib/api/handleApiError";
 
 type Params = { params: Promise<{ idOrSlug: string }> };
 
-/** Consultar o Índice SupleCheck mais recente de um produto. */
+/** Consultar o Índice SupleScore mais recente de um produto. */
 export async function GET(_request: Request, { params }: Params) {
   try {
     const { idOrSlug } = await params;
@@ -16,7 +16,7 @@ export async function GET(_request: Request, { params }: Params) {
   }
 }
 
-/** Calcular o Índice SupleCheck de um produto pela primeira vez (ou avaliar de novo com fatos atualizados). */
+/** Calcular o Índice SupleScore de um produto pela primeira vez (ou avaliar de novo com fatos atualizados). */
 export async function POST(request: Request, { params }: Params) {
   try {
     const { idOrSlug } = await params;

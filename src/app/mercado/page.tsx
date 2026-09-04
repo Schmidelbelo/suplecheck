@@ -15,7 +15,7 @@ import type { MarketApiResponse } from "@/modules/market/types";
 export const metadata: Metadata = buildMetadata({
   title: "Panorama do Mercado de Suplementos",
   description:
-    "Estatísticas reais do catálogo do SupleCheck: preço médio, melhores e piores notas, ranking de marcas — tudo calculado em tempo real, sem dado inventado.",
+    "Estatísticas reais do catálogo do SupleScore: preço médio, melhores e piores notas, ranking de marcas — tudo calculado em tempo real, sem dado inventado.",
   path: "/mercado",
 });
 
@@ -35,7 +35,7 @@ export default async function MercadoPage() {
       <PageHeader
         eyebrow="Inteligência de Mercado"
         title="Panorama do Mercado"
-        description="Estatísticas agregadas de todo o catálogo avaliado pelo SupleCheck — preços, notas e ranking de marcas, recalculados em tempo real a partir dos dados reais."
+        description="Estatísticas agregadas de todo o catálogo avaliado pelo SupleScore — preços, notas e ranking de marcas, recalculados em tempo real a partir dos dados reais."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Mercado" }]}
       />
 

@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { toast } from "@/hooks/useToast";
 import { formatRelativeTime } from "@/lib/utils/format";
 
-const API_KEY_SESSION_KEY = "suplecheck:admin-api-key";
+const API_KEY_SESSION_KEY = "suplescore:admin-api-key";
 
 interface JobBatch {
   id: string;

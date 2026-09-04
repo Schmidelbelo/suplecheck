@@ -49,7 +49,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
 ];
 
 export const socialLinks = [
-  { label: "Instagram", href: "https://instagram.com/suplecheck", icon: "instagram" as const },
-  { label: "LinkedIn", href: "https://linkedin.com/company/suplecheck", icon: "linkedin" as const },
-  { label: "YouTube", href: "https://youtube.com/@suplecheck", icon: "youtube" as const },
+  { label: "Instagram", href: "https://instagram.com/suplescore", icon: "instagram" as const },
+  { label: "LinkedIn", href: "https://linkedin.com/company/suplescore", icon: "linkedin" as const },
+  { label: "YouTube", href: "https://youtube.com/@suplescore", icon: "youtube" as const },
 ];

@@ -8,7 +8,7 @@ import { LegalContent, type LegalSection } from "@/components/shared/LegalConten
 export const metadata: Metadata = buildMetadata({
   title: "Política de Privacidade",
   description:
-    "Como o SupleCheck coleta, usa e protege seus dados pessoais, em conformidade com a LGPD.",
+    "Como o SupleScore coleta, usa e protege seus dados pessoais, em conformidade com a LGPD.",
   path: "/privacidade",
 });
 
@@ -52,7 +52,8 @@ const sections: LegalSection[] = [
         Conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode solicitar a qualquer
         momento a confirmação da existência de tratamento, acesso, correção, anonimização,
         portabilidade ou eliminação dos seus dados pessoais, além de revogar consentimentos dados
-        anteriormente. Solicitações podem ser feitas pela página de <Link href="/contato">Contato</Link>.
+        anteriormente. Solicitações podem ser feitas pela página de{" "}
+        <Link href="/contato">Contato</Link>.
       </p>
     ),
   },

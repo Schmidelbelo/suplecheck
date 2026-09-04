@@ -20,13 +20,13 @@ export function IndexExplainer() {
       <div className="grid items-center gap-12 lg:grid-cols-2">
         <div className="flex flex-col gap-5">
           <span className="text-brand text-sm font-semibold tracking-wide uppercase">
-            O Índice SupleCheck
+            O Índice SupleScore
           </span>
           <h2 className="font-display text-text text-3xl font-bold md:text-4xl">
             Uma nota única, para comparar em segundos
           </h2>
           <p className="text-text-muted text-lg">
-            Em vez de ler cada rótulo manualmente, você olha para um número. O Índice SupleCheck
+            Em vez de ler cada rótulo manualmente, você olha para um número. O Índice SupleScore
             resume seis critérios objetivos, cada um com peso público, em uma nota de 0 a 100 —
             quanto maior, melhor o produto se posiciona na categoria.
           </p>

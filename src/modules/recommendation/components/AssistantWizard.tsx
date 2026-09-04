@@ -38,7 +38,7 @@ const PRIORITY_OPTIONS: { value: RecommendationPriority; label: string; descript
   {
     value: "quality",
     label: "Qualidade",
-    description: "Priorizar a nota técnica (Índice SupleCheck).",
+    description: "Priorizar a nota técnica (Índice SupleScore).",
   },
   {
     value: "bestRating",

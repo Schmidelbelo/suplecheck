@@ -5,7 +5,7 @@ const MAX = 100;
 
 /**
  * Nota em uma escala fixa de 0 a 100 — usada tanto para o resultado de um
- * critério individual quanto para o Índice SupleCheck final. Fixar a
+ * critério individual quanto para o Índice SupleScore final. Fixar a
  * escala aqui (em vez de deixar cada critério inventar a sua) é o que
  * permite comparar/agregar notas de critérios diferentes sem conversão.
  */

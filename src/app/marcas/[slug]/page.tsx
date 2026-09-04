@@ -20,13 +20,14 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const data = await getBrandPageData(slug);
-  if (!data) return buildMetadata({ title: "Marca não encontrada", noIndex: true, path: `/marcas/${slug}` });
+  if (!data)
+    return buildMetadata({ title: "Marca não encontrada", noIndex: true, path: `/marcas/${slug}` });
 
   return buildMetadata({
     title: `${data.brand.name}: Produtos Avaliados e Nota Média`,
     description: data.stats
-      ? `${data.brand.name} no SupleCheck: ${data.stats.productCount} produto(s) avaliado(s), nota média ${data.stats.averageScore.toFixed(1)}. Compare preço, nota e transparência do rótulo.`
-      : `Página da marca ${data.brand.name} no SupleCheck.`,
+      ? `${data.brand.name} no SupleScore: ${data.stats.productCount} produto(s) avaliado(s), nota média ${data.stats.averageScore.toFixed(1)}. Compare preço, nota e transparência do rótulo.`
+      : `Página da marca ${data.brand.name} no SupleScore.`,
     path: `/marcas/${slug}`,
   });
 }
@@ -38,16 +39,16 @@ function buildBrandFaq(data: NonNullable<Awaited<ReturnType<typeof getBrandPageD
   const { brand, stats } = data;
   return [
     {
-      question: `Quantos produtos da ${brand.name} o SupleCheck avalia?`,
-      answer: `O SupleCheck avalia ${stats.productCount} produto${stats.productCount === 1 ? "" : "s"} da ${brand.name} até o momento.`,
+      question: `Quantos produtos da ${brand.name} o SupleScore avalia?`,
+      answer: `O SupleScore avalia ${stats.productCount} produto${stats.productCount === 1 ? "" : "s"} da ${brand.name} até o momento.`,
     },
     {
-      question: `Qual a nota média da ${brand.name} no Índice SupleCheck?`,
+      question: `Qual a nota média da ${brand.name} no Índice SupleScore?`,
       answer: `A nota média dos produtos avaliados da ${brand.name} é ${stats.averageScore.toFixed(1)} de 100.`,
     },
     {
       question: `Qual o produto mais bem avaliado da ${brand.name}?`,
-      answer: `O produto com melhor nota da ${brand.name} é ${stats.bestProduct.name}, com ${stats.bestProduct.finalScore.toFixed(1)} pontos no Índice SupleCheck.`,
+      answer: `O produto com melhor nota da ${brand.name} é ${stats.bestProduct.name}, com ${stats.bestProduct.finalScore.toFixed(1)} pontos no Índice SupleScore.`,
     },
   ];
 }
@@ -111,7 +112,9 @@ export default async function BrandDetailPage({ params }: Params) {
                     Preço médio
                   </p>
                   <p className="text-text text-2xl font-bold">
-                    {stats.averagePriceCents != null ? formatCurrencyBRL(stats.averagePriceCents) : "—"}
+                    {stats.averagePriceCents != null
+                      ? formatCurrencyBRL(stats.averagePriceCents)
+                      : "—"}
                   </p>
                 </CardContent>
               </Card>
@@ -129,7 +132,7 @@ export default async function BrandDetailPage({ params }: Params) {
               Assim que um produto desta marca for avaliado, as estatísticas aparecem aqui.
             </p>
           )}
-          <ShareButton title={`${brand.name} no SupleCheck`} />
+          <ShareButton title={`${brand.name} no SupleScore`} />
         </div>
       </Section>
 

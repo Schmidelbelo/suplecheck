@@ -7,7 +7,7 @@ import { ANALYTICS_EVENTS } from "@/modules/analytics/types/event";
 type Params = { params: Promise<{ productId: string }> };
 
 /**
- * Ponto único de saída do SupleCheck para qualquer loja — todo "Ver
+ * Ponto único de saída do SupleScore para qualquer loja — todo "Ver
  * oferta"/"Comprar"/link de produto externo passa por aqui (ver
  * `buildOutboundHref`, nunca um `href` direto pra loja). Fluxo: resolve
  * produto → registra o clique → decide a URL real (afiliado quando a

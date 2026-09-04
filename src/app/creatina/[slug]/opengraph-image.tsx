@@ -36,7 +36,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ slu
         textAlign: "center",
       }}
     >
-      <span style={{ color: "#ced4da", fontSize: 28, fontFamily: "sans-serif" }}>SupleCheck</span>
+      <span style={{ color: "#ced4da", fontSize: 28, fontFamily: "sans-serif" }}>SupleScore</span>
       <span
         style={{
           color: "#ffffff",
@@ -56,7 +56,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ slu
             {view.score.finalScore.toFixed(1)}
           </span>
           <span style={{ color: "#ced4da", fontSize: 32, fontFamily: "sans-serif" }}>
-            {classificationLabel(view.score.classificationTier)} · Índice SupleCheck
+            {classificationLabel(view.score.classificationTier)} · Índice SupleScore
           </span>
         </div>
       ) : null}

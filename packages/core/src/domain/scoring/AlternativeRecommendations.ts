@@ -8,7 +8,7 @@ export interface AlternativeCandidate {
 export interface RecommendationSet {
   /** `productId` do candidato mais barato — só quando estritamente mais barato que o produto atual. */
   readonly cheapest: string | null;
-  /** `productId` do candidato com maior Índice SupleCheck — só quando estritamente maior que o atual. */
+  /** `productId` do candidato com maior Índice SupleScore — só quando estritamente maior que o atual. */
   readonly topRated: string | null;
   /** `productId` do candidato com maior Score Geral — só quando estritamente maior que o atual. */
   readonly bestBalance: string | null;
