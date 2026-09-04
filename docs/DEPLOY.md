@@ -38,7 +38,7 @@ até aqui) for configurado:
 | `DATABASE_URL`                                        | Sim         | Connection string "pooled" (com `-pooler`) do Postgres de produção — usada em runtime                                                                                                                                                                                                 |
 | `DIRECT_URL`                                          | Sim         | Connection string direta (sem `-pooler`) — usada só por `prisma migrate deploy`                                                                                                                                                                                                       |
 | `ADMIN_API_KEY`                                       | Sim         | Autentica toda escrita (`POST`/`PUT`/`PATCH`/`DELETE`) em `/api/catalog/*` e `/api/evaluation/*` (ver `src/middleware.ts`) — sem ela, essas rotas respondem 500. Gerar com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, enviar como header `x-api-key` |
-| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final (ex.: `https://www.suplescore.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                 |
+| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final canônica (`https://suplescore.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                    |
 | `NEXT_PUBLIC_GA_ID`                                   | Não         | ID do Google Analytics 4 (`G-XXXXXXXXXX`) — sem isso, GA4 simplesmente não carrega (ver `AnalyticsScripts.tsx`)                                                                                                                                                                       |
 | `NEXT_PUBLIC_CLARITY_ID`                              | Não         | ID do projeto Microsoft Clarity                                                                                                                                                                                                                                                       |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`                | Não         | Código de verificação "meta tag HTML" do Google Search Console                                                                                                                                                                                                                        |
@@ -58,7 +58,7 @@ Este é um passo manual, fora do código:
    nunca deixar a variável undefined).
 2. Apontar o DNS (registro A/CNAME, conforme o host escolhido).
 3. Configurar o domínio customizado no painel do host.
-4. Definir `NEXT_PUBLIC_SITE_URL` com o domínio final, com `https://`.
+4. Definir `NEXT_PUBLIC_SITE_URL=https://suplescore.com.br`.
 5. Confirmar HTTPS ativo (a maioria dos hosts modernos — Vercel,
    Netlify — provisiona certificado automaticamente).
 

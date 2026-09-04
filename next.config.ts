@@ -18,6 +18,17 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "@radix-ui/react-icons"],
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.suplescore.com.br" }],
+        destination: "https://suplescore.com.br/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     // CSP pragmática: permite exatamente os hosts de terceiros que o
     // projeto já carrega (GA4, Clarity, Sentry) — nunca um wildcard
