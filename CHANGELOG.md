@@ -2,12 +2,19 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.9.1] — 2026-09-04 — Auditoria Final do Rebranding e Roadmap 1.0
+
+### Adicionado
+
+- `SPRINT_REBRANDING_FINAL.md` — auditoria final pós-rebranding: confirma ausência de ocorrências residuais de "SupleCheck" (exceto identificadores internos de arquitetura deliberadamente preservados), varredura de dívida técnica (TODO/FIXME/mocks/dependências não usadas/código morto) e validações completas de qualidade (typecheck, lint, testes, build, bundle, segurança, performance/SEO/acessibilidade). Encerra oficialmente a Sprint de Rebranding.
+- `ROADMAP_1_0.md` — documento mestre de produto até a versão 1.0, organizado em 7 fases priorizadas (Lançamento Beta, Primeiros Usuários, Crescimento SEO, Monetização, Autoridade, Escala, Versão 1.0), cada uma com objetivo, funcionalidades, entregas, critérios de aceite, impacto esperado, complexidade, ROI e dependências, além de backlog priorizado/opcional, ideias futuras, dívida técnica, riscos e metas de negócio/tráfego/receita com KPIs por fase. Nenhum código foi implementado nesta sprint — só planejamento.
+
 ## [0.9.0] — 2026-09-04 — Rebranding: SupleCheck → SupleScore
 
 ### Alterado
 
 - **Rebranding completo**: todas as ocorrências do nome do produto foram substituídas de "SupleCheck" para "SupleScore" — interface, metadata, SEO, OpenGraph, Twitter Cards, JSON-LD (`Organization`, `Product`/`Review`, `WebSite`/`SearchAction`), `robots.txt`, sitemaps, logotipo textual (`Logo.tsx`, `brandMark.tsx` — inclusive imagens OG/Twitter/ícones geradas via `next/og`), páginas institucionais (sobre, metodologia, como avaliamos, como ganhamos dinheiro, contato, privacidade, cookies, termos), README, ARCHITECTURE.md e demais documentação técnica.
-- `NEXT_PUBLIC_SITE_URL` — fallback padrão em `src/config/site.ts` atualizado para `https://www.suplescore.com.br` (preparado para quando o DNS propagar; a variável real de produção, gerenciada no painel da Vercel, segue com o operador do projeto).
+- `NEXT_PUBLIC_SITE_URL` — fallback padrão em `src/config/site.ts` atualizado para `https://suplescore.com.br` (domínio raiz canônico; a variável real de produção, gerenciada no painel da Vercel, segue com o operador do projeto).
 - `package.json` (raiz) renomeado para `suplescore`; `package-lock.json` resincronizado.
 - Chaves de `localStorage` (favoritos, histórico, alertas de preço, e-mail capturado etc.) migradas do prefixo `suplecheck:` para `suplescore:` — decisão segura porque o projeto ainda está pré-Beta (nenhum usuário real teria dado local a perder).
 
