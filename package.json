@@ -1,6 +1,6 @@
 {
   "name": "suplescore",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "private": true,
   "engines": {
     "node": ">=20.9.0"
@@ -20,6 +20,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:whey-protein": "tsx prisma/seedWheyProtein.ts",
     "repair:price-urls": "tsx src/scripts/backfillPriceEntryUrls.ts",
     "test": "vitest run",
     "test:watch": "vitest"

@@ -10,11 +10,12 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
 import { encodeComparisonSlug } from "@/modules/comparison/lib/comparisonSlug";
+import { container } from "@/lib/container";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Comparar Produtos de Creatina",
+  title: "Comparar Produtos",
   description:
-    "Comparações lado a lado entre os produtos de creatina mais bem avaliados do SupleScore — score, preço, critérios e conclusão calculados a partir de dados reais.",
+    "Comparações lado a lado entre os produtos mais bem avaliados de cada categoria do SupleScore — score, preço, critérios e conclusão calculados a partir de dados reais.",
   path: "/comparar",
 });
 
@@ -23,8 +24,11 @@ export const revalidate = 300;
 /** Nº de produtos do topo do ranking usados para gerar as "comparações em destaque" — combinação completa entre eles, não uma seleção arbitrária. */
 const TOP_N = 5;
 
-export default async function ComparisonsIndexPage() {
-  const ranking = await loadRankingView("creatina");
+/** Pares de comparação do topo do ranking de UMA categoria — a mesma regra vale para qualquer categoria com ranking real, não só creatina. */
+async function buildPairsForCategory(
+  categorySlug: string,
+): Promise<{ label: string; href: string }[]> {
+  const ranking = await loadRankingView(categorySlug);
   const top = ranking
     ? [...ranking.entries].sort((a, b) => a.position - b.position).slice(0, TOP_N)
     : [];
@@ -40,6 +44,15 @@ export default async function ComparisonsIndexPage() {
       });
     }
   }
+  return pairs;
+}
+
+export default async function ComparisonsIndexPage() {
+  const categories = await container.ports.categories.listAll();
+  const pairsByCategory = await Promise.all(
+    categories.filter((c) => c.active).map((c) => buildPairsForCategory(c.slug)),
+  );
+  const pairs = pairsByCategory.flat();
 
   return (
     <>
@@ -55,7 +68,7 @@ export default async function ComparisonsIndexPage() {
 
       <PageHeader
         eyebrow="Comparações"
-        title="Comparar produtos de creatina"
+        title="Comparar produtos"
         description="Comparações completas entre os produtos mais bem avaliados — score, preço, diferença critério a critério e conclusão, calculados a partir de dados reais."
         breadcrumb={[{ label: "Home", href: "/" }, { label: "Comparar" }]}
       />

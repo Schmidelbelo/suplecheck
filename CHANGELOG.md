@@ -2,6 +2,24 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.10.0] — 2026-09-05 — Expansão da Categoria Whey Protein
+
+### Adicionado
+
+- Whey Protein passa a ter uma metodologia própria (`whey-protein-methodology`), reutilizando integralmente os 6 critérios embutidos do Core Domain já usados por creatina (nenhum critério novo criado) — mesmos pesos, por serem a filosofia real já validada da SupleScore, nunca inventados para esta categoria.
+- `prisma/seedWheyProtein.ts` (`npm run db:seed:whey-protein`) — 10 produtos reais (um por marca prioritária: Growth, Max Titanium, Integralmédica, Dux, Dark Lab, Black Skull, Probiótica, Adaptogen, Vitafor, BodyAction), com nome e proteína-por-dose pesquisados e citados por fonte (site oficial/varejo), criados como `DRAFT` — sem preço, loja ou nota inventados. Publicação/avaliação fica para quando o preço e a loja reais forem capturados.
+- 3 marcas novas no catálogo: Dark Lab, Adaptogen, BodyAction.
+
+### Corrigido
+
+- **`sitemap-produtos.xml` só incluía produtos de creatina** — qualquer outra categoria publicada seria invisível para o Google. Corrigido para listar produtos publicados de qualquer categoria, com a rota de detalhe correta por categoria.
+- **`/categorias/[slug]` nunca renderizava um ranking de verdade** — mesmo com produtos avaliados, a página sempre mostrava o estado "ainda não há produtos". Agora reutiliza exatamente os mesmos componentes de `/creatina` (`RankingFilters`, `CategoryStatisticsSection`, `ShareButton`) para qualquer categoria sem rota própria.
+- **`/comparar` só gerava pares de comparação de creatina** — agora itera por todas as categorias ativas com ranking real.
+
+### Testes
+
+- 179/179 testes existentes continuam passando (2 retries por cold-start do Neon, comportamento conhecido).
+
 ## [0.9.1] — 2026-09-04 — Auditoria Final do Rebranding e Roadmap 1.0
 
 ### Adicionado

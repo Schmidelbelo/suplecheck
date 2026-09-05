@@ -1,14 +1,21 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/lib/seo/JsonLd";
 import { breadcrumbSchema, faqPageSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { FAQSection } from "@/components/marketing/FAQSection";
+import { CategoryStatisticsSection } from "@/components/market/CategoryStatisticsSection";
+import { ShareButton } from "@/modules/sharing/components/ShareButton";
+import { RankingFilters } from "@/modules/evaluation/components/RankingFilters";
 import { getCategoryPageData } from "@/modules/category/services/categoryPage.service";
+import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { formatDate } from "@/lib/utils/format";
 import type { FaqItem } from "@/config/faq";
+import type { RankingView } from "@/modules/evaluation/types";
+import type { MarketApiResponse } from "@/modules/market/types";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -40,12 +47,17 @@ export default async function CategoryDetailPage({ params }: Params) {
   const data = await getCategoryPageData(slug);
   if (!data) notFound();
 
+  const [ranking, market] = await Promise.all([
+    fetchApiOrNull<RankingView>(`/api/evaluation/rankings/${slug}/view`),
+    fetchApiOrNull<MarketApiResponse>(`/api/market?categorySlug=${slug}`),
+  ]);
+
   const faqItems: FaqItem[] = [
     {
       question: `Já existe ranking de ${data.category.name} no SupleScore?`,
       answer:
-        data.products.length > 0
-          ? `Sim — ${data.products.length} produto${data.products.length === 1 ? "" : "s"} de ${data.category.name} já ${data.products.length === 1 ? "foi avaliado" : "foram avaliados"} pelo Índice SupleScore.`
+        ranking && ranking.entries.length > 0
+          ? `Sim — ${ranking.entries.length} produto${ranking.entries.length === 1 ? "" : "s"} de ${data.category.name} já ${ranking.entries.length === 1 ? "foi avaliado" : "foram avaliados"} pelo Índice SupleScore.`
           : `Ainda não. A categoria ${data.category.name} está cadastrada no catálogo, mas nenhum produto foi avaliado pela metodologia SupleScore até o momento.`,
     },
   ];
@@ -73,16 +85,38 @@ export default async function CategoryDetailPage({ params }: Params) {
       />
 
       <Section>
-        <div className="mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
-          <p className="text-text-muted text-lg">
-            Esta categoria ainda não tem produtos avaliados pela metodologia SupleScore — assim que
-            tiver, o ranking completo aparece aqui automaticamente.
-          </p>
-          <Link href="/creatina" className="text-brand font-medium hover:underline">
-            Ver o ranking de Creatina, já disponível
-          </Link>
-        </div>
+        {ranking && ranking.entries.length > 0 ? (
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-text-muted text-sm">
+                Ranking gerado em {formatDate(ranking.generatedAt)} · {ranking.entries.length}{" "}
+                produtos avaliados
+              </p>
+              <ShareButton
+                title={`Ranking de ${data.category.name} — SupleScore`}
+                label="Compartilhar ranking"
+              />
+            </div>
+            <RankingFilters entries={ranking.entries} />
+          </div>
+        ) : (
+          <EmptyState
+            title={`O ranking de ${data.category.name} ainda não foi gerado`}
+            description="Assim que o Índice SupleScore for calculado para os produtos desta categoria, eles aparecerão aqui."
+          />
+        )}
       </Section>
+
+      {market?.category ? (
+        <Section className="border-border border-b">
+          <div className="flex flex-col gap-6">
+            <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
+              Estatísticas da categoria
+            </h2>
+            <CategoryStatisticsSection view={market.category} />
+          </div>
+        </Section>
+      ) : null}
 
       <FAQSection items={faqItems} />
     </>
