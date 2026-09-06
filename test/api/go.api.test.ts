@@ -169,7 +169,9 @@ describe("GET /go/[productId]", () => {
       );
 
       expect(res.status).toBe(302);
-      expect(res.headers.get("location")).toContain(`/creatina/${productWithoutOfferSlug}`);
+      expect(res.headers.get("location")).toContain(
+        `/categorias/go-cat-${suffix}/${productWithoutOfferSlug}`,
+      );
 
       const clicks = await client.outboundClick.findMany({
         where: { productId: productWithoutOfferId },

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PiggyBank, Star, Scale } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import type { RankingViewEntry } from "../types";
 
 const SLOT_META = {
@@ -35,7 +36,10 @@ export function AlternativeRecommendationCard({
         <Icon className="size-3.5" aria-hidden />
         {title}
       </p>
-      <Link href={`/creatina/${product.slug}`} className="flex flex-col gap-3">
+      <Link
+        href={productDetailPath(product.categorySlug, product.slug)}
+        className="flex flex-col gap-3"
+      >
         <ProductMiniCard
           imageUrl={product.imageUrl}
           name={product.name}

@@ -27,22 +27,17 @@ describe("comparisonPage.service", () => {
   });
 
   it("loads comparison data only for products in the same real category", async () => {
-    findMany
-      .mockResolvedValueOnce([{ slug: "a" }, { slug: "b" }] as never)
-      .mockResolvedValueOnce([
-        { slug: "a", category: { slug: "creatina" } },
-        { slug: "b", category: { slug: "creatina" } },
-      ] as never);
+    findMany.mockResolvedValueOnce([{ slug: "a" }, { slug: "b" }] as never).mockResolvedValueOnce([
+      { slug: "a", category: { slug: "creatina" } },
+      { slug: "b", category: { slug: "creatina" } },
+    ] as never);
 
     loadRanking.mockResolvedValueOnce({
       categorySlug: "creatina",
       methodologyId: "creatina",
       methodologyVersion: "1.0.0",
       generatedAt: new Date().toISOString(),
-      entries: [
-        rankingEntry("a", "Produto A", 92, 94),
-        rankingEntry("b", "Produto B", 87, 83),
-      ],
+      entries: [rankingEntry("a", "Produto A", 92, 94), rankingEntry("b", "Produto B", 87, 83)],
     });
 
     const view = await getComparisonPageView("a-vs-b");
@@ -81,6 +76,7 @@ function rankingEntry(slug: string, name: string, finalScore: number, overallSco
       imageUrl: null,
       brand: { slug: "marca", name: "Marca" },
       categorySlug: "creatina",
+      categoryName: "Creatina",
       manufacturer: null,
       sku: null,
       price: null,

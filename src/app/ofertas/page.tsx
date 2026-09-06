@@ -10,6 +10,7 @@ import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import type { RankingView } from "@/modules/evaluation/types";
 import { loadCatalogPriceInfo, buildOffersOverview } from "@/modules/pricing/lib/offersOverview";
 import { OfferCard } from "@/modules/pricing/components/OfferCard";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { PriceEvolutionTable } from "@/modules/pricing/components/PriceEvolutionTable";
 
 export const metadata: Metadata = buildMetadata({
@@ -45,7 +46,7 @@ export default async function OffersPage() {
           data={itemListSchema(
             overview.bestOpportunities.map((o) => ({
               name: o.entry.product.name,
-              href: `/creatina/${o.entry.product.slug}`,
+              href: productDetailPath(o.entry.product.categorySlug, o.entry.product.slug),
             })),
           )}
         />

@@ -17,7 +17,12 @@ function entry(
     finalScore: overrides.finalScore,
     classificationTier: "GOOD",
     overallScore: overrides.overallScore,
-    scoreComponents: { quality: overrides.finalScore, price: null, pricePerDose: null, pricePerGram: null },
+    scoreComponents: {
+      quality: overrides.finalScore,
+      price: null,
+      pricePerDose: null,
+      pricePerGram: null,
+    },
     badges: [],
     criteriaScores: overrides.criteriaScores ?? {},
     product: {
@@ -25,19 +30,41 @@ function entry(
       slug: overrides.id,
       name: overrides.name,
       categorySlug: "creatina",
+      categoryName: "Creatina",
       brand: { slug: "marca", name: "Marca" },
       manufacturer: null,
       imageUrl: null,
       sku: null,
-      price: overrides.priceCents != null ? { cents: overrides.priceCents, pricePerDoseCents: null, pricePerGramCents: null, url: null, store: { slug: "loja", name: "Loja" } } : null,
+      price:
+        overrides.priceCents != null
+          ? {
+              cents: overrides.priceCents,
+              pricePerDoseCents: null,
+              pricePerGramCents: null,
+              url: null,
+              store: { slug: "loja", name: "Loja" },
+            }
+          : null,
     },
   };
 }
 
 describe("buildComparisonPageData", () => {
   it("computes a per-criterion winner for each shared criterion", () => {
-    const a = entry({ id: "a", name: "A", finalScore: 80, overallScore: 80, criteriaScores: { "cost-benefit": 90, reputation: 40 } });
-    const b = entry({ id: "b", name: "B", finalScore: 70, overallScore: 70, criteriaScores: { "cost-benefit": 60, reputation: 80 } });
+    const a = entry({
+      id: "a",
+      name: "A",
+      finalScore: 80,
+      overallScore: 80,
+      criteriaScores: { "cost-benefit": 90, reputation: 40 },
+    });
+    const b = entry({
+      id: "b",
+      name: "B",
+      finalScore: 70,
+      overallScore: 70,
+      criteriaScores: { "cost-benefit": 60, reputation: 80 },
+    });
 
     const data = buildComparisonPageData(a, b);
 
@@ -48,8 +75,20 @@ describe("buildComparisonPageData", () => {
   });
 
   it("lists advantages only for criteria that are strictly better, never for ties", () => {
-    const a = entry({ id: "a", name: "A", finalScore: 80, overallScore: 80, criteriaScores: { "cost-benefit": 90, reputation: 50 } });
-    const b = entry({ id: "b", name: "B", finalScore: 70, overallScore: 70, criteriaScores: { "cost-benefit": 60, reputation: 50 } });
+    const a = entry({
+      id: "a",
+      name: "A",
+      finalScore: 80,
+      overallScore: 80,
+      criteriaScores: { "cost-benefit": 90, reputation: 50 },
+    });
+    const b = entry({
+      id: "b",
+      name: "B",
+      finalScore: 70,
+      overallScore: 70,
+      criteriaScores: { "cost-benefit": 60, reputation: 50 },
+    });
 
     const data = buildComparisonPageData(a, b);
 
@@ -59,7 +98,13 @@ describe("buildComparisonPageData", () => {
   });
 
   it("never guesses a winner for a criterion missing from one side", () => {
-    const a = entry({ id: "a", name: "A", finalScore: 80, overallScore: 80, criteriaScores: { "cost-benefit": 90 } });
+    const a = entry({
+      id: "a",
+      name: "A",
+      finalScore: 80,
+      overallScore: 80,
+      criteriaScores: { "cost-benefit": 90 },
+    });
     const b = entry({ id: "b", name: "B", finalScore: 70, overallScore: 70, criteriaScores: {} });
 
     const data = buildComparisonPageData(a, b);
@@ -80,8 +125,20 @@ describe("buildComparisonPageData", () => {
   });
 
   it("includes a natural-language narrative built from the real comparison function", () => {
-    const a = entry({ id: "a", name: "Produto A", finalScore: 90, overallScore: 90, priceCents: 5000 });
-    const b = entry({ id: "b", name: "Produto B", finalScore: 60, overallScore: 60, priceCents: 8000 });
+    const a = entry({
+      id: "a",
+      name: "Produto A",
+      finalScore: 90,
+      overallScore: 90,
+      priceCents: 5000,
+    });
+    const b = entry({
+      id: "b",
+      name: "Produto B",
+      finalScore: 60,
+      overallScore: 60,
+      priceCents: 8000,
+    });
 
     const data = buildComparisonPageData(a, b);
 

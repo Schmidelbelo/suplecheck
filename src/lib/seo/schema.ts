@@ -1,4 +1,5 @@
 import { siteConfig } from "@/config/site";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 
 /**
  * Geradores de JSON-LD (schema.org). Retornam objetos serializáveis para
@@ -87,6 +88,7 @@ export interface ProductSchemaInput {
   description: string;
   image: string;
   slug: string;
+  categorySlug: string;
   brand: string;
   /** Índice SupleScore já calculado para este produto — omitir quando ainda não houver avaliação. */
   score?: {
@@ -114,7 +116,10 @@ export interface ProductSchemaInput {
  * realmente calcula (ver `/metodologia`).
  */
 export function productSchema(input: ProductSchemaInput) {
-  const productUrl = new URL(`/creatina/${input.slug}`, siteConfig.url).toString();
+  const productUrl = new URL(
+    productDetailPath(input.categorySlug, input.slug),
+    siteConfig.url,
+  ).toString();
   const imageUrl = new URL(input.image, siteConfig.url).toString();
 
   return {

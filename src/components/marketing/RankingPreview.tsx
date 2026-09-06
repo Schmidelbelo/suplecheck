@@ -12,6 +12,7 @@ import {
   classificationBadgeVariant,
   classificationLabel,
 } from "@/modules/evaluation/lib/classification";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import type { RankingView } from "@/modules/evaluation/types";
 
 const PREVIEW_SIZE = 5;
@@ -54,7 +55,7 @@ export async function RankingPreview() {
             {entries.map((entry) => (
               <Link
                 key={entry.product.id}
-                href={`/creatina/${entry.product.slug}`}
+                href={productDetailPath(entry.product.categorySlug, entry.product.slug)}
                 className="hover:bg-bg-muted flex items-center gap-4 p-4 transition-colors"
               >
                 <span className="text-text-subtle w-6 shrink-0 text-center text-sm font-semibold">

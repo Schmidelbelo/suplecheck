@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { resolveOutboundClick } from "@/modules/monetization/services/outboundClick.service";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { trackServerEvent } from "@/modules/analytics/services/analytics.server";
 import { ANALYTICS_EVENTS } from "@/modules/analytics/types/event";
 
@@ -43,7 +44,10 @@ export async function GET(request: Request, { params }: Params) {
     if (result.status === "no_offer") {
       // Produto real, mas sem nenhuma oferta cadastrada — nunca um link
       // quebrado: manda para a própria página do produto.
-      return NextResponse.redirect(new URL(`/creatina/${result.productSlug}`, request.url), 302);
+      return NextResponse.redirect(
+        new URL(productDetailPath(result.categorySlug, result.productSlug), request.url),
+        302,
+      );
     }
 
     trackServerEvent(ANALYTICS_EVENTS.OUTBOUND_LINK_CLICKED, {

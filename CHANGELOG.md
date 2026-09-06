@@ -2,6 +2,26 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.11.0] — 2026-09-06 — Generalização da Rota de Produto por Categoria
+
+### Adicionado
+
+- `src/lib/catalog/productRoutes.ts` — único ponto do projeto que decide a URL de categoria/produto (`categoryBasePath`/`productDetailPath`), substituindo o `CATEGORY_ROUTE_OVERRIDES` que estava duplicado em 2 arquivos.
+- `src/modules/evaluation/components/ProductDetailPage.tsx` — renderização de página de produto extraída de `/creatina/[slug]`, agora compartilhada por `/creatina/[slug]` e pela nova rota `/categorias/[slug]/[produto]`. Nenhuma lógica de apresentação duplicada entre as duas.
+- Nova rota `/categorias/[slug]/[produto]` — página de detalhe de produto para qualquer categoria sem rota própria (hoje, todas exceto creatina). Redireciona (307) para `/creatina/[produto]` quando `[slug]` é uma categoria com rota própria, evitando conteúdo duplicado.
+- `ProductPresentation.categoryName` — nome de exibição da categoria (antes só o slug estava disponível), usado nos breadcrumbs/rótulos da página de produto.
+
+### Corrigido
+
+- **Bug real encontrado durante a auditoria**: acessar `/creatina/{slug-de-produto-de-outra-categoria}` não retornava 404 — a página renderizava normalmente, rotulada "Creatina", com o ranking errado. `ProductDetailPage` agora valida que a categoria real do produto bate com a da URL antes de renderizar; caso contrário, 404.
+- ~15 pontos com link de produto hardcoded para `/creatina/${slug}` generalizados para usar `productDetailPath` (ranking, cards, comparações, ofertas, página de marca, recomendações, redirect de `/go/[productId]` para produto sem oferta): `RankingEntryCard`, `AlternativeRecommendationCard`, `OfferCard`, `RecommendationResultView`, `WeeklyHighlights`, `RankingPreview`, `DashboardClient` (itens vindos do ranking), `/comparar/[pair]`, `/ofertas`, `/marcas/[slug]`, `productSchema` (JSON-LD), `sitemap-produtos.xml`, `outboundClick.service`/`/go/[productId]`.
+- Escopo deliberadamente fora desta sprint (mudaria o schema de dado local no navegador, não é "generalização de rota"): links de "recentemente vistos" e alertas de preço em `DashboardClient`/`AlertsCenterClient` continuam assumindo creatina — sem risco prático hoje, pois nenhum produto de outra categoria está publicado.
+
+### Testes
+
+- `test/api/go.api.test.ts` atualizado: o teste já usava uma categoria de teste (não "creatina") e agora corretamente espera o redirect para `/categorias/{categoria-de-teste}/{produto}` em vez do `/creatina/` hardcoded anterior — a correção do bug já se refletia nesse teste.
+- Fixtures de teste (`buildComparisonPage.test.ts`, `comparisonPage.service.test.ts`, `dashboardStats.test.ts`) atualizadas com o novo campo `categoryName`.
+
 ## [0.10.1] — 2026-09-06 — Dados Reais de Whey Protein (captura, sem publicação)
 
 ### Adicionado

@@ -9,17 +9,29 @@ import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { formatCurrencyBRL } from "@/lib/utils/format";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { criterionLabel } from "@/modules/evaluation/lib/criteria";
 import { useRecommendationHistory } from "../lib/recommendationHistory";
 import { PRIORITY_LABELS, type RecommendationProfileForm } from "../lib/profileQuery";
 import type { RecommendationApiResponse } from "../types";
 import type { RecommendationEntry } from "@core/index";
 
-function EntryMiniCard({ entry, label }: { entry: RecommendationEntry; label: string }) {
+function EntryMiniCard({
+  entry,
+  label,
+  categorySlug,
+}: {
+  entry: RecommendationEntry;
+  label: string;
+  categorySlug: string;
+}) {
   return (
     <Card className="flex flex-col gap-3 p-4">
       <p className="text-brand text-xs font-semibold tracking-wide uppercase">{label}</p>
-      <Link href={`/creatina/${entry.productSlug}`} className="flex flex-col gap-3">
+      <Link
+        href={productDetailPath(categorySlug, entry.productSlug)}
+        className="flex flex-col gap-3"
+      >
         <ProductMiniCard
           imageUrl={null}
           name={entry.productName}
@@ -109,7 +121,7 @@ export function RecommendationResultView({
           </p>
           <div>
             <Link
-              href={`/creatina/${recommended.productSlug}`}
+              href={productDetailPath(recommendation.categorySlug, recommended.productSlug)}
               className="text-text text-2xl font-bold hover:underline"
             >
               {recommended.productName}
@@ -196,6 +208,7 @@ export function RecommendationResultView({
               <EntryMiniCard
                 key={entry.productId}
                 entry={entry}
+                categorySlug={recommendation.categorySlug}
                 label={
                   entry.productId === recommended.productId
                     ? "Recomendado"

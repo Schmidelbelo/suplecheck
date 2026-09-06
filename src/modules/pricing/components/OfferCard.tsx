@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import type { ProductPriceInfo } from "../lib/offersOverview";
 
 export function OfferCard({ info, footer }: { info: ProductPriceInfo; footer?: string }) {
   const { entry, stats } = info;
 
   return (
-    <Link href={`/creatina/${entry.product.slug}`}>
+    <Link href={productDetailPath(entry.product.categorySlug, entry.product.slug)}>
       <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-4 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
         <ProductMiniCard
           imageUrl={entry.product.imageUrl}

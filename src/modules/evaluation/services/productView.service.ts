@@ -15,6 +15,7 @@ export interface ProductPresentation {
   readonly slug: string;
   readonly name: string;
   readonly categorySlug: string;
+  readonly categoryName: string;
   readonly brand: { readonly slug: string; readonly name: string };
   readonly manufacturer: { readonly slug: string; readonly name: string } | null;
   readonly imageUrl: string | null;
@@ -61,6 +62,7 @@ function toPresentation(row: ProductWithPresentationData): ProductPresentation {
     slug: row.slug,
     name: row.name,
     categorySlug: row.category.slug,
+    categoryName: row.category.name,
     brand: { slug: row.brand.slug, name: row.brand.name },
     manufacturer: row.manufacturer
       ? { slug: row.manufacturer.slug, name: row.manufacturer.name }

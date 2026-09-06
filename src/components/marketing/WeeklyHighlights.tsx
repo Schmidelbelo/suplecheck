@@ -4,6 +4,7 @@ import { Section } from "@/components/layout/Section";
 import { Card } from "@/components/ui/Card";
 import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import type { RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 const HIGHLIGHT_BADGES = [
@@ -45,7 +46,10 @@ export async function WeeklyHighlights() {
 
       <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-3">
         {highlights.map(({ meta, entry }) => (
-          <Link key={meta.label} href={`/creatina/${entry.product.slug}`}>
+          <Link
+            key={meta.label}
+            href={productDetailPath(entry.product.categorySlug, entry.product.slug)}
+          >
             <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-5 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
               <p className="text-brand flex items-center gap-1.5 text-xs font-semibold tracking-wide uppercase">
                 <meta.icon className="size-3.5" aria-hidden />

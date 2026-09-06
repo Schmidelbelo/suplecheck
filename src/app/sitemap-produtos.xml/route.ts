@@ -1,21 +1,8 @@
 import { prisma } from "@/lib/db/prisma";
 import { siteConfig } from "@/config/site";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 
 export const revalidate = 300;
-
-/**
- * Rota de detalhe por categoria — hoje só `creatina` tem página própria
- * (`/creatina/[slug]`); qualquer outra categoria publicada usa a rota
- * genérica `/categorias/[slug]` até ganhar (se ganhar) uma rota própria.
- * Único lugar do sitemap que precisa saber dessa exceção — nunca
- * assumir silenciosamente que só existe uma categoria.
- */
-const CATEGORY_ROUTE_OVERRIDES: Record<string, string> = { creatina: "/creatina" };
-
-function productPath(categorySlug: string, productSlug: string): string {
-  const base = CATEGORY_ROUTE_OVERRIDES[categorySlug] ?? `/categorias/${categorySlug}`;
-  return `${base}/${productSlug}`;
-}
 
 export async function GET() {
   const products = await prisma.product.findMany({
@@ -27,7 +14,10 @@ export async function GET() {
   return xmlResponse(
     urlset(
       products.map((product) => ({
-        loc: new URL(productPath(product.category.slug, product.slug), siteConfig.url).toString(),
+        loc: new URL(
+          productDetailPath(product.category.slug, product.slug),
+          siteConfig.url,
+        ).toString(),
         lastmod: product.updatedAt,
         changefreq: "weekly",
         priority: "0.7",

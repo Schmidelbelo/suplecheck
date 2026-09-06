@@ -16,6 +16,7 @@ import {
   classificationLabel,
 } from "@/modules/evaluation/lib/classification";
 import { getComparisonPageView } from "@/modules/comparison/services/comparisonPage.service";
+import { categoryBasePath, productDetailPath } from "@/lib/catalog/productRoutes";
 import type { RankingViewEntry } from "@/modules/evaluation/types";
 
 type Params = { params: Promise<{ pair: string }> };
@@ -70,8 +71,14 @@ export default async function ComparisonPage({ params }: Params) {
       />
       <JsonLd
         data={itemListSchema([
-          { name: productA.product.name, href: `/creatina/${productA.product.slug}` },
-          { name: productB.product.name, href: `/creatina/${productB.product.slug}` },
+          {
+            name: productA.product.name,
+            href: productDetailPath(view.categorySlug, productA.product.slug),
+          },
+          {
+            name: productB.product.name,
+            href: productDetailPath(view.categorySlug, productB.product.slug),
+          },
         ])}
       />
 
@@ -154,7 +161,7 @@ export default async function ComparisonPage({ params }: Params) {
             </p>
           ))}
           <Link
-            href="/creatina"
+            href={categoryBasePath(view.categorySlug)}
             className="text-brand inline-flex w-fit items-center gap-2 text-sm font-medium hover:underline"
           >
             Ver ranking da categoria <ArrowRight className="size-4" aria-hidden />
@@ -194,7 +201,7 @@ function ComparisonProductCard({
           {classificationLabel(entry.classificationTier)}
         </Badge>
         <Link
-          href={`/creatina/${entry.product.slug}`}
+          href={productDetailPath(entry.product.categorySlug, entry.product.slug)}
           className="text-brand text-sm font-medium hover:underline"
         >
           Ver analise do produto

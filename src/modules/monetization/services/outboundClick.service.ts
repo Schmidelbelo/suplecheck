@@ -22,6 +22,8 @@ export interface OutboundClickNoOffer {
   readonly status: "no_offer";
   /** Slug do produto — a rota usa para redirecionar à página do produto em vez de um link externo inexistente. */
   readonly productSlug: string;
+  /** Categoria real do produto — necessária para montar a URL de detalhe correta (`/creatina/x` ou `/categorias/{categoria}/x`). */
+  readonly categorySlug: string;
 }
 
 const VALID_SOURCES = new Set<OutboundClickSource>([
@@ -57,6 +59,7 @@ export async function resolveOutboundClick(
       id: true,
       slug: true,
       categoryId: true,
+      category: { select: { slug: true } },
       skus: {
         where: { status: "ACTIVE" },
         take: 1,
@@ -79,7 +82,7 @@ export async function resolveOutboundClick(
 
   const priceEntry = product.skus[0]?.priceEntries[0];
   if (!priceEntry?.url || !priceEntry.store) {
-    return { status: "no_offer", productSlug: product.slug };
+    return { status: "no_offer", productSlug: product.slug, categorySlug: product.category.slug };
   }
 
   const { url, isAffiliateLink } = buildAffiliateUrl({

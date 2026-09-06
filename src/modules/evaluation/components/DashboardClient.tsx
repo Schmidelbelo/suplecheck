@@ -39,6 +39,7 @@ import {
 import type { RankingView } from "../types";
 import { useCapturedEmail } from "@/modules/leads/lib/useCapturedEmail";
 import { LeadCaptureForm } from "@/modules/leads/components/LeadCaptureForm";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 
 function resolveProduct(ranking: RankingView | null, slug: string) {
   return ranking?.entries.find((e) => e.product.slug === slug) ?? null;
@@ -243,7 +244,7 @@ export function DashboardClient() {
             {favoriteEntries.slice(0, 3).map((entry) => (
               <MiniProductCard
                 key={entry.product.id}
-                href={`/creatina/${entry.product.slug}`}
+                href={productDetailPath(entry.product.categorySlug, entry.product.slug)}
                 name={entry.product.name}
                 brand={entry.product.brand.name}
                 imageUrl={entry.product.imageUrl}
@@ -442,7 +443,7 @@ export function DashboardClient() {
             {stats.mostViewedProducts.map(({ entry, visits }) => (
               <MiniProductCard
                 key={entry.product.id}
-                href={`/creatina/${entry.product.slug}`}
+                href={productDetailPath(entry.product.categorySlug, entry.product.slug)}
                 name={entry.product.name}
                 brand={entry.product.brand.name}
                 imageUrl={entry.product.imageUrl}

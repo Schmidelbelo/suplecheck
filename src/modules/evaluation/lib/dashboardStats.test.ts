@@ -25,6 +25,7 @@ function entry({
       slug,
       name: slug,
       categorySlug: "creatina",
+      categoryName: "Creatina",
       brand: { slug: brandName, name: brandName },
       manufacturer: null,
       imageUrl: null,

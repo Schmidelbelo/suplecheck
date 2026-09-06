@@ -16,11 +16,9 @@ import { formatDate } from "@/lib/utils/format";
 import type { FaqItem } from "@/config/faq";
 import type { RankingView } from "@/modules/evaluation/types";
 import type { MarketApiResponse } from "@/modules/market/types";
+import { CATEGORY_ROUTE_OVERRIDES } from "@/lib/catalog/productRoutes";
 
 type Params = { params: Promise<{ slug: string }> };
-
-/** Mesma regra de `/categorias/page.tsx`: categoria com rota própria nunca é servida por `[slug]` — evita conteúdo duplicado. */
-const CATEGORY_ROUTE_OVERRIDES: Record<string, string> = { creatina: "/creatina" };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;

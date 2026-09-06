@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { formatCurrencyBRL } from "@/lib/utils/format";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { classificationLabel, classificationBadgeVariant } from "../lib/classification";
 import { FavoriteButton } from "./FavoriteButton";
 import type { RankingViewEntry } from "../types";
@@ -105,7 +106,7 @@ export function RankingEntryCard({
       <div className="flex shrink-0 items-center gap-2">
         <FavoriteButton productId={product.id} productName={product.name} />
         <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">
-          <Link href={`/creatina/${product.slug}`}>Ver detalhes</Link>
+          <Link href={productDetailPath(product.categorySlug, product.slug)}>Ver detalhes</Link>
         </Button>
       </div>
     </Card>

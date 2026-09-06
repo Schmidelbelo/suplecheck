@@ -13,6 +13,7 @@ import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { ShareButton } from "@/modules/sharing/components/ShareButton";
 import { formatCurrencyBRL } from "@/lib/utils/format";
 import { getBrandPageData } from "@/modules/brand/services/brandPage.service";
+import { productDetailPath } from "@/lib/catalog/productRoutes";
 import type { FaqItem } from "@/config/faq";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -73,7 +74,10 @@ export default async function BrandDetailPage({ params }: Params) {
       {products.length > 0 ? (
         <JsonLd
           data={itemListSchema(
-            products.map((p) => ({ name: p.productName, href: `/creatina/${p.productSlug}` })),
+            products.map((p) => ({
+              name: p.productName,
+              href: productDetailPath(p.categorySlug, p.productSlug),
+            })),
           )}
         />
       ) : null}
@@ -144,7 +148,10 @@ export default async function BrandDetailPage({ params }: Params) {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {products.map((product) => (
-                <Link key={product.productId} href={`/creatina/${product.productSlug}`}>
+                <Link
+                  key={product.productId}
+                  href={productDetailPath(product.categorySlug, product.productSlug)}
+                >
                   <Card className="hover:border-border-strong flex h-full flex-col gap-3 p-4 transition-shadow duration-(--duration-base) ease-(--ease-standard) hover:shadow-md">
                     <ProductMiniCard
                       imageUrl={product.imageUrl}
