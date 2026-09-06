@@ -2,7 +2,23 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
-## [0.10.0] — 2026-09-05 — Expansão da Categoria Whey Protein
+## [0.10.1] — 2026-09-06 — Dados Reais de Whey Protein (captura, sem publicação)
+
+### Adicionado
+
+- `prisma/publishWheyProteinRealData.ts` — captura preço, URL, dosagem e atributos nutricionais reais (pesquisados e citados por fonte) para 3 dos 10 produtos de Whey Protein: Max Titanium, Integralmédica e Adaptogen. Avalia os 3 pelo motor real (`EvaluateSupplementUseCase`), reaproveitando a metodologia já criada na sprint anterior — nenhum peso ou critério novo.
+
+### Achado (bloqueio descoberto durante smoke test, não corrigido nesta sprint)
+
+- **Não existe página de detalhe de produto para nenhuma categoria além de creatina** — `/creatina/[slug]` é uma rota própria e hardcoded; `/categorias/[slug]/[produto]` não existe. Publicar os 3 produtos com dado confirmado deixaria o ranking de Whey Protein cheio de links "ver detalhes" resultando em 404. Por decisão explícita, os 3 produtos permanecem `DRAFT` (preço/nota/atributos já gravados, prontos) até essa rota ser generalizada.
+
+### Corrigido (dívida operacional, não de produto)
+
+- Removidos ~13 registros de catálogo (categorias/produtos/marcas/lojas de teste, ex.: `price-stats-cat-*`, `pc-cat-*`) que vazaram para o banco real após falhas de conexão do Neon durante os testes desta sprint — apareciam incorretamente no sitemap de produtos.
+
+### Testes
+
+- 179/179 passam quando isolados; execução completa em paralelo ficou instável nesta sessão por causa de indisponibilidade intermitente do Neon (nunca uma falha de asserção) — ver relatório da sprint.
 
 ### Adicionado
 
