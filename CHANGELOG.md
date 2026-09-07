@@ -2,6 +2,29 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.12.0] — 2026-09-08 — Publicação Oficial de Whey Protein (2ª categoria)
+
+### Adicionado
+
+- **Whey Protein torna-se a 2ª categoria oficialmente publicada da SupleScore**: 6 produtos reais publicados com preço/URL/proteína-por-dose verificados em página oficial alcançável (Max Titanium, Integralmédica, Adaptogen, Nutrata, Darkness, Probiótica Hiper). Primeiro ranking real de Whey Protein gerado.
+- Marca nova: Darkness. Produtos novos: Nutrata W100 Whey Concentrado, Darkness Dark Whey Protein Concentrado, Probiótica Hiper 100% Whey — todos com dado citado por fonte.
+- `prisma/expandWheyProteinCatalog.ts` — script de publicação, reaproveitando integralmente a metodologia/critérios já criados (nenhum peso novo).
+- Comparações automáticas entre os 6 produtos publicados (via generalização já existente de `/comparar`, sprint anterior).
+
+### Pesquisado, mas mantido em DRAFT (dado incompleto ou não verificável com segurança)
+
+- Growth, Dux, Dark Lab: sites oficiais inacessíveis (bloqueio de bot/DNS), sem mudança desde a sprint anterior.
+- Black Skull Whey 100% HD Gourmet, Vitafor Whey Fort 3W/Isofort, Probiótica 100% Pure Whey Zero Lactose, Atlhetica 100% Whey, BodyAction Isolate Prime Whey: preço confirmado em página oficial, mas proteína-por-dose divergente entre fontes ou campo obrigatório (tamanho de porção) não confirmado — não publicados para não arriscar dado impreciso.
+- Max Titanium Super Whey e Integralmédica Nutri Whey: encontrados na pesquisa, mas são formulações hipercalóricas (blend com 79-80g de carboidrato por dose), não "whey protein" no sentido avaliado pela metodologia atual — excluídos da lista de publicação por não se encaixarem na categoria, não por falta de dado.
+
+### Corrigido (dívida operacional, não de produto)
+
+- Removidos ~18 registros de teste (categorias/produtos/marcas) que vazaram para o banco real durante falhas de conexão do Neon em sprints anteriores.
+
+### Testes
+
+- 179/179 passam quando isolados; execução em paralelo completa e o build de produção ficaram excepcionalmente instáveis nesta sessão por indisponibilidade intermitente do Neon (taxa de sucesso de conexão observada ~60-70% nesta janela) — nunca uma falha de lógica. Build de produção obtido com sucesso após múltiplas tentativas.
+
 ## [0.11.0] — 2026-09-06 — Generalização da Rota de Produto por Categoria
 
 ### Adicionado
