@@ -34,6 +34,7 @@ import { ProductViewTimeline } from "@/modules/evaluation/components/ProductView
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import { encodeComparisonSlug } from "@/modules/comparison/lib/comparisonSlug";
 import { buildOutboundHref } from "@/modules/monetization/lib/outboundLinkHref";
+import { ProductTrustPanel } from "@/modules/trust/components/ProductTrustPanel";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 export interface ProductDetailPageProps {
@@ -466,6 +467,15 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
         </div>
       </Section>
 
+      <Section id="confianca" className="border-border scroll-mt-20 border-b">
+        <div className="mx-auto flex max-w-3xl flex-col gap-6">
+          <h2 className="font-display text-text text-2xl font-bold">
+            Transparência sobre este dado
+          </h2>
+          <ProductTrustPanel view={view} />
+        </div>
+      </Section>
+
       <Section id="informacoes-tecnicas" className="scroll-mt-20">
         <div className="mx-auto flex max-w-3xl flex-col gap-6">
           <h2 className="font-display text-text text-2xl font-bold">Informações técnicas</h2>
@@ -690,6 +700,7 @@ const TOC_ITEMS = [
   { id: "preco", label: "Preço", requires: "hasPrice" as const },
   { id: "comparacao", label: "Comparação", requires: "hasComparison" as const },
   { id: "avaliacao", label: "Avaliação" },
+  { id: "confianca", label: "Confiança" },
   {
     id: "informacoes-tecnicas",
     label: "Informações técnicas",

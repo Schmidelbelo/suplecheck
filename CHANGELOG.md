@@ -2,6 +2,26 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.13.0] — 2026-09-07 — Centro de Confiança (Trust Center)
+
+### Adicionado
+
+- **8 novas páginas institucionais**: Nossa Missão (`/missao`), Política Editorial (`/politica-editorial`), Política de Correções (`/politica-de-correcoes`), Fontes Utilizadas (`/fontes`), Independência Editorial (`/independencia-editorial`), Aviso Médico e Científico (`/aviso-medico`), Perguntas Frequentes (`/faq`), Central de Confiança (`/confianca`, página hub que reúne as 14 frentes institucionais pedidas, reaproveitando 4 páginas já existentes — Quem Somos, Metodologia, Como Calculamos, Como Ganhamos Dinheiro — sem duplicar conteúdo).
+- `extendedFaq` em `src/config/faq.ts` — FAQ estendida exclusiva de `/faq`, sem duplicar o `FAQPage` schema já usado na Home com `homeFaq`.
+- Componentes reutilizáveis de confiança em `src/modules/trust/components/`: 4 badges (`UpdatedBadge`, `VerifiedDataBadge`, `ConfirmedPriceBadge`, `PublicMethodologyBadge`), 3 cards (`WhyTrustCard`, `HowEvaluatedCard`, `LastRevisionCard`) e o painel composto `ProductTrustPanel`.
+- `ProductTrustPanel` integrado à página de produto compartilhada (`ProductDetailPage.tsx`, usada por `/creatina/[slug]` e `/categorias/[slug]/[produto]`): exibe data de última atualização (`SupplementDTO.updatedAt`), data da última revisão e quantidade de critérios avaliados (`IndexResultDTO.calculatedAt`/`breakdown.length`), fonte dos dados quando disponível (`attributes.sourceUrl`), aviso de transparência e resumo da política de afiliados — cada elemento só aparece quando o dado real existe, nunca com placeholder.
+- `TrustSection` na Home: 6 blocos (por que confiar, metodologia, curadoria, cálculo de notas, independência editorial, transparência financeira), todos linkando para a página institucional correspondente.
+- Grupo de navegação "Confiança" no rodapé (`src/config/nav.ts`) e 8 novas rotas no `sitemap.ts`.
+- SEO: `breadcrumbSchema` + `buildMetadata` (canonical, meta description, OpenGraph) em todas as 8 novas páginas; `faqPageSchema` dedicado em `/faq`.
+
+### Corrigido (dívida operacional, não de produto)
+
+- `tsconfig.json` passou a excluir o diretório `work/` (scripts avulsos de publicação, fora do escopo da aplicação) do escopo de tipagem — um script não commitado e não relacionado a esta sprint estava quebrando o typecheck do `next build`. Nenhum arquivo dentro de `work/` foi alterado.
+
+### Testes e build
+
+- 179/179 testes passam quando isolados; falhas em execução completa continuam sendo indisponibilidade intermitente do Neon (padrão já observado nesta sessão), nunca falha de lógica. Build de produção obtido com sucesso após múltiplas tentativas (mesma instabilidade de conectividade).
+
 ## [0.12.0] — 2026-09-08 — Publicação Oficial de Whey Protein (2ª categoria)
 
 ### Adicionado

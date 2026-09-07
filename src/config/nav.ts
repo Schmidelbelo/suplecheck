@@ -35,7 +35,20 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Empresa",
     items: [
       { label: "Sobre", href: "/sobre" },
+      { label: "Nossa Missão", href: "/missao" },
       { label: "Contato", href: "/contato" },
+    ],
+  },
+  {
+    title: "Confiança",
+    items: [
+      { label: "Central de Confiança", href: "/confianca" },
+      { label: "Política Editorial", href: "/politica-editorial" },
+      { label: "Política de Correções", href: "/politica-de-correcoes" },
+      { label: "Fontes Utilizadas", href: "/fontes" },
+      { label: "Independência Editorial", href: "/independencia-editorial" },
+      { label: "Aviso Médico e Científico", href: "/aviso-medico" },
+      { label: "Perguntas Frequentes", href: "/faq" },
     ],
   },
   {
