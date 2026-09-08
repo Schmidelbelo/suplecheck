@@ -4,10 +4,15 @@ import {
   getProductsByCategory,
   type EnrichedProduct,
 } from "@/modules/market/services/marketData.service";
+import { isTestSlug } from "@/lib/catalog/testDataGuard";
 import type { CategoryStatistics } from "@core/index";
 
 export interface CategoryPageData {
-  readonly category: { readonly slug: string; readonly name: string; readonly description: string | null };
+  readonly category: {
+    readonly slug: string;
+    readonly name: string;
+    readonly description: string | null;
+  };
   readonly statistics: CategoryStatistics | null;
   readonly insights: readonly string[];
   readonly products: readonly EnrichedProduct[];
@@ -16,7 +21,9 @@ export interface CategoryPageData {
 /** Dados de `/categorias/[slug]` — categoria real do catálogo, com ou sem produto avaliado ainda. */
 export async function getCategoryPageData(slug: string): Promise<CategoryPageData | null> {
   const category = await container.ports.categories.findBySlug(slug);
-  if (!category || !category.active) return null;
+  // Categoria de teste tratada como inexistente — 404 real, nunca indexável
+  // (ver testDataGuard.ts).
+  if (!category || !category.active || isTestSlug(category.slug)) return null;
 
   const [view, products] = await Promise.all([
     getCategoryMarketView(slug),
@@ -24,7 +31,11 @@ export async function getCategoryPageData(slug: string): Promise<CategoryPageDat
   ]);
 
   return {
-    category: { slug: category.slug, name: category.name, description: category.description ?? null },
+    category: {
+      slug: category.slug,
+      name: category.name,
+      description: category.description ?? null,
+    },
     statistics: view?.statistics ?? null,
     insights: view?.insights ?? [],
     products,
@@ -43,7 +54,7 @@ export async function listCategoriesWithCounts(): Promise<readonly CategoryListE
   const categories = await container.ports.categories.listAll();
   const withCounts = await Promise.all(
     categories
-      .filter((c) => c.active)
+      .filter((c) => c.active && !isTestSlug(c.slug))
       .map(async (c) => {
         const products = await getProductsByCategory(c.slug);
         return {
