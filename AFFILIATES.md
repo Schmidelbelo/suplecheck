@@ -137,7 +137,7 @@ _(marca **não existe** no catálogo hoje — precisa ser cadastrada em `Brand`/
 
 ### Dark Lab
 
-_(marca **não existe** no catálogo hoje)_
+_(marca já existe no catálogo — `dark-lab`; não existe como `Store` hoje)_
 
 - **Possui programa de afiliados?** Sim.
 - **Plataforma**: **Awin**.
@@ -151,7 +151,7 @@ _(marca **não existe** no catálogo hoje)_
 
 ### Integralmédica
 
-_(marca já existe no catálogo — `integralmedica`; **não existe como `Store`** hoje)_
+_(marca já existe no catálogo — `integralmedica`; **existe como `Store`** — `integralmedica-oficial`, `isAffiliate: false`, `affiliateBaseUrl` aponta para o domínio oficial da marca (loja direta, não um link de afiliado) — criada para o fluxo de captura de preço, não para monetização por afiliado)_
 
 - **Possui programa de afiliados?** Não encontrado um programa de afiliados tradicional (comissão por indicação de terceiros) nas fontes públicas consultadas — o que existe é o **Integral Club**, um programa de fidelidade/cashback para o próprio consumidor final (não um programa de afiliados de conteúdo/mídia), mais parceria com o Livelo (pontos).
 - **Plataforma**: N/A.
@@ -165,7 +165,7 @@ _(marca já existe no catálogo — `integralmedica`; **não existe como `Store`
 
 ### Max Titanium
 
-_(marca já existe no catálogo — `max-titanium`; **não existe como `Store`** hoje)_
+_(marca já existe no catálogo — `max-titanium`; **existe como `Store`** — `max-titanium-oficial`, `isAffiliate: false`, `affiliateBaseUrl` aponta para o domínio oficial da marca, mesma natureza de loja direta descrita para a Integralmédica acima, não um programa de afiliado ativado)_
 
 - **Possui programa de afiliados?** Sim, e há **dois programas distintos** encontrados — atenção para não confundir:
   1. **Max Titanium Affiliate Program** — modelo eCommerce CPA tradicional.
@@ -181,7 +181,7 @@ _(marca já existe no catálogo — `max-titanium`; **não existe como `Store`**
 
 ### Adaptogen (Adaptogen Science)
 
-_(marca **não existe** no catálogo hoje)_
+_(marca já existe no catálogo — `adaptogen`; não existe como `Store` hoje)_
 
 - **Possui programa de afiliados?** Um programa existe, mas no formato **cupom de desconto de criador/influenciador**, não um link de afiliado tradicional com tracking por URL.
 - **Plataforma**: própria (cadastro por formulário no site da marca).
@@ -193,38 +193,86 @@ _(marca **não existe** no catálogo hoje)_
 - **Prazo médio**: não confirmado.
 - **Observações**: se este programa for adotado no futuro, a arquitetura de `/go/` precisaria de uma extensão (exibir/aplicar um cupom em vez de/além de redirecionar) — vale registrar como um requisito técnico diferente do modelo de redirect atual, não uma simples configuração de `affiliateBaseUrl`.
 
+### Dux Nutrition
+
+_(marca já existe no catálogo — `dux`; **existe como `Store`** — `dux-oficial`, `isAffiliate: false`, `affiliateBaseUrl` aponta para `duxhumanhealth.com` — loja direta para captura de preço, mesma natureza das entradas de Integralmédica/Max Titanium, não um programa de afiliado ativado)_
+
+- **Possui programa de afiliados?** Sim — "Programa de Influenciadores DUX", plataforma própria (`afiliados.duxnutrition.com` / `influenciadores.duxnutrition.com`).
+- **Plataforma**: própria (não é uma rede de afiliados terceirizada como Awin/Lomadee/Rakuten).
+- **Documentação**: `afiliados.duxnutrition.com` (portal de cadastro).
+- **Parâmetros necessários**: **não confirmado se o programa gera link rastreável por URL ou funciona por cupom de desconto** — as fontes públicas descrevem benefícios de desconto (40% em produtos DUX Human Health/Eat Clean) e comissão (10%) associados a posts/divulgação, o que é característico de um modelo de influenciador com cupom, não de link de afiliado com wrapper. **Precisa confirmação direta com a marca antes de assumir compatibilidade com `affiliateBaseUrl`** — se for cupom, tem a mesma limitação já registrada para a Adaptogen (seção sobre Adaptogen).
+- **Cookie**: não confirmado.
+- **Comissão**: 10% sobre vendas citado nas fontes, mais benefícios não-monetários (produtos grátis, vale-presentes) — condições exatas não confirmadas.
+- **Aprovação**: cadastro no portal próprio, aprovação não detalhada.
+- **Prazo médio**: não confirmado.
+- **Observações**: **confirmar com o time comercial da Dux se existe, em paralelo, um programa de afiliados eCommerce tradicional (link rastreável) além do programa de influenciadores** antes de descartar compatibilidade com a arquitetura atual.
+
+### Probiótica
+
+_(marca já existe no catálogo — `probiotica`; **não existe como `Store`** hoje)_
+
+- **Possui programa de afiliados?** Sim — "Parceiros Probiótica" / programa "SOU PRO", voltado a profissionais de educação física e embaixadores da marca.
+- **Plataforma**: gestão via **Brandlovers** (candidatura) com pagamento de comissão processado pela plataforma **Inbazz**.
+- **Documentação**: `probiotica.com.br/soupro` e `probiotica.com.br/parceiros-probiotica`.
+- **Parâmetros necessários**: **não aplicável no formato de `affiliateBaseUrl`** — a atribuição confirmada é por **cupom de desconto exclusivo do embaixador**, não por link/URL rastreável. Mesma limitação estrutural já registrada para a Adaptogen: não se encaixa no modelo de redirect atual sem uma feature nova (exibir/aplicar cupom).
+- **Cookie**: N/A (atribuição por cupom, não por cookie).
+- **Comissão**: 10% sobre vendas feitas com o cupom exclusivo do embaixador.
+- **Aprovação**: candidatura na Brandlovers, sujeita a aprovação como embaixador ativo na comunidade SOU PRO.
+- **Prazo médio**: não confirmado.
+- **Observações**: como a Adaptogen, este programa é de **marketing de influência com cupom**, não de afiliação por link — fora do escopo do `/go/` atual sem uma extensão de produto dedicada.
+
+### Darkness
+
+_(marca já existe no catálogo — `darkness`; **não existe como `Store`** hoje)_
+
+- **Possui programa de afiliados?** Sim — listada como anunciante ativo na **Lomadee** (`lomadee.com.br/anunciante/darkness`).
+- **Plataforma**: Lomadee — mesmo formato de deep-link já confirmado e suportado pela arquitetura (ver seção 3, linha da Lomadee).
+- **Documentação**: `developer.lomadee.com` (deeplink, já documentado nesta arquitetura) + página do anunciante Darkness na Lomadee.
+- **Parâmetros necessários**: `sourceId` (ID do afiliado na Lomadee) — obtido após aprovação, igual ao modelo já usado para a Growth.
+- **Cookie**: não confirmado especificamente para o anunciante Darkness (padrão Lomadee costuma variar por anunciante).
+- **Comissão**: não confirmado um percentual específico do anunciante Darkness nas fontes públicas consultadas.
+- **Aprovação**: cadastro na Lomadee + aprovação do anunciante Darkness dentro da rede.
+- **Prazo médio**: não confirmado.
+- **Observações**: **Darkness é uma linha/submarca da Integralmédica** (fabricada e distribuída pela mesma empresa) — relevante para a entrada já registrada de Integralmédica nesta auditoria: o programa de afiliados tradicional pode não existir para a marca-mãe, mas existe para esta submarca especificamente via Lomadee. Vale reconfirmar isso com o time comercial antes de tratar as duas marcas como equivalentes em termos de monetização.
+
 ### Demais lojas do banco — "Loja Oficial da Marca"
 
 - Esta é uma **loja genérica de placeholder** (`isAffiliate: false`) usada no seed para representar "comprar direto com a marca" quando a loja real específica ainda não foi modelada — não é uma entidade comercial real a pesquisar. Conforme marcas específicas forem confirmadas com loja própria e programa de afiliado (Growth, Adaptogen, etc.), cada uma deve virar sua própria linha em `Store`, substituindo o uso genérico desta.
 
 ## 7. Resumo executivo da auditoria
 
-| Loja/Marca         | No catálogo hoje?   | Programa confirmado?             | Rede                | Compatível com `{url}` sem adaptação?                   |
-| ------------------ | ------------------- | -------------------------------- | ------------------- | ------------------------------------------------------- |
-| Amazon             | Store ✅            | ✅                               | Própria             | ✅ (modo "anexar parâmetro", implementado nesta sprint) |
-| Netshoes           | Store ✅            | ✅                               | Rakuten Advertising | ✅ (padrão wrapper)                                     |
-| Growth             | Brand ✅ / Store ❌ | ⚠️ possivelmente inativo         | Lomadee             | ✅                                                      |
-| Soldiers Nutrition | ❌                  | ✅                               | Awin                | ✅                                                      |
-| Dark Lab           | ❌                  | ✅                               | Awin                | ✅                                                      |
-| Integralmédica     | Brand ✅ / Store ❌ | ❌ não encontrado                | —                   | —                                                       |
-| Max Titanium       | Brand ✅ / Store ❌ | ✅ (2 programas, confirmar qual) | Não confirmada      | Provável ✅, a confirmar                                |
-| Adaptogen          | ❌                  | ✅ (formato cupom, não URL)      | Própria             | ❌ precisa de nova arquitetura                          |
+| Loja/Marca         | No catálogo hoje?                  | Programa confirmado?             | Rede                | Compatível com `{url}` sem adaptação?                   |
+| ------------------ | ---------------------------------- | -------------------------------- | ------------------- | ------------------------------------------------------- |
+| Amazon             | Store ✅                           | ✅                               | Própria             | ✅ (modo "anexar parâmetro", implementado nesta sprint) |
+| Netshoes           | Store ✅                           | ✅                               | Rakuten Advertising | ✅ (padrão wrapper)                                     |
+| Growth             | Brand ✅ / Store ❌                | ⚠️ possivelmente inativo         | Lomadee             | ✅                                                      |
+| Soldiers Nutrition | ❌                                 | ✅                               | Awin                | ✅                                                      |
+| Dark Lab           | Brand ✅ / Store ❌                | ✅                               | Awin                | ✅                                                      |
+| Integralmédica     | Brand ✅ / Store ✅ (não-afiliada) | ❌ não encontrado                | —                   | —                                                       |
+| Max Titanium       | Brand ✅ / Store ✅ (não-afiliada) | ✅ (2 programas, confirmar qual) | Não confirmada      | Provável ✅, a confirmar                                |
+| Dux Nutrition      | Brand ✅ / Store ✅ (não-afiliada) | ⚠️ provável cupom, a confirmar   | Própria             | ❌ provável (a confirmar)                               |
+| Probiótica         | Brand ✅ / Store ❌                | ✅ (formato cupom, não URL)      | Brandlovers/Inbazz  | ❌ precisa de nova arquitetura                          |
+| Darkness           | Brand ✅ / Store ❌                | ✅                               | Lomadee             | ✅                                                      |
+| Adaptogen          | Brand ✅ / Store ❌                | ✅ (formato cupom, não URL)      | Própria             | ❌ precisa de nova arquitetura                          |
 
 ## 8. Tabela única de preparação comercial
 
 Cobre as 3 lojas hoje cadastradas em `Store` (as únicas com produto/preço real no catálogo) e as marcas/lojas pesquisadas para expansão futura. "AffiliateBaseUrl esperado" é o **formato**, não um valor — nenhum ID real existe ainda; o campo continua `null` no banco para todas.
 
-| Loja                      | Programa                                                           | Status                                         | Cadastro?                     | Aprovação?                                         | Extensão?                                                         | API?                    | `AffiliateBaseUrl` esperado (formato)                                                | Observações                                                                                          |
-| ------------------------- | ------------------------------------------------------------------ | ---------------------------------------------- | ----------------------------- | -------------------------------------------------- | ----------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| **Amazon**                | Amazon Associates                                                  | No catálogo, `isAffiliate: true`               | Sim (grátis, portal próprio)  | Sim (geralmente automática/rápida)                 | Não — implementado nesta sprint (modo "anexar parâmetro")         | Não                     | `"tag=NOSSA-TAG-20"` (querystring pura)                                              | Risco de desativação por volume mínimo de vendas em 180 dias — considerar timing de ativação.        |
-| **Netshoes**              | Parceiro Netshoes (via Rakuten Advertising)                        | No catálogo, `isAffiliate: true`               | Sim (via Rakuten Advertising) | Sim (Rakuten + aceite da Netshoes como anunciante) | Não — formato wrapper já suportado                                | Não (portal da Rakuten) | `"https://track.rakuten.../click?...&u={url}"` (formato exato a confirmar no portal) | Confirmar se o catálogo de suplementos específico participa do programa.                             |
-| **Loja Oficial da Marca** | N/A — placeholder de seed                                          | No catálogo, `isAffiliate: false`              | N/A                           | N/A                                                | N/A                                                               | N/A                     | N/A                                                                                  | Não é entidade comercial real; substituir por lojas específicas conforme forem confirmadas.          |
-| **Growth Supplements**    | Programa próprio via Lomadee                                       | Fora do catálogo (`Brand` existe, `Store` não) | Sim (Lomadee)                 | Sim (Lomadee + aceite do anunciante)               | Não — formato wrapper já suportado                                | Não                     | `"https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_ID"`                | Status do programa direto "possivelmente inativo" numa fonte — confirmar antes de negociar.          |
-| **Soldiers Nutrition**    | Programa próprio via Awin                                          | Fora do catálogo (`Brand` não existe)          | Sim (Awin)                    | Sim (Awin + aceite do anunciante)                  | Não — formato wrapper já suportado                                | Não                     | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"`           | Nenhum produto Soldiers no catálogo hoje — pré-requisito antes de ativar.                            |
-| **Dark Lab**              | Programa próprio via Awin                                          | Fora do catálogo (`Brand` não existe)          | Sim (Awin)                    | Sim (Awin + aceite do anunciante)                  | Não — formato wrapper já suportado                                | Não                     | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"`           | Comissão paga em Euro — atenção à conciliação financeira e fiscal.                                   |
-| **Integralmédica**        | Não encontrado (só fidelidade B2C, "Integral Club")                | Fora do catálogo (`Brand` existe, `Store` não) | —                             | —                                                  | —                                                                 | —                       | —                                                                                    | Confirmar diretamente com o time comercial da marca antes de descartar.                              |
-| **Max Titanium**          | 2 programas distintos (eCommerce CPA / BrandLovrs influenciadores) | Fora do catálogo (`Brand` existe, `Store` não) | A confirmar qual dos dois     | A confirmar                                        | Provavelmente não (perfil eCommerce CPA é compatível com wrapper) | A confirmar             | A confirmar após decidir qual programa                                               | Confirmar qual dos dois programas antes de qualquer contato comercial.                               |
-| **Adaptogen**             | Cupom de desconto (não é link rastreável por URL)                  | Fora do catálogo (`Brand` não existe)          | Sim (formulário próprio)      | Não detalhado                                      | **Sim — modelo de cupom não se encaixa no redirect atual**        | Não                     | Não aplicável no contrato atual                                                      | Precisaria de uma feature nova (exibir/aplicar cupom), fora do escopo desta arquitetura de redirect. |
+| Loja                      | Programa                                                           | Status                                                              | Cadastro?                     | Aprovação?                                         | Extensão?                                                         | API?                    | `AffiliateBaseUrl` esperado (formato)                                                | Observações                                                                                          |
+| ------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------- | ----------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Amazon**                | Amazon Associates                                                  | No catálogo, `isAffiliate: true`                                    | Sim (grátis, portal próprio)  | Sim (geralmente automática/rápida)                 | Não — implementado nesta sprint (modo "anexar parâmetro")         | Não                     | `"tag=NOSSA-TAG-20"` (querystring pura)                                              | Risco de desativação por volume mínimo de vendas em 180 dias — considerar timing de ativação.        |
+| **Netshoes**              | Parceiro Netshoes (via Rakuten Advertising)                        | No catálogo, `isAffiliate: true`                                    | Sim (via Rakuten Advertising) | Sim (Rakuten + aceite da Netshoes como anunciante) | Não — formato wrapper já suportado                                | Não (portal da Rakuten) | `"https://track.rakuten.../click?...&u={url}"` (formato exato a confirmar no portal) | Confirmar se o catálogo de suplementos específico participa do programa.                             |
+| **Loja Oficial da Marca** | N/A — placeholder de seed                                          | No catálogo, `isAffiliate: false`                                   | N/A                           | N/A                                                | N/A                                                               | N/A                     | N/A                                                                                  | Não é entidade comercial real; substituir por lojas específicas conforme forem confirmadas.          |
+| **Growth Supplements**    | Programa próprio via Lomadee                                       | Fora do catálogo (`Brand` existe, `Store` não)                      | Sim (Lomadee)                 | Sim (Lomadee + aceite do anunciante)               | Não — formato wrapper já suportado                                | Não                     | `"https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_ID"`                | Status do programa direto "possivelmente inativo" numa fonte — confirmar antes de negociar.          |
+| **Soldiers Nutrition**    | Programa próprio via Awin                                          | Fora do catálogo (`Brand` não existe)                               | Sim (Awin)                    | Sim (Awin + aceite do anunciante)                  | Não — formato wrapper já suportado                                | Não                     | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"`           | Nenhum produto Soldiers no catálogo hoje — pré-requisito antes de ativar.                            |
+| **Dark Lab**              | Programa próprio via Awin                                          | Fora da monetização (`Brand` existe, `Store` não)                   | Sim (Awin)                    | Sim (Awin + aceite do anunciante)                  | Não — formato wrapper já suportado                                | Não                     | `"https://www.awin1.com/cread.php?awinmid=X&awinaffid=NOSSO_ID&ued={url}"`           | Comissão paga em Euro — atenção à conciliação financeira e fiscal.                                   |
+| **Integralmédica**        | Não encontrado (só fidelidade B2C, "Integral Club")                | `Store` existe (`integralmedica-oficial`, loja direta não-afiliada) | —                             | —                                                  | —                                                                 | —                       | —                                                                                    | Confirmar diretamente com o time comercial da marca antes de descartar.                              |
+| **Max Titanium**          | 2 programas distintos (eCommerce CPA / BrandLovrs influenciadores) | `Store` existe (`max-titanium-oficial`, loja direta não-afiliada)   | A confirmar qual dos dois     | A confirmar                                        | Provavelmente não (perfil eCommerce CPA é compatível com wrapper) | A confirmar             | A confirmar após decidir qual programa                                               | Confirmar qual dos dois programas antes de qualquer contato comercial.                               |
+| **Dux Nutrition**         | Programa de Influenciadores DUX (plataforma própria)               | `Store` existe (`dux-oficial`, loja direta não-afiliada)            | Sim (portal próprio)          | Não detalhado                                      | Provável — indícios de modelo cupom/desconto, a confirmar         | Não                     | A confirmar após esclarecer se há link rastreável                                    | Confirmar com a marca se existe programa eCommerce tradicional além do de influenciadores.           |
+| **Probiótica**            | SOU PRO / Parceiros Probiótica (Brandlovers + Inbazz)              | Fora do catálogo (`Brand` existe, `Store` não)                      | Sim (candidatura Brandlovers) | Sim (aprovação como embaixador ativo)              | **Sim — atribuição por cupom, não por URL**                       | Não                     | Não aplicável no contrato atual                                                      | Mesma limitação estrutural da Adaptogen — precisaria de feature de cupom, não de configuração.       |
+| **Darkness**              | Programa via Lomadee (submarca da Integralmédica)                  | Fora do catálogo (`Brand` existe, `Store` não)                      | Sim (Lomadee)                 | Sim (Lomadee + aceite do anunciante)               | Não — formato wrapper já suportado                                | Não                     | `"https://redir.lomadee.com/v2/deeplink?url={url}&sourceId=NOSSO_ID"`                | Confirmar se o programa cobre a linha de whey já publicada no catálogo.                              |
+| **Adaptogen**             | Cupom de desconto (não é link rastreável por URL)                  | Fora da monetização (`Brand` existe, `Store` não)                   | Sim (formulário próprio)      | Não detalhado                                      | **Sim — modelo de cupom não se encaixa no redirect atual**        | Não                     | Não aplicável no contrato atual                                                      | Precisaria de uma feature nova (exibir/aplicar cupom), fora do escopo desta arquitetura de redirect. |
 
 ## 9. Confirmação: nenhum ajuste técnico pendente para as lojas ativas
 
@@ -232,7 +280,7 @@ Revisão da arquitetura completa (`affiliateUrl.ts`, `outboundLinkHref.ts`, `out
 
 - **Amazon** e **Netshoes** — as 2 lojas de afiliado já no catálogo — têm hoje suporte técnico completo (wrapper e "anexar parâmetro"). Ativação após aprovação é puramente um `UPDATE` de `Store.isAffiliate`/`Store.affiliateBaseUrl`, sem deploy de código.
 - **Growth, Soldiers Nutrition, Dark Lab** usam o formato wrapper já suportado — nenhuma extensão necessária quando (e se) entrarem no catálogo.
-- **Adaptogen** é a única exceção real: seu programa não é rastreável por URL (cupom), então não se encaixa em `affiliateBaseUrl` de forma alguma — precisaria de uma feature nova, não uma configuração. Não implementado (não há produto Adaptogen no catálogo hoje, e o requisito é de outra natureza — exibição de cupom, não redirecionamento).
+- **Adaptogen** é a única exceção real: seu programa não é rastreável por URL (cupom), então não se encaixa em `affiliateBaseUrl` de forma alguma — precisaria de uma feature nova, não uma configuração. Não implementado — o requisito é de outra natureza (exibição de cupom, não redirecionamento), independentemente de a marca já ter produto publicado no catálogo (`adaptogen-tasty-whey-3w-900g`).
 - **Integralmédica** e **Max Titanium** não têm formato técnico a validar ainda (falta confirmar se há programa e qual, respectivamente) — sem impacto na arquitetura até essa confirmação comercial.
 - A arquitetura continua funcionando com `affiliateBaseUrl` vazio para todas as lojas — comportamento hoje em produção, coberto pelos testes de fallback em `affiliateUrl.test.ts`.
 
