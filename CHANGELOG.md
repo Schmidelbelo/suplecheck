@@ -2,6 +2,26 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.13.1] — 2026-09-08 — Limpeza definitiva de dados de teste em produção
+
+### Corrigido (dívida operacional, não de produto)
+
+- **Removidos definitivamente os registros de teste vazados em produção**, confirmados por auditoria em duas etapas (mapeamento completo + verificação do comportamento público) e bloqueados preventivamente no commit anterior (`c521a12`, camada de proteção em `testDataGuard.ts`) antes desta limpeza. Ordem de exclusão respeitou as dependências de FK (nenhuma tabela com `onDelete: Cascade` entre Category/Brand/Product — exclusão manual na ordem correta):
+  1. `AuditLog` — 24 registros (`entityId` apontando para as entidades de teste abaixo)
+  2. `CategoryActiveMethodology` — 2 registros
+  3. `Sku` — 2 registros
+  4. `Product` — 4 registros (`api-eval-product-*`, `api-eval-rank-product-*`, `api-product-*` ×2)
+  5. `Methodology` — 2 registros (`api-eval-methodology-*`, `api-eval-rank-methodology-*`)
+  6. `Category` — 10 registros (`api-eval-cat-*`, `api-eval-rank-cat-*`, `api-cat-*`, `api-cat-dup-*` ×2, `api-cat-del-*` ×2, `api-prod-cat-*` ×2)
+  7. `Brand` — 6 registros (`it-eval-brand-*`, `it-eval-brand2-*`, `api-eval-brand-*`, `api-eval-rank-brand-*`, `api-prod-brand-*` ×2)
+  8. `Store` — 6 registros (`price-stats-store-*`)
+- Verificação de segurança pré-exclusão confirmou zero referência cruzada com dado real em qualquer direção (nenhum produto real usando marca de teste, nenhum `PriceEntry`/`OutboundClick` em loja/produto de teste) antes de qualquer `DELETE` — tudo executado em uma única transação.
+- Estado final confirmado: exatamente as 5 categorias reais (Creatina, Whey Protein, Pré-treino, Multivitamínicos, Ômega-3), 16 marcas, 28 produtos (24 publicados + 4 draft) e 6 lojas reais — nenhum dado do catálogo tocado.
+
+### Testes
+
+- 179/179 passam após a limpeza (nenhum teste dependia dos registros removidos). Build de produção obtido com sucesso na 1ª tentativa.
+
 ## [0.13.0] — 2026-09-07 — Centro de Confiança (Trust Center)
 
 ### Adicionado
