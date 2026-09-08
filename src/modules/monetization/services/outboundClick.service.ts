@@ -40,6 +40,15 @@ function normalizeSource(source: string): string {
   return VALID_SOURCES.has(source as OutboundClickSource) ? source : "unknown";
 }
 
+function isSafeRedirectProtocol(value: string): boolean {
+  try {
+    const protocol = new URL(value).protocol;
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Resolve o produto (id ou slug), a oferta atual (SKU ativo + captura de
  * preço mais recente + loja) e devolve a URL final do redirect — grava
@@ -89,6 +98,14 @@ export async function resolveOutboundClick(
     destinationUrl: priceEntry.url,
     store: priceEntry.store,
   });
+
+  // Última barreira contra open redirect: mesmo com `buildAffiliateUrl`
+  // já validando o protocolo, um `PriceEntry.url` corrompido poderia em
+  // tese chegar aqui via outro caminho — nunca gera um redirect real
+  // para um esquema que não seja http/https.
+  if (!isSafeRedirectProtocol(url)) {
+    return { status: "no_offer", productSlug: product.slug, categorySlug: product.category.slug };
+  }
 
   await prisma.outboundClick
     .create({

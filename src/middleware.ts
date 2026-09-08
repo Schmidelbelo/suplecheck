@@ -42,6 +42,17 @@ const PUBLIC_WRITE_RATE_LIMITS: Record<string, { limit: number; windowMs: number
 };
 
 /**
+ * Prefixos de leitura pública sujeitos a rate limit por IP — hoje só
+ * `/go` (redirecionador de afiliado), para conter clique repetido
+ * automatizado inflando `OutboundClick` (CTR/receita reportada ficaria
+ * artificialmente alta). Checado por prefixo, não por rota exata, já
+ * que `/go/[productId]` é dinâmico.
+ */
+const PUBLIC_GET_RATE_LIMITS: { prefix: string; limit: number; windowMs: number }[] = [
+  { prefix: "/go/", limit: 20, windowMs: 60_000 },
+];
+
+/**
  * Rate limit em memória, por IP + rota, janela fixa. Suficiente contra
  * abuso de script simples em uma instância única — não substitui um
  * limiter distribuído (Upstash/Vercel KV) se o tráfego crescer a ponto
@@ -124,6 +135,22 @@ export function middleware(request: NextRequest) {
         { code: "RATE_LIMITED", message: "Muitas requisições. Tente novamente em instantes." },
         { status: 429, headers: { "Retry-After": String(Math.ceil(rateLimit.windowMs / 1000)) } },
       );
+    }
+  }
+
+  if (request.method === "GET") {
+    const getRateLimit = PUBLIC_GET_RATE_LIMITS.find((rule) => pathname.startsWith(rule.prefix));
+    if (getRateLimit) {
+      const key = `${clientIp(request)}:${getRateLimit.prefix}`;
+      if (isRateLimited(key, getRateLimit.limit, getRateLimit.windowMs)) {
+        return NextResponse.json(
+          { code: "RATE_LIMITED", message: "Muitas requisições. Tente novamente em instantes." },
+          {
+            status: 429,
+            headers: { "Retry-After": String(Math.ceil(getRateLimit.windowMs / 1000)) },
+          },
+        );
+      }
     }
   }
 

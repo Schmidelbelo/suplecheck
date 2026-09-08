@@ -48,13 +48,37 @@ const URL_PLACEHOLDER = "{url}";
 
 /** Reconhece uma querystring pura (`tag=x` ou `?tag=x&outro=y`) — nunca uma URL completa. */
 function isQueryStringFragment(value: string): boolean {
-  return !value.includes("://") && !value.includes(URL_PLACEHOLDER) && /^[?&]?[^=&\s]+=[^\s]+/.test(value);
+  return (
+    !value.includes("://") &&
+    !value.includes(URL_PLACEHOLDER) &&
+    /^[?&]?[^=&\s]+=[^\s]+/.test(value)
+  );
+}
+
+/**
+ * Só `http`/`https` chegam a virar um redirect real — protege contra
+ * open redirect (ex.: um valor `javascript:`/`data:` que tenha entrado
+ * em `PriceEntry.url` ou em `affiliateBaseUrl` por erro de importação)
+ * sem depender de uma allowlist de domínio, que exigiria manutenção
+ * manual a cada nova loja cadastrada.
+ */
+function isSafeRedirectUrl(value: string): boolean {
+  try {
+    const protocol = new URL(value).protocol;
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
 }
 
 export function buildAffiliateUrl({
   destinationUrl,
   store,
 }: AffiliateUrlInput): AffiliateUrlResult {
+  if (!isSafeRedirectUrl(destinationUrl)) {
+    return { url: destinationUrl, isAffiliateLink: false };
+  }
+
   if (!store.isAffiliate || !store.affiliateBaseUrl) {
     return { url: destinationUrl, isAffiliateLink: false };
   }
@@ -63,7 +87,9 @@ export function buildAffiliateUrl({
 
   if (config.includes(URL_PLACEHOLDER)) {
     const url = config.replace(URL_PLACEHOLDER, encodeURIComponent(destinationUrl));
-    return { url, isAffiliateLink: true };
+    return isSafeRedirectUrl(url)
+      ? { url, isAffiliateLink: true }
+      : { url: destinationUrl, isAffiliateLink: false };
   }
 
   if (isQueryStringFragment(config)) {
