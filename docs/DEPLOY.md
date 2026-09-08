@@ -38,7 +38,7 @@ até aqui) for configurado:
 | `DATABASE_URL`                                        | Sim         | Connection string "pooled" (com `-pooler`) do Postgres de produção — usada em runtime                                                                                                                                                                                                 |
 | `DIRECT_URL`                                          | Sim         | Connection string direta (sem `-pooler`) — usada só por `prisma migrate deploy`                                                                                                                                                                                                       |
 | `ADMIN_API_KEY`                                       | Sim         | Autentica toda escrita (`POST`/`PUT`/`PATCH`/`DELETE`) em `/api/catalog/*` e `/api/evaluation/*` (ver `src/middleware.ts`) — sem ela, essas rotas respondem 500. Gerar com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, enviar como header `x-api-key` |
-| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final canônica (`https://suplescore.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                    |
+| `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final canônica (`https://suplescore.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                 |
 | `NEXT_PUBLIC_GA_ID`                                   | Não         | ID do Google Analytics 4 (`G-XXXXXXXXXX`) — sem isso, GA4 simplesmente não carrega (ver `AnalyticsScripts.tsx`)                                                                                                                                                                       |
 | `NEXT_PUBLIC_CLARITY_ID`                              | Não         | ID do projeto Microsoft Clarity                                                                                                                                                                                                                                                       |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`                | Não         | Código de verificação "meta tag HTML" do Google Search Console                                                                                                                                                                                                                        |
@@ -185,6 +185,34 @@ com o header `Authorization: Bearer <ADMIN_API_KEY>`.
 disparar manualmente — pede a `ADMIN_API_KEY` na própria página (guardada
 só em `sessionStorage`, nunca persistida).
 
+## 5d. Monitor de uptime (cron)
+
+`GET /api/health` já agrega as verificações reais (banco via `SELECT 1`,
+memória do processo) e retorna `503` em caso de falha — pronto para
+qualquer monitor externo (UptimeRobot, Better Stack, um load balancer)
+apontar direto para ele, sem nenhuma configuração adicional.
+
+Para alerta via Sentry (em vez de, ou além de, um monitor externo):
+`GET /api/cron/uptime-check` roda a mesma verificação e, quando
+`unhealthy`, dispara `Sentry.captureMessage` com severidade `fatal` —
+as regras de alerta (e-mail, Slack, etc.) são configuradas direto no
+painel do Sentry, sem mexer em código. Protegido pela mesma
+`ADMIN_API_KEY`/`Authorization: Bearer` do `/api/cron/price-capture`.
+
+**Nenhum agendamento foi ativado nesta sprint.** Quando decidir ativar,
+adicionar ao `vercel.json` (mesmo padrão do price-capture, frequência
+sugerida a cada 5–10 minutos):
+
+```json
+{
+  "crons": [{ "path": "/api/cron/uptime-check", "schedule": "*/10 * * * *" }]
+}
+```
+
+As opções B (GitHub Actions) e C (serviço externo) descritas na seção
+5c se aplicam da mesma forma, só trocando o path para
+`/api/cron/uptime-check`.
+
 ## 6. Monitoramento de erros (Sentry)
 
 1. Criar conta/projeto Next.js em <https://sentry.io>.
@@ -215,8 +243,10 @@ relevante, considerar capturar erros só em servidor/edge (remover
 - [x] `npm run build` limpo (typecheck + lint + build) no ambiente de deploy
 - [ ] Search Console verificado e sitemap submetido
 - [ ] Bing Webmaster Tools verificado e sitemap submetido
-- [ ] GA4 e/ou Clarity recebendo eventos reais (checar em tempo real após um acesso de teste)
+- [x] Banner de consentimento de cookies (LGPD) — GA4/Clarity só carregam depois do aceite, escolha persistida em cookie (`CookieConsentBanner.tsx`, ver seção 9)
+- [ ] GA4 e/ou Clarity recebendo eventos reais (checar em tempo real após um acesso de teste e aceitar o banner de cookies)
 - [ ] Sentry recebendo um erro de teste (disparar um erro proposital e confirmar que aparece no painel)
+- [ ] Monitor de uptime ativado (`/api/cron/uptime-check`, ver seção 5d) — pronto, aguardando decisão de ativação em produção
 - [ ] Lighthouse (Desktop + Mobile) rodado contra a URL final de produção — não foi possível rodar localmente nesta etapa (sem Chrome/Chromium disponível no ambiente de execução); rodar via PageSpeed Insights (<https://pagespeed.web.dev>) ou Lighthouse CI contra a URL de produção assim que houver deploy real
 - [ ] Content-Security-Policy validada em produção (checar console do navegador em `/`, `/creatina` e `/creatina/[slug]` — nenhum recurso bloqueado; GA4/Clarity/Sentry devem continuar funcionando)
 - [x] Rate limiting em `/api/leads` e `/api/contact` (5 requisições/minuto por IP, ver `src/middleware.ts`) — em memória, por instância; se o tráfego crescer a ponto de rodar múltiplas instâncias simultâneas, considerar migrar para um limiter distribuído (Upstash Redis/Vercel KV)

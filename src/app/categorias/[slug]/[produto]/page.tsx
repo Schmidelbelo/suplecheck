@@ -30,6 +30,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildProductDetailMetadata({ slug: produto, categorySlug: slug });
 }
 
+// Mesmo motivo/intervalo de `/creatina/[slug]` — a página de produto é
+// a de maior tráfego potencial do catálogo e não tinha cache nenhum.
+export const revalidate = 300;
+
 export default async function CategoryProductDetailPage({ params }: PageProps) {
   const { slug, produto } = await params;
 

@@ -9,6 +9,7 @@ import { JsonLd } from "@/lib/seo/JsonLd";
 import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
 import { siteConfig } from "@/config/site";
 import { AnalyticsScripts } from "@/modules/analytics/components/AnalyticsScripts";
+import { CookieConsentBanner } from "@/modules/compliance/components/CookieConsentBanner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Footer />
         </AppProviders>
         <AnalyticsScripts />
+        <CookieConsentBanner />
       </body>
     </html>
   );

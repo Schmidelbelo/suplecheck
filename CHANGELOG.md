@@ -2,6 +2,24 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.14.0] — 2026-09-08 — Beta Readiness: Sentry, uptime, LGPD e cache
+
+Elimina os bloqueadores de Beta identificados na auditoria de prontidão.
+
+### Adicionado
+
+- **Banner de consentimento de cookies (LGPD)** — `CookieConsentBanner.tsx`, cookie próprio (`suplescore-cookie-consent`, 180 dias), sem alterar o layout além da própria faixa fixa no rodapé da página. `AnalyticsScripts` passou a ser um Server Component assíncrono que só injeta GA4/Clarity quando o cookie de consentimento estiver `accepted` — confirmado ao vivo nos 3 estados (sem cookie, `rejected`, `accepted`) que o gate funciona corretamente mesmo com IDs reais configurados em produção.
+- **Monitor de uptime** — `GET /api/cron/uptime-check` (novo, não altera `/api/health`): roda a mesma agregação de healthcheck e dispara `Sentry.captureMessage` (severidade `fatal`) quando `unhealthy`. Protegido pela mesma `ADMIN_API_KEY` dos demais endpoints `/api/cron/*`. Nenhum agendamento foi ativado em produção nesta sprint — `docs/DEPLOY.md` §5d documenta o bloco exato para `vercel.json` quando a ativação for decidida.
+- `revalidate = 300` em `creatina/[slug]` e `categorias/[slug]/[produto]` — as páginas de produto individual (maior tráfego potencial do catálogo) não tinham cache algum, batendo direto no Neon a cada requisição.
+
+### Corrigido (achado de auditoria, não de código novo)
+
+- **Sentry client-side já estava implementado** — a auditoria de prontidão anterior apontou a ausência como bloqueador, mas `instrumentation-client.ts` (convenção atual do Next.js 15 + `@sentry/nextjs` 10, substituiu `sentry.client.config.ts`) já captura erros de navegador desde antes desta sprint. `docs/DEPLOY.md` §6 já documentava isso corretamente — falso negativo da auditoria anterior, nenhuma mudança de código necessária para este item.
+
+### Testes e build
+
+- 179/179 testes passam (falhas em execução completa foram, de novo, só indisponibilidade intermitente do Neon — confirmado por reprodução não-determinística, nunca falha de lógica). Build de produção obtido com sucesso de primeira tentativa.
+
 ## [0.13.1] — 2026-09-08 — Limpeza definitiva de dados de teste em produção
 
 ### Corrigido (dívida operacional, não de produto)

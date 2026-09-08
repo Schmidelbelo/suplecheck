@@ -1,14 +1,24 @@
 import Script from "next/script";
+import { cookies } from "next/headers";
+import {
+  COOKIE_CONSENT_COOKIE_NAME,
+  isAnalyticsConsentGranted,
+} from "@/modules/compliance/lib/cookieConsent";
 
 /**
  * Injeta os scripts de terceiros (Google Analytics, Microsoft Clarity)
- * apenas quando os respectivos IDs estão configurados via env — evita
- * disparar scripts de tracking em ambientes de desenvolvimento/preview
- * sem configuração.
+ * apenas quando os respectivos IDs estão configurados via env E o
+ * visitante já aceitou cookies de análise (LGPD — ver
+ * `CookieConsentBanner`). Sem o aceite, nada é injetado, mesmo com IDs
+ * configurados — evita disparar tracking antes do consentimento.
  */
-export function AnalyticsScripts() {
+export async function AnalyticsScripts() {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
+  const consentCookie = (await cookies()).get(COOKIE_CONSENT_COOKIE_NAME)?.value;
+  const hasConsent = isAnalyticsConsentGranted(consentCookie);
+
+  if (!hasConsent) return null;
 
   return (
     <>

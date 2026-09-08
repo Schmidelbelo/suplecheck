@@ -20,6 +20,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return buildProductDetailMetadata({ slug, categorySlug: "creatina" });
 }
 
+// Sem isto a página batia direto no banco a cada requisição — a de
+// maior tráfego potencial do catálogo, e a mais sensível à instabilidade
+// de conexão do Neon documentada em várias sprints. Mesmo intervalo já
+// usado nas páginas de listagem/categoria irmãs.
+export const revalidate = 300;
+
 export default async function CreatinaDetailPage({ params }: PageProps) {
   const { slug } = await params;
   return <ProductDetailPage slug={slug} categorySlug="creatina" />;
