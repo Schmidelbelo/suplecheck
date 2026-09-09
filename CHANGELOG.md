@@ -2,6 +2,17 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.20.0] — 2026-09-09 — Vitafor publicado em Whey Protein
+
+### Adicionado
+
+- **Vitafor Whey Protein Concentrado (WPC) 900g** atualizado de DRAFT para PUBLISHED — composição (21g/30g) já confirmada na página oficial (sprint anterior); preço/URL reais capturados na própria loja oficial (vitafor.com.br, R$ 184,00) — `prisma/publishVitaforWheyProtein.ts`.
+- Score calculado (69,25 — tier AVERAGE), ranking de Whey Protein regenerado (9 → 10 entradas).
+
+### Testes e build
+
+- 179/179 testes passam (1 falha isolada, interferência de concorrência entre arquivos de teste já documentada, confirmada ao reexecutar isolado). Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200/indexável, sitemap atualizado, sem regressão.
+
 ## [0.19.0] — 2026-09-09 — Darkness Évora PW publicado em Pré-treino
 
 ### Adicionado
