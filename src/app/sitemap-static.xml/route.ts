@@ -3,6 +3,10 @@ import { siteConfig } from "@/config/site";
 const staticRoutes = [
   { path: "", priority: "1", changefreq: "weekly" },
   { path: "/creatina", priority: "0.9", changefreq: "daily" },
+  { path: "/ranking", priority: "0.9", changefreq: "daily" },
+  { path: "/artigos/melhor-creatina-custo-beneficio-2026", priority: "0.8", changefreq: "monthly" },
+  { path: "/artigos/como-comparar-whey-protein-corretamente", priority: "0.8", changefreq: "monthly" },
+  { path: "/artigos/pre-treino-o-que-importa-antes-de-comprar", priority: "0.8", changefreq: "monthly" },
   { path: "/marcas", priority: "0.8", changefreq: "daily" },
   { path: "/categorias", priority: "0.8", changefreq: "daily" },
   { path: "/ofertas", priority: "0.8", changefreq: "daily" },

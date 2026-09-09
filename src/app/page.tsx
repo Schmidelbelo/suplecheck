@@ -12,6 +12,7 @@ import { TrustSection } from "@/components/marketing/TrustSection";
 import { NewsletterSection } from "@/components/marketing/NewsletterSection";
 import { FAQSection } from "@/components/marketing/FAQSection";
 import { FinalCTA } from "@/components/marketing/FinalCTA";
+import { CategoryShortcuts } from "@/components/marketing/CategoryShortcuts";
 import { homeFaq } from "@/config/faq";
 
 export default function HomePage() {
@@ -19,6 +20,7 @@ export default function HomePage() {
     <>
       <JsonLd data={faqPageSchema(homeFaq)} />
       <Hero />
+      <CategoryShortcuts />
       <ProblemSection />
       <HowItWorks />
       <IndexExplainer />
