@@ -2,6 +2,21 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.19.0] — 2026-09-09 — Darkness Évora PW publicado em Pré-treino
+
+### Adicionado
+
+- **Évora PW Darkness Limão 150g** atualizado de DRAFT para PUBLISHED — composição já estava 100% confirmada em ficha técnica oficial (sprint anterior); único bloqueio era preço não confirmado, resolvido nesta sprint com preço/URL reais da Amazon (R$ 47,67) — `prisma/publishDarknessEvoraPreTreino.ts`.
+- Score calculado (80,2 — tier GOOD), ranking de Pré-treino regenerado.
+
+### Achado (não corrigido nesta sprint — trabalho de outra sessão)
+
+- Os outros 3 produtos já PUBLISHED de Pré-treino (Integralmédica Prime MD, Max Titanium Égide, Dux Pre Workout Original) **nunca tiveram `ProductScore` calculado** — publicados sem avaliação por outra sessão em paralelo (`prisma/publishPreTreinoOfficialCategory.ts`, ainda não commitado). Por isso o ranking regenerado tem só 1 entrada (dado real, não bug desta sprint) — não corrigido aqui por pertencer ao escopo do trabalho em andamento de outra sessão.
+
+### Testes e build
+
+- 179/179 testes passam (1 falha isolada, flakiness de conexão do Neon, confirmada ao reexecutar o arquivo isolado). Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200/indexável, sitemap atualizado, sem regressão.
+
 ## [0.18.0] — 2026-09-09 — Ômega-3 sai do zero: 1º produto e 1º ranking da categoria
 
 ### Adicionado
