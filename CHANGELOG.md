@@ -2,6 +2,18 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.18.0] — 2026-09-09 — Ômega-3 sai do zero: 1º produto e 1º ranking da categoria
+
+### Adicionado
+
+- **Integralmédica Ômega 3 1360mg 60 Cápsulas** — primeiro produto publicado na categoria Ômega-3 (0 → 1 produto). Composição (1360mg/dose, 840mg EPA + 521mg DHA, 60 cápsulas = 30 doses) confirmada por fontes concordantes (marca + retailers). Preço/URL reais da Amazon (R$ 119,90) — `prisma/publishIntegralmedicaOmega3.ts`.
+- Categoria Ômega-3 não tinha nenhuma metodologia ativa — reaproveitado `creatina-methodology` como fallback, mesmo padrão já usado para Pré-treino.
+- Score calculado (70,77 — tier GOOD), **primeiro ranking de Ômega-3 gerado** (1 entrada).
+
+### Testes e build
+
+- 179/179 testes passam (1 falha isolada em `evaluation.api.test.ts` foi interferência de concorrência entre arquivos de teste sob paralelismo, não relacionada a esta publicação — confirmada ao reexecutar o arquivo isolado). Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200/indexável, sitemap atualizado, sem regressão em Whey Protein/Creatina.
+
 ## [0.17.0] — 2026-09-09 — Soldiers Nutrition publicada em Whey Protein
 
 ### Adicionado
