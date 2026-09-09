@@ -2,6 +2,17 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.21.0] — 2026-09-09 — Black Skull publicado em Whey Protein
+
+### Adicionado
+
+- **Black Skull Whey Protein Concentrado 80% HD 900g** atualizado de DRAFT para PUBLISHED — composição (24g/30g) já confirmada oficialmente (sprint anterior), não alterada; preço/URL reais capturados na Amazon (R$ 219,90) — `prisma/publishBlackSkullWheyProtein.ts`.
+- Score calculado (73,68 — tier GOOD), ranking de Whey Protein regenerado (10 → 11 entradas).
+
+### Testes e build
+
+- 179/179 testes passam (1 falha isolada, interferência de concorrência entre arquivos de teste já documentada, confirmada ao reexecutar isolado). Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200/indexável, sitemap atualizado, sem regressão, e a camada de proteção contra dados de teste (sprint anterior) continua filtrando corretamente.
+
 ## [0.20.0] — 2026-09-09 — Vitafor publicado em Whey Protein
 
 ### Adicionado
