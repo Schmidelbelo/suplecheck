@@ -2,6 +2,22 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.17.0] — 2026-09-09 — Soldiers Nutrition publicada em Whey Protein
+
+### Adicionado
+
+- **Soldiers Nutrition Whey Protein Concentrado 1kg** publicado (marca e loja oficial novas) — `prisma/publishSoldiersNutritionWheyProtein.ts`.
+- Preço/peso/tipo/sabor confirmados na página oficial (`soldiersnutrition.com.br`, R$ 145,90). Composição (40g proteína/50g porção) extraída literalmente de fonte de dados nutricionais de terceiros (FatSecret) — a página oficial do produto carrega normalmente, mas não expõe a tabela nutricional em texto extraível.
+- Score calculado (77,25 — tier GOOD), ranking de Whey Protein regenerado (8 → 9 entradas).
+
+### Confirmado sem impacto
+
+- Nenhum outro produto/marca da categoria alterado.
+
+### Testes e build
+
+- 179/179 testes passam de primeira. Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200/indexável, sitemap atualizado, sem regressão.
+
 ## [0.16.0] — 2026-09-09 — Growth Supplements publicada em Whey Protein
 
 Resolução do bloqueio de 3 sprints anteriores (site oficial protegido por desafio anti-bot Cloudflare).
