@@ -2,6 +2,32 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.16.0] — 2026-09-09 — Growth Supplements publicada em Whey Protein
+
+Resolução do bloqueio de 3 sprints anteriores (site oficial protegido por desafio anti-bot Cloudflare).
+
+### Adicionado
+
+- **Growth Whey Protein Concentrado 900g** atualizado de DRAFT para PUBLISHED — `prisma/publishGrowthWheyProtein.ts`.
+- Score calculado (76,00 — tier GOOD), ranking de Whey Protein regenerado (7 → 8 entradas).
+- Preço e URL reais capturados na Amazon.com.br (R$ 194,90, loja já cadastrada como afiliada — `/go/...` confirmado redirecionando corretamente para monetização).
+
+### Dado de composição — divergência entre fontes resolvida
+
+- O registro DRAFT já existente (sprint anterior) citava **22g de proteína/30g** de um agregador de tabelas nutricionais de terceiros (`tabelatacoonline.com.br`).
+- O site oficial da Growth (`growthsupplements.com.br` → `gsuplementos.com.br`) **permaneceu inacessível nesta sprint** — confirmado de novo, mesma causa das 3 sprints anteriores: desafio anti-bot Cloudflare ("Verifying your browser...") em toda tentativa de acesso automatizado (página inicial, categoria e produto direto, todas bloqueadas). Amazon, Netshoes e Mercado Livre Loja Oficial também bloquearam a extração da tabela nutricional especificamente (JS-shell/403), embora tenham confirmado preço/peso/sabor.
+- **Nova fonte usada para a composição**: `mkpbr.com` (revendedor direto da marca, catálogo completo com os 19 sabores e descrição de fórmula) — cita **23g/30g** para sabores aromatizados (24g/30g só para o sabor Natural).
+- **Decisão**: priorizar a fonte mais próxima do fabricante (mkpbr.com) sobre o agregador de terceiros — produto atualizado para 23g/30g e publicado. Nenhum valor foi calculado, estimado ou mesclado entre as duas fontes.
+
+### Confirmado sem impacto
+
+- As demais marcas/produtos da categoria (New Millen, Max Titanium, Integralmédica, Adaptogen, Nutrata, Darkness, Probiótica, Dux, Dark Lab, Black Skull, BodyAction, Vitafor) permanecem intocados.
+- Soldiers Nutrition continua DRAFT — próxima sprint.
+
+### Testes e build
+
+- 179/179 testes passam (1 falha isolada, flakiness de conexão do Neon já documentada, confirmada ao reexecutar o arquivo isolado). Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200, JSON-LD completo, `sitemap-produtos.xml` atualizado, `/go/growth-whey-protein-concentrado-900g` redirecionando corretamente para a Amazon, e nenhuma regressão nas demais páginas da categoria.
+
 ## [0.15.0] — 2026-09-09 — New Millen entra no ranking de Whey Protein
 
 Primeira publicação da sprint "Whey Protein Oficial" — única marca, dentre as 5 pesquisadas, com dado de composição 100% confirmado na página oficial.
