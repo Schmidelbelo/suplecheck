@@ -12,6 +12,7 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: [
       new URL("/sitemap.xml", siteConfig.url).toString(),
+      new URL("/sitemap-static.xml", siteConfig.url).toString(),
       new URL("/sitemap-produtos.xml", siteConfig.url).toString(),
       new URL("/sitemap-marcas.xml", siteConfig.url).toString(),
       new URL("/sitemap-categorias.xml", siteConfig.url).toString(),
