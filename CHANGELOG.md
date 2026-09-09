@@ -2,6 +2,25 @@
 
 Todas as mudanças notáveis deste projeto são documentadas aqui. Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/); versionamento segue [SemVer](https://semver.org/lang/pt-BR/) a partir desta release.
 
+## [0.15.0] — 2026-09-09 — New Millen entra no ranking de Whey Protein
+
+Primeira publicação da sprint "Whey Protein Oficial" — única marca, dentre as 5 pesquisadas, com dado de composição 100% confirmado na página oficial.
+
+### Adicionado
+
+- **New Millen Whey 100% 900g** publicado na categoria Whey Protein: marca (`new-millen`), loja oficial (`new-millen-oficial`, não-afiliada), produto, SKU e preço real (R$ 170,40, capturado em `loja.newmillen.com.br`, URL real preservada) — `prisma/publishNewMillenWheyProtein.ts`.
+- Score calculado (72,14 — tier GOOD) e ranking de Whey Protein regenerado (7 entradas, antes 6).
+- `categoryAveragePricePerDoseInCents` do critério de custo-benefício calculado dinamicamente a partir dos preços reais já publicados na categoria, não um valor fixo.
+
+### Confirmado sem impacto
+
+- As 16 marcas/produtos já existentes na categoria (6 publicados + 7 draft + a própria Darkness fora da lista original) permanecem intocados — nenhuma marca, produto, SKU ou preço anterior foi alterado por este script.
+- Growth Supplements e Soldiers Nutrition continuam DRAFT — resolução é a próxima sprint.
+
+### Testes e build
+
+- 179/179 testes passam (1 falha isolada em `test/api/go.api.test.ts` foi só a flakiness de conexão do Neon já documentada nesta sessão — confirmada ao reexecutar o arquivo isolado). Build de produção obtido com sucesso na 1ª tentativa. Smoke test confirmou página nova 200, JSON-LD completo (Product/BreadcrumbList/Offer/Review), `sitemap-produtos.xml` atualizado, e nenhuma regressão nas páginas de Creatina/Whey Protein já existentes.
+
 ## [0.14.0] — 2026-09-08 — Beta Readiness: Sentry, uptime, LGPD e cache
 
 Elimina os bloqueadores de Beta identificados na auditoria de prontidão.
