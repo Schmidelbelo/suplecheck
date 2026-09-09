@@ -15,7 +15,7 @@ import type { RankingView } from "@/modules/evaluation/types";
 import type { MarketApiResponse } from "@/modules/market/types";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Qual a Melhor Creatina? Ranking Comparativo",
+  title: "Melhor Creatina 2026: Ranking, Preço por Dose e Custo-Benefício",
   description:
     "Qual a melhor creatina em custo-benefício? Ranking comparativo com nota do Índice SupleScore, preço por dose e transparência do rótulo — calculado a partir de dados reais, sem posição paga.",
   path: "/creatina",

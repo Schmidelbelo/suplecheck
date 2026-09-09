@@ -14,7 +14,7 @@ import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { PriceEvolutionTable } from "@/modules/pricing/components/PriceEvolutionTable";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Ofertas e Quedas de Preço",
+  title: "Ofertas de Suplementos: Creatina, Whey e Pré-Treino em Promoção",
   description:
     "Melhores oportunidades de creatina agora: produtos abaixo da média de preço da categoria, menores preços já registrados e capturas recentes — tudo calculado a partir de dados reais.",
   path: "/ofertas",

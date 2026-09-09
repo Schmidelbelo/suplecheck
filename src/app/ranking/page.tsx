@@ -14,7 +14,7 @@ import { Section } from "@/components/layout/Section";
  * quando houver mais de uma categoria com ranking real, isto vira uma
  * página de índice em vez de um redirect fixo.
  */
-export const metadata: Metadata = buildMetadata({ title: "Ranking de Suplementos: Creatina, Whey Protein e Mais", description: "Compare rankings de suplementos por categoria usando o Índice SupleScore, preço por dose e critérios editoriais transparentes.", path: "/ranking" });
+export const metadata: Metadata = buildMetadata({ title: "Ranking de Suplementos 2026: Creatina, Whey, Pré-Treino e Ômega 3", description: "Compare rankings de suplementos por categoria usando o Índice SupleScore, preço por dose e critérios editoriais transparentes.", path: "/ranking" });
 
 const routes: Record<string, string> = { creatina: "/creatina" };
 

@@ -17,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
       new URL("/sitemap-marcas.xml", siteConfig.url).toString(),
       new URL("/sitemap-categorias.xml", siteConfig.url).toString(),
       new URL("/sitemap-comparacoes.xml", siteConfig.url).toString(),
+      new URL("/rss.xml", siteConfig.url).toString(),
     ],
   };
 }

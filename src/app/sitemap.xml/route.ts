@@ -6,6 +6,7 @@ const segmentedSitemaps = [
   "/sitemap-marcas.xml",
   "/sitemap-categorias.xml",
   "/sitemap-comparacoes.xml",
+  "/rss.xml",
 ];
 
 export async function GET() {

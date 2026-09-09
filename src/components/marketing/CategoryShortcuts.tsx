@@ -6,7 +6,7 @@ const categories = [
   ["Pré-Treino", "/categorias/pre-treino", "compare fórmulas e custo por dose"],
   ["Ômega 3", "/categorias/omega-3", "compare concentração e transparência"],
   ["Cafeína", "/categorias/cafeina", "compare dose e custo-benefício"],
-  ["Creatina", "/creatina", "veja o ranking atualizado"],
+  ["Ranking", "/ranking", "veja os rankings publicados"],
 ] as const;
 
 export function CategoryShortcuts() {

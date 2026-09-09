@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!data) return buildMetadata({ title: "Categoria não encontrada", noIndex: true });
 
   return buildMetadata({
-    title: `${data.category.name}: Ranking e Avaliações`,
+    title: `${data.category.name}: Ranking, Preços e Melhores Opções`,
     description:
       data.category.description ?? `Página da categoria ${data.category.name} no SupleScore.`,
     path: `/categorias/${slug}`,
