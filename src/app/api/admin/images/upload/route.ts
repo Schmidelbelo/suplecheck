@@ -8,9 +8,12 @@ const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB — generoso pra foto de embala
 /**
  * Upload manual da Central de Imagens — recebe `multipart/form-data`
  * com `productId` + `file` (a imagem arrastada/selecionada). Corta
- * automaticamente pra quadrado, converte pra WEBP, salva local,
- * atualiza `ProductImage` e remove o produto de `PendingImage`. Nunca
- * depende de rede — o arquivo já chegou no corpo da requisição.
+ * automaticamente pra quadrado, converte pra WEBP, envia pro Vercel
+ * Blob (nunca escreve em `/public` — funciona igual em produção na
+ * Vercel, filesystem serverless efêmero não é usado), atualiza
+ * `ProductImage` com a URL permanente e remove o produto de
+ * `PendingImage`. Nunca depende de rede externa além do próprio Blob —
+ * o arquivo já chegou no corpo da requisição.
  */
 export async function POST(request: Request) {
   try {
@@ -45,7 +48,7 @@ export async function POST(request: Request) {
 
     const product = await prisma.product.findUnique({
       where: { id: productId },
-      select: { id: true, slug: true },
+      select: { id: true, slug: true, category: { select: { slug: true } } },
     });
     if (!product) {
       return NextResponse.json(
@@ -55,9 +58,19 @@ export async function POST(request: Request) {
     }
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    await saveUploadedProductImage({ productId: product.id, slug: product.slug, fileBuffer });
+    await saveUploadedProductImage({
+      productId: product.id,
+      slug: product.slug,
+      fileBuffer,
+      categorySlug: product.category.slug,
+    });
 
-    return NextResponse.json({ url: `/products/${product.slug}.webp` });
+    const updated = await prisma.productImage.findFirst({
+      where: { productId: product.id, role: "COVER" },
+      select: { url: true },
+    });
+
+    return NextResponse.json({ url: updated?.url });
   } catch (error) {
     console.error("[api/admin/images/upload] erro inesperado", error);
     Sentry.captureException(error);

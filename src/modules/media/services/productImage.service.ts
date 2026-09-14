@@ -1,22 +1,31 @@
-import path from "node:path";
-import fs from "node:fs/promises";
+import { put, del } from "@vercel/blob";
 import sharp from "sharp";
 import { prisma } from "@/lib/db/prisma";
+import { revalidatePath } from "next/cache";
+import { categoryBasePath, productDetailPath } from "@/lib/catalog/productRoutes";
 
 /**
- * Sistema permanente de imagens — substitui as tentativas pontuais de
- * scraping por sprint. Todo produto publicado, novo ou existente,
- * termina em UM destes dois estados, nunca em limbo:
- * 1. `ProductImage.url` aponta para um arquivo local em
- *    `/public/products/` (imagem oficial real, convertida para WEBP) —
- *    o site nunca mais depende da URL de terceiros para aquele produto.
+ * Sistema permanente de imagens — Vercel Blob, nunca filesystem local.
+ * Toda imagem de produto (resolvida automaticamente ou enviada via
+ * Central de Imagens) é convertida para WEBP em memória e enviada para
+ * o Blob, que devolve uma URL pública permanente e imutável (`put`
+ * com `addRandomSuffix: false` sobre um path fixo por produto —
+ * reenviar a mesma imagem no mesmo path sobrescreve, nunca acumula
+ * lixo). Funciona igual em dev e em produção na Vercel: nada escreve
+ * em `/public`, nada depende do filesystem da função serverless
+ * sobreviver entre invocações.
+ *
+ * Todo produto publicado termina em UM destes dois estados, nunca em
+ * limbo:
+ * 1. `ProductImage.url` aponta para uma URL do Blob (imagem oficial
+ *    real) — o site nunca mais depende da URL de terceiros para aquele
+ *    produto.
  * 2. Sem imagem oficial confiável encontrada: uma linha em
  *    `PendingImage` — a fila que a Central de Imagens (`/admin/imagens`)
  *    resolve com upload manual. Nunca mais um card ilustrativo gerado
  *    automaticamente como se fosse solução definitiva.
  */
 
-const OUT_DIR = path.join(process.cwd(), "public", "products");
 const COVER_SIZE = 800;
 const THUMB_SIZE = 200;
 
@@ -113,40 +122,94 @@ async function fetchImageBuffer(url: string, timeoutMs = 12000): Promise<Buffer 
   }
 }
 
-async function saveWebp(buf: Buffer, slug: string, coverFit: "contain" | "cover") {
-  await fs.mkdir(OUT_DIR, { recursive: true });
-  await sharp(buf)
-    .resize(COVER_SIZE, COVER_SIZE, { fit: coverFit, background: "#ffffff" })
+/**
+ * Converte pra WEBP (capa + thumbnail) e envia os dois pro Vercel Blob
+ * num path fixo e previsível (`products/<slug>.webp`,
+ * `products/<slug>-thumb.webp`) — `addRandomSuffix: false` garante que
+ * reenviar a imagem do mesmo produto SOBRESCREVE o blob existente em
+ * vez de acumular versões órfãs (o Blob de um produto excluído/trocado
+ * nunca fica pra trás consumindo storage sem uso). Devolve a URL
+ * pública permanente da capa.
+ */
+async function uploadWebpToBlob(
+  buf: Buffer,
+  slug: string,
+  fit: "contain" | "cover",
+): Promise<string> {
+  const cover = await sharp(buf)
+    .resize(COVER_SIZE, COVER_SIZE, { fit, background: "#ffffff" })
     .webp({ quality: 85 })
-    .toFile(path.join(OUT_DIR, `${slug}.webp`));
-  await sharp(buf)
-    .resize(THUMB_SIZE, THUMB_SIZE, { fit: coverFit, background: "#ffffff" })
+    .toBuffer();
+  const thumb = await sharp(buf)
+    .resize(THUMB_SIZE, THUMB_SIZE, { fit, background: "#ffffff" })
     .webp({ quality: 80 })
-    .toFile(path.join(OUT_DIR, `${slug}-thumb.webp`));
+    .toBuffer();
+
+  const [coverBlob] = await Promise.all([
+    put(`products/${slug}.webp`, cover, {
+      access: "public",
+      contentType: "image/webp",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    }),
+    put(`products/${slug}-thumb.webp`, thumb, {
+      access: "public",
+      contentType: "image/webp",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    }),
+  ]);
+
+  return coverBlob.url;
 }
 
-async function applyResolvedImage(productId: string, slug: string) {
+/**
+ * Invalida o cache ISR da página do produto e da categoria — chamado
+ * sempre que uma imagem é resolvida ou enviada, pra quem já tinha a
+ * página em cache (até 12h, ver `revalidate` das páginas) ver a
+ * imagem nova sem esperar a janela inteira.
+ */
+function invalidateProductCache(categorySlug: string | null, slug: string) {
+  if (!categorySlug) return;
+  try {
+    revalidatePath(productDetailPath(categorySlug, slug));
+    revalidatePath(categoryBasePath(categorySlug));
+  } catch {
+    // Fora de um request de servidor Next (ex.: script tsx standalone
+    // rodando `prisma/publish*.ts`) `revalidatePath` não se aplica —
+    // a página atualiza sozinha na próxima janela de `revalidate`.
+  }
+}
+
+async function applyResolvedImage(
+  productId: string,
+  slug: string,
+  url: string,
+  categorySlug: string | null,
+) {
   const image = await prisma.productImage.findFirst({ where: { productId, role: "COVER" } });
-  const url = `/products/${slug}.webp`;
   if (image) {
     await prisma.productImage.update({ where: { id: image.id }, data: { url } });
   } else {
     await prisma.productImage.create({ data: { productId, url, role: "COVER" } });
   }
   await prisma.pendingImage.deleteMany({ where: { productId } });
+  invalidateProductCache(categorySlug, slug);
 }
 
 /**
  * Tenta a fonte oficial já registrada em `attributes.sourceUrl` (nunca
- * uma URL inventada). Sucesso: baixa, converte pra WEBP, salva local e
- * atualiza o banco — devolve `true`. Falha (bloqueio, sem og:image,
- * fonte genérica demais): devolve `false`, o chamador decide o que
- * fazer (normalmente: enfileirar em `PendingImage`).
+ * uma URL inventada). Sucesso: baixa, converte pra WEBP, envia pro
+ * Vercel Blob e atualiza o banco com a URL permanente — devolve
+ * `true`. Falha (bloqueio, sem og:image, fonte genérica demais):
+ * devolve `false`, o chamador decide o que fazer (normalmente:
+ * enfileirar em `PendingImage`).
  */
 export async function tryResolveOfficialImage(params: {
   productId: string;
   slug: string;
   sourceUrl: string | null | undefined;
+  categorySlug?: string | null;
 }): Promise<boolean> {
   if (!params.sourceUrl || !looksLikeProductPage(params.sourceUrl)) return false;
 
@@ -162,10 +225,11 @@ export async function tryResolveOfficialImage(params: {
   if (!buf) return false;
 
   try {
-    await saveWebp(buf, params.slug, "contain");
-    await applyResolvedImage(params.productId, params.slug);
+    const blobUrl = await uploadWebpToBlob(buf, params.slug, "contain");
+    await applyResolvedImage(params.productId, params.slug, blobUrl, params.categorySlug ?? null);
     return true;
-  } catch {
+  } catch (error) {
+    console.error("[productImage] falha ao enviar pro Blob", error);
     return false;
   }
 }
@@ -192,9 +256,12 @@ export async function queuePendingImage(params: {
 }
 
 /**
- * Fluxo completo chamado por todo script de publicação novo: tenta a
- * imagem oficial e, se falhar, enfileira com o motivo — nunca deixa o
- * produto sem imagem E sem estar na fila.
+ * Fluxo completo chamado por todo script de publicação novo: prioridade
+ * 1) imagem já cadastrada no banco (nunca sobrescreve uma capa real
+ * existente — só age quando não há `ProductImage` COVER ainda);
+ * 2) tenta a fonte oficial automaticamente; 3) se falhar, enfileira
+ * com o motivo — nunca deixa o produto sem imagem E sem estar na fila,
+ * e nunca mais gera card ilustrativo sozinho.
  */
 export async function resolveOrQueueProductImage(params: {
   productId: string;
@@ -202,8 +269,14 @@ export async function resolveOrQueueProductImage(params: {
   productName: string;
   brandName: string;
   categoryName: string;
+  categorySlug?: string | null;
   sourceUrl: string | null | undefined;
 }): Promise<{ resolved: boolean }> {
+  const existing = await prisma.productImage.findFirst({
+    where: { productId: params.productId, role: "COVER" },
+  });
+  if (existing) return { resolved: true };
+
   const resolved = await tryResolveOfficialImage(params);
   if (resolved) return { resolved: true };
 
@@ -224,15 +297,31 @@ export async function resolveOrQueueProductImage(params: {
 /**
  * Upload manual (Central de Imagens) — corta automaticamente para
  * quadrado (`cover`: preenche e recorta ao centro, nunca distorce),
- * converte pra WEBP, salva local, atualiza o banco e tira o produto da
- * fila. Único caminho de escrita de imagem que não depende de rede
- * nenhuma — o arquivo já chegou no upload.
+ * converte pra WEBP, envia pro Vercel Blob, atualiza o banco com a URL
+ * permanente e tira o produto da fila. Se havia uma imagem anterior
+ * (card ou foto) apontando pra um blob diferente, apaga o blob antigo
+ * — nunca acumula arquivo órfão no storage.
  */
 export async function saveUploadedProductImage(params: {
   productId: string;
   slug: string;
   fileBuffer: Buffer;
+  categorySlug?: string | null;
 }): Promise<void> {
-  await saveWebp(params.fileBuffer, params.slug, "cover");
-  await applyResolvedImage(params.productId, params.slug);
+  const previous = await prisma.productImage.findFirst({
+    where: { productId: params.productId, role: "COVER" },
+  });
+
+  const blobUrl = await uploadWebpToBlob(params.fileBuffer, params.slug, "cover");
+  await applyResolvedImage(params.productId, params.slug, blobUrl, params.categorySlug ?? null);
+
+  if (
+    previous?.url &&
+    previous.url.includes("blob.vercel-storage.com") &&
+    previous.url !== blobUrl
+  ) {
+    await del(previous.url).catch(() => {
+      // Melhor esforço — um blob órfão não é grave o bastante pra falhar o upload.
+    });
+  }
 }

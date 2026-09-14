@@ -9,8 +9,11 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
-      // Domínios de imagens de produto/CDN são adicionados aqui conforme
-      // o catálogo cresce (ex: Supabase Storage, Cloudinary, CDN próprio).
+      // Vercel Blob — armazenamento permanente de imagem de produto
+      // (Central de Imagens + resolução automática). Hostname
+      // `<store-id>.public.blob.vercel-storage.com`, `store-id` varia
+      // por projeto/ambiente, daí o wildcard.
+      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
 
