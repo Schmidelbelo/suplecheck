@@ -180,20 +180,58 @@ model ProductImage {
 /// silenciosamente ficar com um card ilustrativo para sempre. Um
 /// humano resolve via upload manual (`/admin/imagens`), nunca outra
 /// tentativa automática de scraping — é isso que fecha a fila.
+enum PendingImageStatus {
+  /// Nenhum candidato encontrado ainda — nada pra revisar, só o motivo.
+  PENDING
+  /// Candidato passou na validação automática (domínio confiável,
+  /// resolução mínima, tipo Product no JSON-LD/og:image) — pronto pra
+  /// Fase 2 baixar de novo e subir pro Blob assim que ele existir.
+  APPROVED
+  /// Candidato foi encontrado mas rejeitado (peso/variante não bate,
+  /// resolução baixa demais, é logo/banner) — `reason` explica por quê.
+  REJECTED
+}
+
+/// Fila em duas fases — Descoberta (Fase 1, roda sem depender de
+/// nenhum storage) e Upload (Fase 2, só precisa existir Blob). Uma
+/// linha aqui nunca é só "sem imagem": ela carrega o candidato
+/// encontrado (se houver), o score de confiança da validação
+/// automática e o motivo quando rejeitado — o catálogo fica pronto
+/// para publicação assim que o storage permanente existir, sem
+/// re-fazer a pesquisa depois.
 model PendingImage {
-  id            String   @id @default(cuid())
-  productId     String   @unique
-  productName   String
-  brandName     String
-  categoryName  String
+  id           String             @id @default(cuid())
+  productId    String             @unique
+  productName  String
+  brandName    String
+  categoryName String
+  status       PendingImageStatus @default(PENDING)
+  /// Página de produto de onde o candidato foi extraído (nunca a
+  /// própria imagem) — mesma URL que vira `attributes.sourceUrl` do
+  /// produto quando aprovado, pra rastreabilidade.
+  sourceUrl    String?
+  /// URL direta da imagem candidata (og:image/twitter:image/JSON-LD) —
+  /// a Fase 2 baixa DESTA url de novo, nunca reaproveita bytes daqui.
+  candidateUrl String?
+  /// 0–1, heurística (domínio confiável + resolução mínima + tipo de
+  /// origem) — nunca prova visual de que a embalagem é a certa, só o
+  /// sinal automático usado pra priorizar revisão humana.
+  confidence   Float?
+  width        Int?
+  height       Int?
+  /// Hostname da fonte (ex.: "vitafor.com.br") — pra auditoria rápida
+  /// de quais domínios estão realmente resolvendo o catálogo.
+  source       String?
   /// Motivo legível (ex.: "Cloudflare bloqueou a fonte", "peso não
   /// confere com nenhum SKU real", "nenhuma fonte encontrada") — nunca
   /// um código de erro cru, é isso que aparece pro humano na fila.
-  reason        String
-  createdAt     DateTime @default(now())
+  reason       String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now()) @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  @@index([status])
   @@map("pending_images")
 }
 

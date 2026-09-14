@@ -122,6 +122,247 @@ async function fetchImageBuffer(url: string, timeoutMs = 12000): Promise<Buffer 
   }
 }
 
+// Domínios confirmados em sprints anteriores como fonte confiável real
+// (loja oficial ou revendedor que já entregou foto correta, conferida
+// visualmente) — soma pontos extras no score de confiança da Fase 1.
+const TRUSTED_DOMAINS = [
+  "vitafor.com.br",
+  "darkness.com.br",
+  "duxhumanhealth.com",
+  "maxtitanium.com.br",
+  "integralmedica.com.br",
+  "probiotica.com.br",
+  "blackskullusa.com.br",
+  "brasilfitsuplementos.com.br",
+  "gsuplementos.com.br",
+  "loja.nutrata.com.br",
+  "optimumnutrition.com",
+  "drogasil.com.br",
+  "drogaraia.com.br",
+  "drogariasaopaulo.com.br",
+  "mercadaosuplementos.com.br",
+];
+
+function hostnameOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Score heurístico 0–1 — nunca prova visual de que a embalagem é a
+ * certa (isso continua exigindo revisão humana pra casos limítrofes),
+ * só combina os sinais automáticos disponíveis: domínio já confiável,
+ * resolução da imagem, e se veio de `og:image` (mais confiável) vs
+ * `twitter:image`/JSON-LD (um pouco menos).
+ */
+function computeConfidence(params: {
+  sourceUrl: string;
+  width: number;
+  height: number;
+  extractionMethod: "og" | "twitter" | "jsonld";
+}): number {
+  let score = 0.4;
+  const host = hostnameOf(params.sourceUrl);
+  if (TRUSTED_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`))) score += 0.25;
+  if (params.width >= 500 && params.height >= 500) score += 0.25;
+  else if (params.width >= 300 && params.height >= 300) score += 0.1;
+  else score -= 0.3;
+  if (params.extractionMethod === "og") score += 0.1;
+  else if (params.extractionMethod === "jsonld") score += 0.05;
+  return Math.max(0, Math.min(1, score));
+}
+
+const CONFIDENCE_APPROVE_THRESHOLD = 0.6;
+
+/**
+ * FASE 1 — Descoberta. Procura a imagem oficial (mesma cascata
+ * og:image → twitter:image → JSON-LD `Product`), mas NUNCA envia nada
+ * pro Blob nem toca `ProductImage` — só grava o candidato encontrado
+ * (ou o motivo da rejeição/ausência) em `PendingImage`. Funciona 100%
+ * sem storage permanente configurado; a Fase 2
+ * (`uploadApprovedCandidate`) é quem baixa de novo e publica.
+ */
+export async function discoverProductImageCandidate(params: {
+  productId: string;
+  productName: string;
+  brandName: string;
+  categoryName: string;
+  sourceUrl: string | null | undefined;
+}): Promise<{ status: "APPROVED" | "REJECTED" | "PENDING"; confidence: number | null }> {
+  const base = {
+    productId: params.productId,
+    productName: params.productName,
+    brandName: params.brandName,
+    categoryName: params.categoryName,
+  };
+
+  if (!params.sourceUrl || !looksLikeProductPage(params.sourceUrl)) {
+    await prisma.pendingImage.upsert({
+      where: { productId: params.productId },
+      create: {
+        ...base,
+        status: "PENDING",
+        reason: !params.sourceUrl
+          ? "Nenhuma URL de fonte oficial registrada para este produto."
+          : "A fonte registrada é uma home/listagem genérica, não a página de um produto específico — nunca usada pra evitar pegar o logo da marca.",
+      },
+      update: {
+        status: "PENDING",
+        candidateUrl: null,
+        confidence: null,
+        width: null,
+        height: null,
+        source: null,
+        reason: !params.sourceUrl
+          ? "Nenhuma URL de fonte oficial registrada para este produto."
+          : "A fonte registrada é uma home/listagem genérica, não a página de um produto específico.",
+      },
+    });
+    return { status: "PENDING", confidence: null };
+  }
+
+  const html = await fetchText(params.sourceUrl);
+  if (!html) {
+    await prisma.pendingImage.upsert({
+      where: { productId: params.productId },
+      create: {
+        ...base,
+        status: "PENDING",
+        sourceUrl: params.sourceUrl,
+        reason: "Fonte não respondeu (bloqueio do site, timeout, ou erro de rede).",
+      },
+      update: {
+        status: "PENDING",
+        sourceUrl: params.sourceUrl,
+        candidateUrl: null,
+        confidence: null,
+        reason: "Fonte não respondeu (bloqueio do site, timeout, ou erro de rede).",
+      },
+    });
+    return { status: "PENDING", confidence: null };
+  }
+
+  let candidateUrl = extractProductImage(html);
+  if (!candidateUrl) {
+    await prisma.pendingImage.upsert({
+      where: { productId: params.productId },
+      create: {
+        ...base,
+        status: "PENDING",
+        sourceUrl: params.sourceUrl,
+        reason: "Página carregou, mas não expõe og:image, twitter:image nem JSON-LD Product.",
+      },
+      update: {
+        status: "PENDING",
+        sourceUrl: params.sourceUrl,
+        candidateUrl: null,
+        confidence: null,
+        reason: "Página carregou, mas não expõe og:image, twitter:image nem JSON-LD Product.",
+      },
+    });
+    return { status: "PENDING", confidence: null };
+  }
+  if (candidateUrl.startsWith("//")) candidateUrl = "https:" + candidateUrl;
+  if (candidateUrl.startsWith("/"))
+    candidateUrl = new URL(candidateUrl, params.sourceUrl).toString();
+
+  const extractionMethod: "og" | "twitter" | "jsonld" = html.includes(candidateUrl.slice(0, 40))
+    ? "og"
+    : "jsonld";
+
+  const buf = await fetchImageBuffer(candidateUrl);
+  if (!buf) {
+    await prisma.pendingImage.upsert({
+      where: { productId: params.productId },
+      create: {
+        ...base,
+        status: "REJECTED",
+        sourceUrl: params.sourceUrl,
+        candidateUrl,
+        reason: "Candidato encontrado, mas o download da imagem falhou (bloqueio ou URL quebrada).",
+      },
+      update: {
+        status: "REJECTED",
+        sourceUrl: params.sourceUrl,
+        candidateUrl,
+        confidence: null,
+        reason: "Candidato encontrado, mas o download da imagem falhou (bloqueio ou URL quebrada).",
+      },
+    });
+    return { status: "REJECTED", confidence: null };
+  }
+
+  const meta = await sharp(buf).metadata();
+  const width = meta.width ?? 0;
+  const height = meta.height ?? 0;
+  const confidence = computeConfidence({
+    sourceUrl: params.sourceUrl,
+    width,
+    height,
+    extractionMethod,
+  });
+  const status = confidence >= CONFIDENCE_APPROVE_THRESHOLD ? "APPROVED" : "REJECTED";
+  const reason =
+    status === "APPROVED"
+      ? "Candidato aprovado automaticamente — aguardando Fase 2 (upload pro Blob)."
+      : `Candidato encontrado mas com confiança baixa (${confidence.toFixed(2)}) — resolução ${width}x${height}, fonte ${hostnameOf(params.sourceUrl)}. Precisa de revisão humana antes de publicar.`;
+
+  await prisma.pendingImage.upsert({
+    where: { productId: params.productId },
+    create: {
+      ...base,
+      status,
+      sourceUrl: params.sourceUrl,
+      candidateUrl,
+      confidence,
+      width,
+      height,
+      source: hostnameOf(params.sourceUrl),
+      reason,
+    },
+    update: {
+      status,
+      sourceUrl: params.sourceUrl,
+      candidateUrl,
+      confidence,
+      width,
+      height,
+      source: hostnameOf(params.sourceUrl),
+      reason,
+    },
+  });
+
+  return { status, confidence };
+}
+
+/**
+ * FASE 2 — Upload. Roda quando o Blob existe: baixa de novo a
+ * `candidateUrl` de cada `PendingImage` com `status = APPROVED`,
+ * converte pra WEBP, envia pro Blob, atualiza `ProductImage` e apaga a
+ * linha da fila. Nunca reaproveita bytes já baixados na Fase 1 — a
+ * imagem pode ter mudado entre a descoberta e o upload.
+ */
+export async function uploadApprovedCandidate(pending: {
+  productId: string;
+  slug: string;
+  candidateUrl: string;
+  categorySlug: string | null;
+}): Promise<boolean> {
+  const buf = await fetchImageBuffer(pending.candidateUrl);
+  if (!buf) return false;
+  try {
+    const blobUrl = await uploadWebpToBlob(buf, pending.slug, "contain");
+    await applyResolvedImage(pending.productId, pending.slug, blobUrl, pending.categorySlug);
+    return true;
+  } catch (error) {
+    console.error("[productImage] Fase 2 falhou ao enviar pro Blob", error);
+    return false;
+  }
+}
+
 /**
  * Converte pra WEBP (capa + thumbnail) e envia os dois pro Vercel Blob
  * num path fixo e previsível (`products/<slug>.webp`,
