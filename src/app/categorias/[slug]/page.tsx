@@ -11,14 +11,27 @@ import { CategoryStatisticsSection } from "@/components/market/CategoryStatistic
 import { ShareButton } from "@/modules/sharing/components/ShareButton";
 import { RankingFilters } from "@/modules/evaluation/components/RankingFilters";
 import { getCategoryPageData } from "@/modules/category/services/categoryPage.service";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
+import { getCategoryMarketView } from "@/modules/market/services/marketData.service";
 import { formatDate } from "@/lib/utils/format";
 import type { FaqItem } from "@/config/faq";
-import type { RankingView } from "@/modules/evaluation/types";
-import type { MarketApiResponse } from "@/modules/market/types";
 import { CATEGORY_ROUTE_OVERRIDES } from "@/lib/catalog/productRoutes";
+import { prisma } from "@/lib/db/prisma";
 
 type Params = { params: Promise<{ slug: string }> };
+
+/** Todas as categorias ativas (exceto as com rota própria) pré-geradas no build — ver o mesmo padrão em `[produto]/page.tsx`. */
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  try {
+    const categories = await prisma.category.findMany({
+      where: { active: true, slug: { notIn: Object.keys(CATEGORY_ROUTE_OVERRIDES) } },
+      select: { slug: true },
+    });
+    return categories.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
@@ -33,7 +46,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   });
 }
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export default async function CategoryDetailPage({ params }: Params) {
   const { slug } = await params;
@@ -45,9 +58,9 @@ export default async function CategoryDetailPage({ params }: Params) {
   const data = await getCategoryPageData(slug);
   if (!data) notFound();
 
-  const [ranking, market] = await Promise.all([
-    fetchApiOrNull<RankingView>(`/api/evaluation/rankings/${slug}/view`),
-    fetchApiOrNull<MarketApiResponse>(`/api/market?categorySlug=${slug}`),
+  const [ranking, categoryMarket] = await Promise.all([
+    loadRankingView(slug),
+    getCategoryMarketView(slug),
   ]);
 
   const faqItems: FaqItem[] = [
@@ -105,13 +118,13 @@ export default async function CategoryDetailPage({ params }: Params) {
         )}
       </Section>
 
-      {market?.category ? (
+      {categoryMarket ? (
         <Section className="border-border border-b">
           <div className="flex flex-col gap-6">
             <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
               Estatísticas da categoria
             </h2>
-            <CategoryStatisticsSection view={market.category} />
+            <CategoryStatisticsSection view={categoryMarket} />
           </div>
         </Section>
       ) : null}

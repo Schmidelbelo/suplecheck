@@ -124,3 +124,30 @@ export function computePriceStats(entries: readonly { priceCents: number }[]): P
     percentVsAverage: avg > 0 ? ((current - avg) / avg) * 100 : 0,
   };
 }
+
+export interface PriceStatsEntry {
+  readonly stats: PriceStats | null;
+  readonly lastCapturedAt: string | null;
+}
+
+/**
+ * Composição usada tanto por `/api/monitoring/price-stats` (consumidores
+ * externos) quanto diretamente por `offersOverview.ts` (`/ofertas`,
+ * server-side, sem round-trip HTTP para a própria API).
+ */
+export async function getPriceStatsBySkuIds(
+  skuIds: readonly string[],
+): Promise<Record<string, PriceStatsEntry>> {
+  if (skuIds.length === 0) return {};
+
+  const historyBySku = await priceService.getHistoryBySkuIds(skuIds);
+  const result: Record<string, PriceStatsEntry> = {};
+  for (const skuId of skuIds) {
+    const points = historyBySku.get(skuId) ?? [];
+    result[skuId] = {
+      stats: computePriceStats(points),
+      lastCapturedAt: points[points.length - 1]?.capturedAt.toISOString() ?? null,
+    };
+  }
+  return result;
+}

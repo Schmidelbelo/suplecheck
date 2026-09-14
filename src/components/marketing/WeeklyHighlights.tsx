@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Trophy, Star, Wallet } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { Card } from "@/components/ui/Card";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
-import type { RankingView, RankingViewEntry } from "@/modules/evaluation/types";
+import type { RankingViewEntry } from "@/modules/evaluation/types";
 
 const HIGHLIGHT_BADGES = [
   { label: "Melhor Compra", icon: Trophy, eyebrow: "Melhor Compra" },
@@ -21,7 +21,7 @@ const HIGHLIGHT_BADGES = [
  * sozinha — nenhum texto fixo para atualizar manualmente.
  */
 export async function WeeklyHighlights() {
-  const ranking = await fetchApiOrNull<RankingView>("/api/evaluation/rankings/creatina/view");
+  const ranking = await loadRankingView("creatina");
   if (!ranking) return null;
 
   const highlights = HIGHLIGHT_BADGES.map((meta) => {

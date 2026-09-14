@@ -15,6 +15,8 @@ import { FinalCTA } from "@/components/marketing/FinalCTA";
 import { CategoryShortcuts } from "@/components/marketing/CategoryShortcuts";
 import { homeFaq } from "@/config/faq";
 
+export const revalidate = 43200;
+
 export default function HomePage() {
   return (
     <>

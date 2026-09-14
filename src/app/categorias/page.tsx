@@ -16,7 +16,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/categorias",
 });
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 /** Categoria com produto avaliado tem rota própria fora de `/categorias/[slug]` (ex.: `/creatina`) — nunca conteúdo duplicado sob duas URLs. */
 const CATEGORY_ROUTE_OVERRIDES: Record<string, string> = { creatina: "/creatina" };

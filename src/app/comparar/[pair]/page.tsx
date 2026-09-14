@@ -21,7 +21,7 @@ import type { RankingViewEntry } from "@/modules/evaluation/types";
 
 type Params = { params: Promise<{ pair: string }> };
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { pair } = await params;

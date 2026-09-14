@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { loadProductDetailView } from "@/modules/evaluation/services/productDetailView.service";
 import { classificationLabel } from "@/modules/evaluation/lib/classification";
-import type { ProductView } from "@/modules/evaluation/types";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -19,7 +18,7 @@ const BRAND_DARK_BG = "#121417";
  */
 export default async function OpengraphImage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const view = await fetchApiOrNull<ProductView>(`/api/evaluation/products/${slug}/view`);
+  const view = await loadProductDetailView(slug);
 
   return new ImageResponse(
     <div

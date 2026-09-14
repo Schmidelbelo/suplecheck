@@ -4,15 +4,41 @@ import { JsonLd } from "@/lib/seo/JsonLd";
 import { breadcrumbSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
 import { AssistantWizard } from "@/modules/recommendation/components/AssistantWizard";
 import { RecommendationResultView } from "@/modules/recommendation/components/RecommendationResultView";
 import {
   decodeProfileFromSearchParams,
   isProfileComplete,
-  encodeProfileToSearchParams,
 } from "@/modules/recommendation/lib/profileQuery";
+import {
+  getRecommendation,
+  resolveCategoryForGoal,
+} from "@/modules/recommendation/services/recommendationData.service";
 import type { RecommendationApiResponse } from "@/modules/recommendation/types";
+
+async function loadRecommendation(
+  profile: ReturnType<typeof decodeProfileFromSearchParams>,
+): Promise<RecommendationApiResponse | null> {
+  const categorySlug = resolveCategoryForGoal(profile.goal);
+  if (!categorySlug) return null;
+
+  const result = await getRecommendation({
+    categorySlug,
+    priority: profile.priority,
+    maxBudgetCents: profile.budgetCents,
+  });
+  if (!result) return null;
+
+  return {
+    categorySlug,
+    weightsUsed: result.weightsUsed,
+    ranking: result.ranking,
+    recommended: result.recommended,
+    runnerUp: result.runnerUp,
+    cheapest: result.cheapest,
+    comparisonNarrative: result.comparisonNarrative,
+  };
+}
 
 export const metadata: Metadata = buildMetadata({
   title: "Assistente de Escolha",
@@ -30,11 +56,7 @@ export default async function AssistentePage({ searchParams }: Params) {
   const profile = decodeProfileFromSearchParams(rawParams);
   const complete = isProfileComplete(profile);
 
-  const recommendation = complete
-    ? await fetchApiOrNull<RecommendationApiResponse>(
-        `/api/recommendation?${encodeProfileToSearchParams(profile).toString()}`,
-      )
-    : null;
+  const recommendation = complete ? await loadRecommendation(profile) : null;
 
   return (
     <>

@@ -6,13 +6,12 @@ import { breadcrumbSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
+import { getCategoryMarketView } from "@/modules/market/services/marketData.service";
 import { formatDate } from "@/lib/utils/format";
 import { RankingFilters } from "@/modules/evaluation/components/RankingFilters";
 import { CategoryStatisticsSection } from "@/components/market/CategoryStatisticsSection";
 import { ShareButton } from "@/modules/sharing/components/ShareButton";
-import type { RankingView } from "@/modules/evaluation/types";
-import type { MarketApiResponse } from "@/modules/market/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Melhor Creatina 2026: Ranking, Preço por Dose e Custo-Benefício",
@@ -21,11 +20,11 @@ export const metadata: Metadata = buildMetadata({
   path: "/creatina",
 });
 
-export const revalidate = 0;
+export const revalidate = 43200;
 
 export default async function CreatinaRankingPage() {
-  const ranking = await fetchApiOrNull<RankingView>("/api/evaluation/rankings/creatina/view");
-  const market = await fetchApiOrNull<MarketApiResponse>("/api/market?categorySlug=creatina");
+  const ranking = await loadRankingView("creatina");
+  const categoryMarket = await getCategoryMarketView("creatina");
 
   return (
     <>
@@ -77,13 +76,13 @@ export default async function CreatinaRankingPage() {
         )}
       </Section>
 
-      {market?.category ? (
+      {categoryMarket ? (
         <Section className="border-border border-b">
           <div className="flex flex-col gap-6">
             <h2 className="font-display text-text text-2xl font-bold md:text-3xl">
               Estatísticas da categoria
             </h2>
-            <CategoryStatisticsSection view={market.category} />
+            <CategoryStatisticsSection view={categoryMarket} />
           </div>
         </Section>
       ) : null}

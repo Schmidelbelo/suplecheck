@@ -4,11 +4,13 @@ import { siteConfig } from "@/config/site";
 export const revalidate = 300;
 
 export async function GET() {
-  const brands = await prisma.brand.findMany({
-    where: { active: true },
-    select: { slug: true, updatedAt: true },
-    orderBy: { slug: "asc" },
-  });
+  const brands = await prisma.brand
+    .findMany({
+      where: { active: true },
+      select: { slug: true, updatedAt: true },
+      orderBy: { slug: "asc" },
+    })
+    .catch(() => []);
 
   return new Response(
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${brands

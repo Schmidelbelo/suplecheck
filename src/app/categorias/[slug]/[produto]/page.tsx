@@ -5,9 +5,34 @@ import {
   buildProductDetailMetadata,
 } from "@/modules/evaluation/components/ProductDetailPage";
 import { CATEGORY_ROUTE_OVERRIDES, productDetailPath } from "@/lib/catalog/productRoutes";
+import { prisma } from "@/lib/db/prisma";
 
 interface PageProps {
   params: Promise<{ slug: string; produto: string }>;
+}
+
+/**
+ * Gera todas as páginas de produto publicadas em HTML estático no
+ * build (ISR verdadeiro) — sem isso, cada URL só vira estática depois
+ * do primeiro acesso. `dynamicParams` continua `true` por padrão: um
+ * produto publicado DEPOIS deste build ainda renderiza on-demand e
+ * some do cache do jeito normal, só não vem pré-gerado. Se o banco
+ * estiver indisponível no momento do build, cai para geração 100%
+ * on-demand (nunca quebra o build por causa disto).
+ */
+export async function generateStaticParams(): Promise<{ slug: string; produto: string }[]> {
+  try {
+    const products = await prisma.product.findMany({
+      where: {
+        status: "PUBLISHED",
+        category: { slug: { notIn: Object.keys(CATEGORY_ROUTE_OVERRIDES) } },
+      },
+      select: { slug: true, category: { select: { slug: true } } },
+    });
+    return products.map((p) => ({ slug: p.category.slug, produto: p.slug }));
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -32,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 // Mesmo motivo/intervalo de `/creatina/[slug]` — a página de produto é
 // a de maior tráfego potencial do catálogo e não tinha cache nenhum.
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export default async function CategoryProductDetailPage({ params }: PageProps) {
   const { slug, produto } = await params;

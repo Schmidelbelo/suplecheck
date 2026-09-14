@@ -5,11 +5,16 @@ import { productDetailPath } from "@/lib/catalog/productRoutes";
 export const revalidate = 300;
 
 export async function GET() {
-  const products = await prisma.product.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true, updatedAt: true, category: { select: { slug: true } } },
-    orderBy: { updatedAt: "desc" },
-  });
+  // Nunca derruba o build/deploy por instabilidade do banco no momento
+  // do prerender — um sitemap vazio momentaneamente é preferível a
+  // travar o deploy inteiro (o próximo `revalidate` corrige sozinho).
+  const products = await prisma.product
+    .findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true, updatedAt: true, category: { select: { slug: true } } },
+      orderBy: { updatedAt: "desc" },
+    })
+    .catch(() => []);
 
   return xmlResponse(
     urlset(

@@ -3,9 +3,23 @@ import {
   ProductDetailPage,
   buildProductDetailMetadata,
 } from "@/modules/evaluation/components/ProductDetailPage";
+import { prisma } from "@/lib/db/prisma";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+/** Todos os produtos publicados de creatina pré-gerados no build — mesmo padrão de `/categorias/[slug]/[produto]`. */
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  try {
+    const products = await prisma.product.findMany({
+      where: { status: "PUBLISHED", category: { slug: "creatina" } },
+      select: { slug: true },
+    });
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -24,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // maior tráfego potencial do catálogo, e a mais sensível à instabilidade
 // de conexão do Neon documentada em várias sprints. Mesmo intervalo já
 // usado nas páginas de listagem/categoria irmãs.
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export default async function CreatinaDetailPage({ params }: PageProps) {
   const { slug } = await params;

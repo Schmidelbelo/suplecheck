@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   });
 }
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 function buildBrandFaq(data: NonNullable<Awaited<ReturnType<typeof getBrandPageData>>>): FaqItem[] {
   if (!data.stats) return [];

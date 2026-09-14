@@ -6,26 +6,25 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
 import { formatDate } from "@/lib/utils/format";
 import {
   classificationBadgeVariant,
   classificationLabel,
 } from "@/modules/evaluation/lib/classification";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
-import type { RankingView } from "@/modules/evaluation/types";
 
 const PREVIEW_SIZE = 5;
 
 /**
- * Prévia do ranking na Home — consome a mesma API real que `/creatina`
- * (`fetchApiOrNull`, nunca dado inventado). Mostra os primeiros
- * `PREVIEW_SIZE` produtos do ranking vigente; se ainda não houver
- * ranking gerado para a categoria, mostra um estado vazio honesto em vez
- * de um placeholder estático.
+ * Prévia do ranking na Home — lê o banco diretamente (mesma composição
+ * de `/creatina`, `loadRankingView`), nunca dado inventado. Mostra os
+ * primeiros `PREVIEW_SIZE` produtos do ranking vigente; se ainda não
+ * houver ranking gerado para a categoria, mostra um estado vazio
+ * honesto em vez de um placeholder estático.
  */
 export async function RankingPreview() {
-  const ranking = await fetchApiOrNull<RankingView>("/api/evaluation/rankings/creatina/view");
+  const ranking = await loadRankingView("creatina");
   const entries = ranking?.entries.slice(0, PREVIEW_SIZE) ?? [];
 
   return (

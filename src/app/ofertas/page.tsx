@@ -6,8 +6,7 @@ import { breadcrumbSchema, itemListSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
-import type { RankingView } from "@/modules/evaluation/types";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
 import { loadCatalogPriceInfo, buildOffersOverview } from "@/modules/pricing/lib/offersOverview";
 import { OfferCard } from "@/modules/pricing/components/OfferCard";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
@@ -20,10 +19,10 @@ export const metadata: Metadata = buildMetadata({
   path: "/ofertas",
 });
 
-export const revalidate = 0;
+export const revalidate = 43200;
 
 export default async function OffersPage() {
-  const ranking = await fetchApiOrNull<RankingView>("/api/evaluation/rankings/creatina/view");
+  const ranking = await loadRankingView("creatina");
   const products = ranking ? await loadCatalogPriceInfo(ranking) : [];
   const overview = buildOffersOverview(products);
 

@@ -17,7 +17,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/marcas",
 });
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 export default async function BrandsIndexPage() {
   const brands = await listBrandsWithStats();

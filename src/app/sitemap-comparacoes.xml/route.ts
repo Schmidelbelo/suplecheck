@@ -4,7 +4,9 @@ import { listComparisonSitemapEntries } from "@/modules/comparison/services/comp
 export const revalidate = 300;
 
 export async function GET() {
-  const entries = await listComparisonSitemapEntries();
+  // Mesmo motivo de `sitemap-produtos.xml`: instabilidade do banco no
+  // prerender nunca deve travar o build inteiro.
+  const entries = await listComparisonSitemapEntries().catch(() => []);
 
   return new Response(
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries

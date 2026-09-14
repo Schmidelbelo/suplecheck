@@ -6,11 +6,10 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { BarChart3 } from "lucide-react";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { getMarketOverview } from "@/modules/market/services/marketData.service";
 import { MarketStatCards } from "@/components/market/MarketStatCards";
 import { BrandRankingTable } from "@/components/market/BrandRankingTable";
 import { MarketInsightsList } from "@/components/market/MarketInsightsList";
-import type { MarketApiResponse } from "@/modules/market/types";
 
 export const metadata: Metadata = buildMetadata({
   title: "Panorama do Mercado de Suplementos",
@@ -19,10 +18,10 @@ export const metadata: Metadata = buildMetadata({
   path: "/mercado",
 });
 
-export const revalidate = 0;
+export const revalidate = 43200;
 
 export default async function MercadoPage() {
-  const market = await fetchApiOrNull<MarketApiResponse>("/api/market");
+  const market = await getMarketOverview();
 
   return (
     <>

@@ -7,11 +7,13 @@ const CATEGORY_ROUTE_OVERRIDES: Record<string, string> = { creatina: "/creatina"
 export const revalidate = 300;
 
 export async function GET() {
-  const allCategories = await prisma.category.findMany({
-    where: { active: true },
-    select: { slug: true, updatedAt: true },
-    orderBy: { slug: "asc" },
-  });
+  const allCategories = await prisma.category
+    .findMany({
+      where: { active: true },
+      select: { slug: true, updatedAt: true },
+      orderBy: { slug: "asc" },
+    })
+    .catch(() => []);
   // Nunca envia categoria de teste vazada no banco para o sitemap (ver
   // testDataGuard.ts) — limpeza real dos registros é feita à parte.
   const categories = allCategories.filter((category) => !isTestSlug(category.slug));

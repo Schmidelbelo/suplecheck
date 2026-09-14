@@ -19,7 +19,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/comparar",
 });
 
-export const revalidate = 300;
+export const revalidate = 43200;
 
 /** Nº de produtos do topo do ranking usados para gerar as "comparações em destaque" — combinação completa entre eles, não uma seleção arbitrária. */
 const TOP_N = 5;

@@ -12,7 +12,9 @@ import { Container } from "@/components/layout/Container";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
+import { loadProductDetailView } from "@/modules/evaluation/services/productDetailView.service";
+import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
+import { priceService } from "@/modules/pricing/services/price.service";
 import { formatCurrencyBRL } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 import { categoryBasePath, productDetailPath } from "@/lib/catalog/productRoutes";
@@ -50,7 +52,7 @@ export interface ProductDetailPageProps {
 }
 
 async function loadProduct(slug: string): Promise<ProductView | null> {
-  return fetchApiOrNull<ProductView>(`/api/evaluation/products/${slug}/view`);
+  return loadProductDetailView(slug);
 }
 
 function pickRelatedProducts(
@@ -164,7 +166,7 @@ function explainScore(view: ProductView): string {
 export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPageProps) {
   const [view, categoryRanking] = await Promise.all([
     loadProduct(slug),
-    fetchApiOrNull<RankingView>(`/api/evaluation/rankings/${categorySlug}/view`),
+    loadRankingView(categorySlug),
   ]);
   if (!view || view.product.categorySlug !== categorySlug) notFound();
 
@@ -224,9 +226,10 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
       : [];
 
   const priceHistory = presentation?.sku
-    ? ((await fetchApiOrNull<{ priceCents: number; capturedAt: string }[]>(
-        `/api/catalog/skus/${presentation.sku.id}/prices`,
-      )) ?? [])
+    ? (await priceService.getHistoryBySku(presentation.sku.id)).map((entry) => ({
+        priceCents: entry.priceCents,
+        capturedAt: entry.capturedAt.toISOString(),
+      }))
     : [];
   const goodQuality = score
     ? score.classificationTier === "EXCELLENT" || score.classificationTier === "GOOD"

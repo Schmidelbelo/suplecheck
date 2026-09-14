@@ -1,5 +1,4 @@
-import { fetchApiOrNull } from "@/lib/api/fetchApi";
-import type { PriceStats } from "../services/price.service";
+import { getPriceStatsBySkuIds, type PriceStats } from "../services/price.service";
 import type { RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
 export interface ProductPriceInfo {
@@ -7,11 +6,6 @@ export interface ProductPriceInfo {
   readonly stats: PriceStats | null;
   readonly capturedAt: string | null;
 }
-
-type PriceStatsBySkuResponse = Record<
-  string,
-  { stats: PriceStats | null; lastCapturedAt: string | null }
->;
 
 /**
  * Evolução de preço de todo o ranking em UMA requisição
@@ -25,12 +19,7 @@ export async function loadCatalogPriceInfo(ranking: RankingView): Promise<Produc
   const entriesWithSku = ranking.entries.filter((entry) => entry.product.sku?.id);
   const skuIds = entriesWithSku.map((entry) => entry.product.sku!.id);
 
-  const statsBySkuId =
-    skuIds.length > 0
-      ? ((await fetchApiOrNull<PriceStatsBySkuResponse>(
-          `/api/monitoring/price-stats?skuIds=${skuIds.join(",")}`,
-        )) ?? {})
-      : {};
+  const statsBySkuId = await getPriceStatsBySkuIds(skuIds);
 
   return ranking.entries.map((entry) => {
     const skuId = entry.product.sku?.id;

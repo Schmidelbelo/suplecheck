@@ -1,5 +1,6 @@
 import { prisma } from "../src/lib/db/prisma";
 import { buildInfrastructureContainer } from "../packages/infrastructure/src/index";
+import { triggerRevalidation } from "./lib/triggerRevalidation";
 
 /**
  * Sprint de Monetização (expansão de catálogo) — Optimum Nutrition Gold
@@ -221,6 +222,8 @@ async function main() {
     categorySlug: "whey-protein",
   });
   console.warn(`Ranking de whey-protein regenerado com ${ranking.entries.length} entradas.`);
+
+  await triggerRevalidation("whey-protein", PRODUCT.slug);
 }
 
 main()
