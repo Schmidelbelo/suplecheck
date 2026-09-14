@@ -136,6 +136,7 @@ model Product {
   alerts         Alert[]
   rankingEntries RankingEntry[]
   outboundClicks OutboundClick[]
+  pendingImage   PendingImage?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -171,6 +172,29 @@ model ProductImage {
   /// forma portável) — o índice aqui só otimiza a leitura ordenada.
   @@index([productId, position])
   @@map("product_images")
+}
+
+/// Fila da "Central de Imagens" — todo produto publicado sem imagem
+/// oficial encontrada automaticamente (busca na fonte oficial/loja
+/// falhou, bloqueada, ou peso/variante não confere) cai aqui em vez de
+/// silenciosamente ficar com um card ilustrativo para sempre. Um
+/// humano resolve via upload manual (`/admin/imagens`), nunca outra
+/// tentativa automática de scraping — é isso que fecha a fila.
+model PendingImage {
+  id            String   @id @default(cuid())
+  productId     String   @unique
+  productName   String
+  brandName     String
+  categoryName  String
+  /// Motivo legível (ex.: "Cloudflare bloqueou a fonte", "peso não
+  /// confere com nenhum SKU real", "nenhuma fonte encontrada") — nunca
+  /// um código de erro cru, é isso que aparece pro humano na fila.
+  reason        String
+  createdAt     DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("pending_images")
 }
 
 enum SkuStatus {
