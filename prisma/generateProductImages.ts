@@ -92,11 +92,53 @@ function buildCardSvg(params: {
 </svg>`;
 }
 
-function extractOgImage(html: string): string | null {
-  const match =
+/**
+ * Estratégias em cascata, na ordem de confiabilidade observada: a
+ * maioria dos e-commerces declara `og:image` (Shopify, WooCommerce,
+ * Magento); lojas VTEX (ex.: Darkness) frequentemente não declaram
+ * `og:image` mas expõem `twitter:image` ou um bloco JSON-LD `Product`
+ * com `image` — nunca inventa a URL, só tenta locais diferentes da
+ * MESMA página já usada como fonte de preço/composição.
+ */
+function extractProductImage(html: string): string | null {
+  const og =
     html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ??
     html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-  return match ? match[1] : null;
+  if (og) return og[1];
+
+  const twitter =
+    html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i) ??
+    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image["']/i);
+  if (twitter) return twitter[1];
+
+  // Só aceita JSON-LD do tipo `Product` — um node `Organization`/`WebSite`
+  // também pode ter `image` (o logo da marca), e sem esse filtro o
+  // "logo" acaba salvo como se fosse foto do produto (achado real desta
+  // sprint: aconteceu com todo produto de darkness.com.br).
+  const jsonLdBlocks = html.matchAll(
+    /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+  );
+  for (const block of jsonLdBlocks) {
+    try {
+      const data = JSON.parse(block[1]);
+      const nodes = Array.isArray(data) ? data : [data];
+      for (const node of nodes) {
+        const type = node?.["@type"];
+        const isProduct = type === "Product" || (Array.isArray(type) && type.includes("Product"));
+        if (!isProduct) continue;
+        const candidate = node?.image;
+        const imageUrl = Array.isArray(candidate) ? candidate[0] : candidate;
+        if (typeof imageUrl === "string" && imageUrl.startsWith("http")) return imageUrl;
+        if (imageUrl && typeof imageUrl === "object" && typeof imageUrl.url === "string") {
+          return imageUrl.url;
+        }
+      }
+    } catch {
+      // JSON-LD malformado — tenta o próximo bloco, nunca quebra o script.
+    }
+  }
+
+  return null;
 }
 
 async function fetchText(url: string, timeoutMs = 12000): Promise<string | null> {
@@ -105,7 +147,12 @@ async function fetchText(url: string, timeoutMs = 12000): Promise<string | null>
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "user-agent": "Mozilla/5.0 (compatible; SupleScoreBot/1.0)" },
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "accept-language": "pt-BR,pt;q=0.9",
+      },
     });
     clearTimeout(timeout);
     if (!res.ok) return null;
@@ -121,7 +168,12 @@ async function fetchBuffer(url: string, timeoutMs = 12000): Promise<Buffer | nul
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
     const res = await fetch(url, {
       signal: controller.signal,
-      headers: { "user-agent": "Mozilla/5.0 (compatible; SupleScoreBot/1.0)" },
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "accept-language": "pt-BR,pt;q=0.9",
+      },
     });
     clearTimeout(timeout);
     if (!res.ok) return null;
@@ -135,14 +187,46 @@ async function fetchBuffer(url: string, timeoutMs = 12000): Promise<Buffer | nul
   }
 }
 
+/**
+ * Recusa fontes que não são a página de UM produto específico — a
+ * home ou uma página de listagem/marca tem `og:image` próprio (o logo
+ * da marca, não a foto de nenhum produto), e usar isso salvaria o
+ * mesmo logo genérico para vários produtos diferentes (achado real
+ * desta sprint: aconteceu com `attributes.sourceUrl` apontando só para
+ * `https://www.integralmedica.com.br/`).
+ */
+// Domínios de referência/conteúdo (bases nutricionais, blogs de review,
+// agregadores) — nunca têm foto real do produto, só o próprio logo do
+// site como `og:image`. Achado real desta sprint: fatsecret.com.br
+// devolveu o logo do FatSecret, não a embalagem do produto.
+// `amazon.com.br` entra aqui também: já documentado em várias sprints
+// que bloqueia scraping simples, mas o achado NOVO desta sprint é que
+// quando bloqueado ele devolve 200 com `og:image` = o logo genérico da
+// Amazon (não um 403 limpo) — sem este bloqueio, o logo era salvo como
+// se fosse a foto do produto.
+const NON_RETAIL_DOMAINS = [
+  "fatsecret.com.br",
+  "openfoodfacts.org",
+  "qualomelhoromega3.com.br",
+  "amazon.com.br",
+];
+
+function looksLikeProductPage(sourceUrl: string): boolean {
+  const { pathname, hostname } = new URL(sourceUrl);
+  if (NON_RETAIL_DOMAINS.some((domain) => hostname.endsWith(domain))) return false;
+  return pathname.replace(/\/+$/, "").length > 1;
+}
+
 async function tryRealImage(
   sourceUrl: string,
   slug: string,
 ): Promise<{ coverUrl: string; thumbUrl: string } | null> {
+  if (!looksLikeProductPage(sourceUrl)) return null;
+
   const html = await fetchText(sourceUrl);
   if (!html) return null;
 
-  let ogImage = extractOgImage(html);
+  let ogImage = extractProductImage(html);
   if (!ogImage) return null;
   if (ogImage.startsWith("//")) ogImage = "https:" + ogImage;
   if (ogImage.startsWith("/")) ogImage = new URL(ogImage, sourceUrl).toString();
@@ -212,9 +296,12 @@ async function main() {
       continue;
     }
     const currentUrl = product.images[0]?.url;
-    if (currentUrl && !currentUrl.includes("creatina-placeholder")) {
+    const hasRealImage =
+      currentUrl && !currentUrl.includes("card") && !currentUrl.includes("placeholder");
+    const retryCards = process.env.RETRY_CARDS === "1";
+    if (hasRealImage || (currentUrl && currentUrl.includes("card") && !retryCards)) {
       skipped++;
-      continue; // já tem imagem real/gerada de uma rodada anterior
+      continue; // já tem imagem real (nunca reprocessa); card só é retentado com RETRY_CARDS=1
     }
 
     const sourceUrl = (product.attributes as Record<string, unknown> | null)?.sourceUrl as
