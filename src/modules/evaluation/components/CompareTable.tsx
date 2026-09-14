@@ -154,7 +154,7 @@ export function CompareTable({
                   {entries.map((entry) => (
                     <th key={entry.product.id} className="p-2 text-left align-top">
                       <Image
-                        src={entry.product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+                        src={entry.product.imageUrl ?? "/products/default-card.webp"}
                         alt={entry.product.name}
                         width={56}
                         height={56}

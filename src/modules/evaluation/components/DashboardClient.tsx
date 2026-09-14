@@ -411,7 +411,7 @@ export function DashboardClient() {
                     {entries.slice(0, 3).map((entry) => (
                       <Image
                         key={entry.product.id}
-                        src={entry.product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+                        src={entry.product.imageUrl ?? "/products/default-card.webp"}
                         alt={entry.product.name}
                         width={36}
                         height={36}

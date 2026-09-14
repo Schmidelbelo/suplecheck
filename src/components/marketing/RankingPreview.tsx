@@ -61,7 +61,7 @@ export async function RankingPreview() {
                   {entry.position}
                 </span>
                 <Image
-                  src={entry.product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+                  src={entry.product.imageUrl ?? "/products/default-card.webp"}
                   alt={entry.product.name}
                   width={40}
                   height={40}

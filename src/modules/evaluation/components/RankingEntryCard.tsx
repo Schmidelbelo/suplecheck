@@ -42,7 +42,7 @@ export function RankingEntryCard({
       </div>
 
       <Image
-        src={product.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+        src={product.imageUrl ?? "/products/default-card.webp"}
         alt={product.name}
         width={80}
         height={80}

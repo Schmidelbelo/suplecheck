@@ -35,7 +35,7 @@ export function ProductMiniCard({
     <>
       <div className="flex items-center gap-3">
         <Image
-          src={imageUrl ?? "/images/products/creatina-placeholder.svg"}
+          src={imageUrl ?? "/products/default-card.webp"}
           alt={name}
           width={48}
           height={48}

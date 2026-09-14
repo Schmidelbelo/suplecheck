@@ -248,7 +248,7 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
         data={productSchema({
           name: product.name,
           description: buildProductDescription(view),
-          image: presentation?.imageUrl ?? "/images/products/creatina-placeholder.svg",
+          image: presentation?.imageUrl ?? "/products/default-card.webp",
           slug: product.slug,
           categorySlug,
           brand: presentation?.brand.name ?? product.brandSlug,
@@ -289,7 +289,7 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
         <div className="grid gap-8 md:grid-cols-[240px_1fr]">
           <div className="border-border bg-bg-subtle relative h-60 w-full overflow-hidden rounded-lg border">
             <Image
-              src={presentation?.imageUrl ?? "/images/products/creatina-placeholder.svg"}
+              src={presentation?.imageUrl ?? "/products/default-card.webp"}
               alt={product.name}
               fill
               sizes="(min-width: 768px) 240px, 100vw"
