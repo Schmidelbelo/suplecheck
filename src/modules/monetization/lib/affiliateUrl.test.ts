@@ -97,4 +97,16 @@ describe("buildAffiliateUrl", () => {
 
     expect(result).toEqual({ url: "not a valid url", isAffiliateLink: false });
   });
+
+  it("reflects the real Netshoes state today: isAffiliate=true but affiliateBaseUrl still unconfigured falls back to the direct URL", () => {
+    const result = buildAffiliateUrl({
+      destinationUrl: "https://www.netshoes.com.br/produto/creatina-probiotica-300g",
+      store: { isAffiliate: true, affiliateBaseUrl: null },
+    });
+
+    expect(result).toEqual({
+      url: "https://www.netshoes.com.br/produto/creatina-probiotica-300g",
+      isAffiliateLink: false,
+    });
+  });
 });
