@@ -516,7 +516,7 @@ export async function resolveOrQueueProductImage(params: {
   const existing = await prisma.productImage.findFirst({
     where: { productId: params.productId, role: "COVER" },
   });
-  if (existing) return { resolved: true };
+  if (isRealCoverUrl(existing?.url)) return { resolved: true };
 
   const resolved = await tryResolveOfficialImage(params);
   if (resolved) return { resolved: true };
@@ -565,4 +565,109 @@ export async function saveUploadedProductImage(params: {
       // Melhor esforço — um blob órfão não é grave o bastante pra falhar o upload.
     });
   }
+}
+
+/**
+ * Uma capa só conta como "resolvida de verdade" quando não é
+ * placeholder/card ilustrativo — usado em todo lugar que precisa
+ * responder "esse produto já tem foto real?" (guardrail, discovery,
+ * admin). Nunca duplicar essa checagem à mão em outro arquivo.
+ */
+export function isRealCoverUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  return !url.includes("card") && !url.includes("placeholder");
+}
+
+/**
+ * Publica no Blob um candidato já aprovado na Fase 1 — usado tanto
+ * pelo botão individual quanto pelo "publicar todos" da Central de
+ * Imagens. Nunca sobrescreve uma capa real já existente (mesma regra
+ * de `resolveOrQueueProductImage`).
+ */
+export async function publishApprovedPendingImage(
+  pendingImageId: string,
+): Promise<{ status: "published"; url: string } | { status: "skipped"; reason: string }> {
+  const pending = await prisma.pendingImage.findUnique({
+    where: { id: pendingImageId },
+    include: {
+      product: { select: { id: true, slug: true, category: { select: { slug: true } } } },
+    },
+  });
+  if (!pending) return { status: "skipped", reason: "Candidato não encontrado na fila." };
+  if (pending.status !== "APPROVED" || !pending.candidateUrl) {
+    return { status: "skipped", reason: "Candidato não está aprovado ou não tem URL." };
+  }
+
+  const existingCover = await prisma.productImage.findFirst({
+    where: { productId: pending.productId, role: "COVER" },
+  });
+  if (isRealCoverUrl(existingCover?.url)) {
+    // Já tem capa real — a fila ficou órfã, limpa sem publicar de novo.
+    await prisma.pendingImage.delete({ where: { id: pending.id } });
+    return { status: "skipped", reason: "Produto já tinha capa real — fila limpa." };
+  }
+
+  const published = await uploadApprovedCandidate({
+    productId: pending.productId,
+    slug: pending.product.slug,
+    candidateUrl: pending.candidateUrl,
+    categorySlug: pending.product.category.slug,
+  });
+  if (!published) {
+    return { status: "skipped", reason: "Falha ao baixar/enviar a imagem candidata pro Blob." };
+  }
+
+  const updated = await prisma.productImage.findFirst({
+    where: { productId: pending.productId, role: "COVER" },
+  });
+  return { status: "published", url: updated!.url };
+}
+
+/**
+ * Guardrail: todo produto `PUBLISHED` termina em UM dos dois estados
+ * válidos — capa real, ou uma linha em `PendingImage` — nunca nenhum
+ * dos dois (gap silencioso) nem os dois ao mesmo tempo (fila órfã
+ * depois que a capa real já foi resolvida por outro caminho, ex.:
+ * upload manual direto). Roda a cada carregamento da Central de
+ * Imagens — idempotente, seguro rodar quantas vezes quiser.
+ */
+export async function runImageGuardrail(): Promise<{ queued: number; cleaned: number }> {
+  const products = await prisma.product.findMany({
+    where: { status: "PUBLISHED" },
+    select: {
+      id: true,
+      name: true,
+      brand: { select: { name: true } },
+      category: { select: { name: true } },
+      images: { where: { role: "COVER" }, select: { url: true } },
+      pendingImage: { select: { id: true } },
+    },
+  });
+
+  let queued = 0;
+  let cleaned = 0;
+
+  for (const product of products) {
+    const hasRealCover = isRealCoverUrl(product.images[0]?.url);
+
+    if (hasRealCover && product.pendingImage) {
+      await prisma.pendingImage.delete({ where: { id: product.pendingImage.id } });
+      cleaned++;
+      continue;
+    }
+
+    if (!hasRealCover && !product.pendingImage) {
+      await queuePendingImage({
+        productId: product.id,
+        productName: product.name,
+        brandName: product.brand.name,
+        categoryName: product.category.name,
+        reason:
+          "Produto publicado sem capa real e sem candidato — enfileirado automaticamente pelo guardrail.",
+      });
+      queued++;
+    }
+  }
+
+  return { queued, cleaned };
 }
