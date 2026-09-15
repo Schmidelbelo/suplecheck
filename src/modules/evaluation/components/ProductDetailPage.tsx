@@ -638,6 +638,22 @@ function RelatedProductCard({
           score={entry.finalScore}
         />
       </Link>
+      {/* Sem preço, nenhum CTA externo falso — só o link de comparação abaixo. */}
+      {entry.product.price ? (
+        <Button asChild size="sm" className="w-full">
+          <a
+            href={buildOutboundHref({
+              productSlug: entry.product.slug,
+              source: "related-product",
+              position: entry.position,
+            })}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          >
+            Ver oferta
+          </a>
+        </Button>
+      ) : null}
       {currentSlug ? (
         <Link
           href={`/comparar/${encodeComparisonSlug(currentSlug, entry.product.slug)}`}

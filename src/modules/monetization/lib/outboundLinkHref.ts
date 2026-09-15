@@ -10,6 +10,7 @@ export type OutboundClickSource =
   | "alternative-recommendation"
   | "related-product"
   | "offers"
+  | "ranking"
   | "assistant-recommendation";
 
 export interface BuildOutboundHrefInput {

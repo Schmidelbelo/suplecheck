@@ -32,6 +32,7 @@ const VALID_SOURCES = new Set<OutboundClickSource>([
   "alternative-recommendation",
   "related-product",
   "offers",
+  "ranking",
   "assistant-recommendation",
 ]);
 
