@@ -45,6 +45,7 @@ export function AlternativeRecommendationCard({
           name={product.name}
           brandName={product.brand.name}
           priceCents={product.price?.cents ?? null}
+          storeName={product.price?.store.name}
           classificationTier={entry.classificationTier}
           score={entry.finalScore}
         />

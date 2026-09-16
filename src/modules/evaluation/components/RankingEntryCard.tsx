@@ -94,12 +94,12 @@ export function RankingEntryCard({
             <p className="text-text text-sm font-semibold">
               {formatCurrencyBRL(product.price.cents)}
             </p>
-            {product.price.pricePerDoseCents != null ? (
-              <p className="text-text-muted text-xs">
-                {formatCurrencyBRL(product.price.pricePerDoseCents)}/dose ·{" "}
-                {product.price.store.name}
-              </p>
-            ) : null}
+            <p className="text-text-muted text-xs">
+              {product.price.pricePerDoseCents != null
+                ? `${formatCurrencyBRL(product.price.pricePerDoseCents)}/dose · `
+                : ""}
+              na {product.price.store.name}
+            </p>
           </div>
         ) : null}
       </div>

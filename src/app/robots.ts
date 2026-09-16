@@ -7,7 +7,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/conta/", "/admin/"],
+        // `/go/` nunca teve página própria (é só o Route Handler de redirect
+        // que grava OutboundClick) — não indexa nada e não deve gastar
+        // orçamento de rastreamento nem aparecer em logs de crawler.
+        disallow: ["/api/", "/conta/", "/admin/", "/go/"],
       },
     ],
     sitemap: [

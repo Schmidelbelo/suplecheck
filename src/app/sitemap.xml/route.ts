@@ -1,13 +1,19 @@
 import { siteConfig } from "@/config/site";
 
+// Só sitemaps XML de verdade — um `<sitemapindex>` só pode listar
+// `<sitemap>` apontando para outro documento de sitemap válido (protocolo
+// sitemaps.org). `rss.xml` é um feed RSS, formato diferente; ele já é
+// anunciado separadamente em `robots.ts` (campo `sitemap`, que aceita
+// qualquer recurso de descoberta), não pertence aqui dentro.
 const segmentedSitemaps = [
   "/sitemap-static.xml",
   "/sitemap-produtos.xml",
   "/sitemap-marcas.xml",
   "/sitemap-categorias.xml",
   "/sitemap-comparacoes.xml",
-  "/rss.xml",
 ];
+
+export const revalidate = 300;
 
 export async function GET() {
   const now = new Date().toISOString();

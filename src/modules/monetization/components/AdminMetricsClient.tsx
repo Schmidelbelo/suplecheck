@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { RefreshCw, KeyRound, MousePointerClick, Store, Package, Tags } from "lucide-react";
+import { RefreshCw, KeyRound, MousePointerClick, Store, Package, Tags, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -31,6 +31,7 @@ interface MetricsResponse {
     categorySlug: string | null;
     clicks: number;
   }[];
+  bySource: { source: string; clicks: number }[];
   storesWithoutClicks: { storeId: string; storeName: string; storeSlug: string }[];
   productsWithoutClicks: {
     productId: string;
@@ -181,6 +182,13 @@ export function AdminMetricsClient() {
       />
 
       <MetricsTable
+        title="Cliques por origem (source)"
+        icon={Layers}
+        rows={data.bySource.map((s) => ({ key: s.source, label: s.source, value: s.clicks }))}
+        emptyLabel="Nenhum clique registrado ainda."
+      />
+
+      <MetricsTable
         title="Cliques por categoria"
         icon={Tags}
         rows={data.byCategory.map((c) => ({
@@ -205,11 +213,11 @@ export function AdminMetricsClient() {
       <div className="flex flex-col gap-3">
         <h3 className="text-text flex items-center gap-2 text-sm font-semibold">
           <Package className="size-4" aria-hidden />
-          Produtos publicados sem nenhum clique (até 100)
+          Produtos com oferta e sem nenhum clique (até 100)
         </h3>
         {data.productsWithoutClicks.length === 0 ? (
           <p className="text-text-muted text-sm">
-            Todos os produtos publicados já receberam ao menos um clique.
+            Todos os produtos com oferta já receberam ao menos um clique.
           </p>
         ) : (
           <div className="flex flex-wrap gap-2">

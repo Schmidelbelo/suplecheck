@@ -6,24 +6,53 @@ import { breadcrumbSchema, itemListSchema } from "@/lib/seo/schema";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/layout/Section";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { prisma } from "@/lib/db/prisma";
 import { loadRankingView } from "@/modules/evaluation/services/rankingView.service";
-import { loadCatalogPriceInfo, buildOffersOverview } from "@/modules/pricing/lib/offersOverview";
+import {
+  loadCatalogPriceInfo,
+  buildOffersOverview,
+  type ProductPriceInfo,
+} from "@/modules/pricing/lib/offersOverview";
 import { OfferCard } from "@/modules/pricing/components/OfferCard";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { PriceEvolutionTable } from "@/modules/pricing/components/PriceEvolutionTable";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Ofertas de Suplementos: Creatina, Whey e Pré-Treino em Promoção",
+  title: "Ofertas de Suplementos em Promoção — Preço Real, Sem Estimativa",
   description:
-    "Melhores oportunidades de creatina agora: produtos abaixo da média de preço da categoria, menores preços já registrados e capturas recentes — tudo calculado a partir de dados reais.",
+    "Melhores oportunidades do catálogo agora: produtos abaixo da média de preço da categoria, menores preços já registrados e capturas recentes — em todas as categorias avaliadas, calculado a partir de dados reais.",
   path: "/ofertas",
 });
 
 export const revalidate = 43200;
 
+/**
+ * Antes desta correção, a página só olhava pra `creatina` mesmo prometendo
+ * "Creatina, Whey e Pré-Treino" no título — descobrimos isso auditando as
+ * páginas públicas de maior intenção de compra (ver
+ * `docs/PLANO_SEO_PAGINAS_PRIORITARIAS.md`). Agora percorre todas as
+ * categorias ativas do catálogo, então a promessa do título/descrição bate
+ * com o que a página de fato mostra, sem precisar listar categoria por
+ * categoria (e sem ficar defasada quando uma categoria nova entrar).
+ */
+async function loadAllCategoriesPriceInfo(): Promise<ProductPriceInfo[]> {
+  const categories = await prisma.category.findMany({
+    where: { active: true },
+    select: { slug: true },
+  });
+
+  const perCategory = await Promise.all(
+    categories.map(async ({ slug }) => {
+      const ranking = await loadRankingView(slug);
+      return ranking ? loadCatalogPriceInfo(ranking) : [];
+    }),
+  );
+
+  return perCategory.flat();
+}
+
 export default async function OffersPage() {
-  const ranking = await loadRankingView("creatina");
-  const products = ranking ? await loadCatalogPriceInfo(ranking) : [];
+  const products = await loadAllCategoriesPriceInfo();
   const overview = buildOffersOverview(products);
 
   const hasAnything =

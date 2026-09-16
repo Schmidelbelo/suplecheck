@@ -41,6 +41,8 @@ const staticRoutes = [
   { path: "/cookies", priority: "0.3", changefreq: "yearly" },
 ];
 
+export const revalidate = 300;
+
 export async function GET() {
   const now = new Date().toISOString();
   const body = `<?xml version="1.0" encoding="UTF-8"?>

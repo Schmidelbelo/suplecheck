@@ -261,6 +261,7 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
             : undefined,
           priceInCents: presentation?.price?.cents,
           offerUrl: presentation?.price?.url ?? undefined,
+          availability: presentation?.price?.availability,
         })}
       />
       <PageHeader
@@ -634,6 +635,7 @@ function RelatedProductCard({
           name={entry.product.name}
           brandName={entry.product.brand.name}
           priceCents={entry.product.price?.cents ?? null}
+          storeName={entry.product.price?.store.name}
           classificationTier={entry.classificationTier}
           score={entry.finalScore}
         />

@@ -43,6 +43,7 @@ function entry(
               pricePerGramCents: null,
               url: null,
               store: { slug: "loja", name: "Loja" },
+              availability: "UNKNOWN" as const,
             }
           : null,
     },

@@ -26,6 +26,7 @@ export function OfferCard({ info, footer }: { info: ProductPriceInfo; footer?: s
           name={entry.product.name}
           brandName={entry.product.brand.name}
           priceCents={stats?.currentCents ?? entry.product.price?.cents ?? null}
+          storeName={entry.product.price?.store.name}
           classificationTier={entry.classificationTier}
           score={entry.finalScore}
         />

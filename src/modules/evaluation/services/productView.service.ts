@@ -32,6 +32,8 @@ export interface ProductPresentation {
     readonly pricePerGramCents: number | null;
     readonly url: string | null;
     readonly store: { readonly slug: string; readonly name: string };
+    /** `PriceEntry.availability` real, capturado junto com o preço — nunca assumido como `IN_STOCK`. */
+    readonly availability: "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
   } | null;
 }
 
@@ -89,6 +91,7 @@ function toPresentation(row: ProductWithPresentationData): ProductPresentation {
               : null,
           url: priceEntry.url,
           store: { slug: priceEntry.store.slug, name: priceEntry.store.name },
+          availability: priceEntry.availability,
         }
       : null,
   };

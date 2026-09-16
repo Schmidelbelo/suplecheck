@@ -102,7 +102,18 @@ export interface ProductSchemaInput {
   priceInCents?: number;
   /** Loja onde a oferta pode ser efetivada — se omitido, usa a própria página do produto. */
   offerUrl?: string;
+  /**
+   * `PriceEntry.availability` real, da última captura. `undefined`/`"UNKNOWN"`
+   * omite o campo `availability` do JSON-LD inteiro — nunca cai num valor
+   * padrão tipo `InStock`, que seria disponibilidade inventada.
+   */
+  availability?: "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
 }
+
+const SCHEMA_AVAILABILITY: Record<"IN_STOCK" | "OUT_OF_STOCK", string> = {
+  IN_STOCK: "https://schema.org/InStock",
+  OUT_OF_STOCK: "https://schema.org/OutOfStock",
+};
 
 /**
  * `Product` + `Offer` + `Review` (nunca `AggregateRating`): o Índice
@@ -152,7 +163,9 @@ export function productSchema(input: ProductSchemaInput) {
             "@type": "Offer",
             priceCurrency: "BRL",
             price: (input.priceInCents / 100).toFixed(2),
-            availability: "https://schema.org/InStock",
+            ...(input.availability && input.availability !== "UNKNOWN"
+              ? { availability: SCHEMA_AVAILABILITY[input.availability] }
+              : {}),
             url: input.offerUrl ?? productUrl,
           },
         }

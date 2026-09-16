@@ -15,31 +15,43 @@ import { prisma } from "@/lib/db/prisma";
  */
 export async function GET() {
   try {
-    const [totalClicks, affiliateClicks, byStoreRaw, byProductRaw, byCategoryRaw, allStores] =
-      await Promise.all([
-        prisma.outboundClick.count(),
-        prisma.outboundClick.count({ where: { wasAffiliate: true } }),
-        prisma.outboundClick.groupBy({
-          by: ["storeId"],
-          _count: { _all: true },
-          orderBy: { _count: { storeId: "desc" } },
-        }),
-        prisma.outboundClick.groupBy({
-          by: ["productId"],
-          _count: { _all: true },
-          orderBy: { _count: { productId: "desc" } },
-          take: 50,
-        }),
-        prisma.outboundClick.groupBy({
-          by: ["categoryId"],
-          _count: { _all: true },
-          orderBy: { _count: { categoryId: "desc" } },
-        }),
-        prisma.store.findMany({
-          where: { active: true },
-          select: { id: true, name: true, slug: true, isAffiliate: true },
-        }),
-      ]);
+    const [
+      totalClicks,
+      affiliateClicks,
+      byStoreRaw,
+      byProductRaw,
+      byCategoryRaw,
+      bySourceRaw,
+      allStores,
+    ] = await Promise.all([
+      prisma.outboundClick.count(),
+      prisma.outboundClick.count({ where: { wasAffiliate: true } }),
+      prisma.outboundClick.groupBy({
+        by: ["storeId"],
+        _count: { _all: true },
+        orderBy: { _count: { storeId: "desc" } },
+      }),
+      prisma.outboundClick.groupBy({
+        by: ["productId"],
+        _count: { _all: true },
+        orderBy: { _count: { productId: "desc" } },
+        take: 50,
+      }),
+      prisma.outboundClick.groupBy({
+        by: ["categoryId"],
+        _count: { _all: true },
+        orderBy: { _count: { categoryId: "desc" } },
+      }),
+      prisma.outboundClick.groupBy({
+        by: ["source"],
+        _count: { _all: true },
+        orderBy: { _count: { source: "desc" } },
+      }),
+      prisma.store.findMany({
+        where: { active: true },
+        select: { id: true, name: true, slug: true, isAffiliate: true },
+      }),
+    ]);
 
     const storeIds = byStoreRaw.map((r) => r.storeId);
     const productIds = byProductRaw.map((r) => r.productId);
@@ -94,16 +106,27 @@ export async function GET() {
       clicks: r._count._all,
     }));
 
+    // Origem do clique (componente da UI que gerou o `/go`) — mesmo valor
+    // gravado por `resolveOutboundClick` (`source`), nunca reclassificado.
+    const bySource = bySourceRaw.map((r) => ({ source: r.source, clicks: r._count._all }));
+
     const clickedProductIds = new Set(clickedProductCount.map((c) => c.productId));
     const clickedStoreIds = new Set(storeIds);
     const storesWithoutClicks = allStores
       .filter((s) => s.isAffiliate && !clickedStoreIds.has(s.id))
       .map((s) => ({ storeId: s.id, storeName: s.name, storeSlug: s.slug }));
 
-    // Produtos publicados sem nenhum clique registrado — limitado a 100
-    // para não devolver o catálogo inteiro numa única resposta.
+    // Produtos publicados COM OFERTA (preço real capturado) e sem nenhum
+    // clique registrado — limitado a 100. Filtrar por `skus.priceEntries`
+    // (não só `status: PUBLISHED`) importa: um produto sem preço nunca
+    // teve um CTA "Ver oferta" pra ser clicado em primeiro lugar, então
+    // listá-lo aqui sugeriria falsamente uma oportunidade perdida.
     const productsWithoutClicks = await prisma.product.findMany({
-      where: { status: "PUBLISHED", id: { notIn: [...clickedProductIds] } },
+      where: {
+        status: "PUBLISHED",
+        id: { notIn: [...clickedProductIds] },
+        skus: { some: { status: "ACTIVE", priceEntries: { some: {} } } },
+      },
       select: { id: true, name: true, slug: true, category: { select: { slug: true } } },
       take: 100,
     });
@@ -117,6 +140,7 @@ export async function GET() {
       byStore,
       byProduct,
       byCategory,
+      bySource,
       storesWithoutClicks,
       productsWithoutClicks: productsWithoutClicks.map((p) => ({
         productId: p.id,
