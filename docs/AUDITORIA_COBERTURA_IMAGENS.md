@@ -121,6 +121,40 @@ ordem de aparição:
 Nenhuma dessas ações foi executada nesta auditoria — este documento é
 só o diagnóstico, para servir de referência ao próximo lote de imagens.
 
+## 6. Atualização (2026-09-16) — 2 dos 3 erros de catálogo corrigidos
+
+Recomendação da §5.1 executada parcialmente, via `PATCH
+/api/catalog/products/{slug}` (API administrativa já existente, protegida
+por `ADMIN_API_KEY` — nenhum código novo, nenhum dado no banco além do
+campo `name`):
+
+| Produto                              | Antes                         | Depois                               | Evidência                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------ | ----------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `growth-creatina-monohidratada-300g` | `Creatina Monohidratada 300g` | **`Creatina Monohidratada 250g`**    | Growth não vende 300g; 250g é embalagem real confirmada (realsuplementos.com.br, bodyshopsuplementos.com.br) e o preço já capturado no catálogo (R$49,90) cai dentro da faixa real de 250g                                                                                                                                                                                                                                                             |
+| `atlhetica-creatina-300g`            | `Creatina Nitro 300g`         | **`Creatina 100% Pure 300g`**        | Linha "Nitro" não existe na Atlhetica; 300g já era o peso real — só o nome estava errado (confirmado via listagem Amazon "Creatina 100% Pure em Pó 300g, Atlhetica Nutrition")                                                                                                                                                                                                                                                                         |
+| `nutrata-creatina-creapure-250g`     | `Creatina Creapure 250g`      | **sem alteração — mantido pendente** | Nutrata vende Creapure real em 150g **e** 300g; o preço já capturado (R$69,90) não bate com a faixa real de nenhum dos dois (150g: ~R$116–162; 300g: ~R$149–299), então não há sinal forte o bastante para escolher entre os dois sem arriscar inventar o SKU. Precisa de fonte mais forte antes de corrigir: página oficial do produto exato, nota fiscal, captura de preço confiável, ou confirmação direta da loja de onde veio o R$69,90 original. |
+
+**Limitação encontrada**: `PendingImage.reason` dos 3 registros **não pôde
+ser atualizado** — não existe nenhum endpoint administrativo de escrita
+para esse campo hoje (`GET /api/admin/images/pending` é somente leitura;
+`publish`/`publish-all` só tocam candidatos já aprovados; o guardrail
+automático só cria ou apaga a linha, nunca atualiza o texto de um
+`PENDING` existente). Ação corretiva ficou fora de escopo desta tarefa
+(proibido alterar código). Efeito prático: os `reason` de Growth e
+Atlhetica na fila continuam com o texto antigo ("ERRO DE DADOS DO
+CATÁLOGO... requer correção") mesmo após a correção — texto desatualizado,
+mas sem risco funcional (o nome do produto já está certo; a busca de
+imagem do próximo lote pode simplesmente ignorar esse texto e usar o
+nome/peso atuais, já corrigidos, como base de pesquisa). Corrigir isso de
+verdade exige uma pequena rota administrativa nova (`PATCH` para
+`PendingImage.reason`) ou acesso direto ao banco — recomendado como item
+pequeno de follow-up, não urgente.
+
+Validado após a correção: `/ofertas` continua respondendo 200 e estável;
+as páginas de `growth-creatina-monohidratada-300g` e
+`atlhetica-creatina-300g` renderizam o nome novo; nenhuma imagem foi
+publicada; nenhum afiliado foi alterado.
+
 ---
 
-_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado._
+_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data._
