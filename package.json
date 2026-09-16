@@ -22,6 +22,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:whey-protein": "tsx prisma/seedWheyProtein.ts",
     "repair:price-urls": "tsx src/scripts/backfillPriceEntryUrls.ts",
+    "archive:test-fixtures": "tsx prisma/archiveTestFixtures.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

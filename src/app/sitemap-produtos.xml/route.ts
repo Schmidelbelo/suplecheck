@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { siteConfig } from "@/config/site";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
+import { isTestSlug } from "@/lib/catalog/testDataGuard";
 
 export const revalidate = 300;
 
@@ -8,13 +9,21 @@ export async function GET() {
   // Nunca derruba o build/deploy por instabilidade do banco no momento
   // do prerender — um sitemap vazio momentaneamente é preferível a
   // travar o deploy inteiro (o próximo `revalidate` corrige sozinho).
-  const products = await prisma.product
+  const publishedProducts = await prisma.product
     .findMany({
       where: { status: "PUBLISHED" },
       select: { slug: true, updatedAt: true, category: { select: { slug: true } } },
       orderBy: { updatedAt: "desc" },
     })
     .catch(() => []);
+
+  // Defesa em profundidade contra dados de teste vazados no banco real
+  // ficando PUBLISHED (ver testDataGuard.ts) — a limpeza real já
+  // arquiva esses registros, este filtro cobre o intervalo entre um
+  // teste vazar e o próximo arquivamento rodar.
+  const products = publishedProducts.filter(
+    (product) => !isTestSlug(product.slug) && !isTestSlug(product.category.slug),
+  );
 
   return xmlResponse(
     urlset(

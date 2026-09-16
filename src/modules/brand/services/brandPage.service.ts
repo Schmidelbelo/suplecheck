@@ -4,6 +4,7 @@ import {
   getProductsByBrand,
   type EnrichedProduct,
 } from "@/modules/market/services/marketData.service";
+import { isTestSlug } from "@/lib/catalog/testDataGuard";
 import type { BrandRankingEntry } from "@core/index";
 
 export interface BrandPageData {
@@ -21,7 +22,9 @@ export interface BrandPageData {
  */
 export async function getBrandPageData(slug: string): Promise<BrandPageData | null> {
   const brand = await container.ports.brands.findBySlug(slug);
-  if (!brand || !brand.active) return null;
+  // Marca de teste tratada como inexistente — 404 real, nunca indexável
+  // (ver testDataGuard.ts).
+  if (!brand || !brand.active || isTestSlug(brand.slug)) return null;
 
   const [overview, products] = await Promise.all([getMarketOverview(), getProductsByBrand(slug)]);
   const stats = overview?.brandRanking.find((entry) => entry.brandId === slug) ?? null;
@@ -48,7 +51,7 @@ export async function listBrandsWithStats(): Promise<readonly BrandListEntry[]> 
   const statsBySlug = new Map(overview?.brandRanking.map((entry) => [entry.brandId, entry]) ?? []);
 
   return brands
-    .filter((b) => b.active)
+    .filter((b) => b.active && !isTestSlug(b.slug))
     .map((b) => ({ slug: b.slug, name: b.name, stats: statsBySlug.get(b.slug) ?? null }))
     .sort((a, b) => (b.stats?.productCount ?? 0) - (a.stats?.productCount ?? 0));
 }

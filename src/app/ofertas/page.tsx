@@ -16,6 +16,7 @@ import {
 import { OfferCard } from "@/modules/pricing/components/OfferCard";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
 import { PriceEvolutionTable } from "@/modules/pricing/components/PriceEvolutionTable";
+import { isTestSlug } from "@/lib/catalog/testDataGuard";
 
 export const metadata: Metadata = buildMetadata({
   title: "Ofertas de Suplementos em Promoção — Preço Real, Sem Estimativa",
@@ -36,10 +37,14 @@ export const revalidate = 43200;
  * categoria (e sem ficar defasada quando uma categoria nova entrar).
  */
 async function loadAllCategoriesPriceInfo(): Promise<ProductPriceInfo[]> {
-  const categories = await prisma.category.findMany({
+  const allCategories = await prisma.category.findMany({
     where: { active: true },
     select: { slug: true },
   });
+  // Nunca varre categoria de teste vazada no banco (ver testDataGuard.ts)
+  // — hoje inofensivo (nenhuma tem Ranking gerado), mas explícito em vez
+  // de depender desse acaso.
+  const categories = allCategories.filter((category) => !isTestSlug(category.slug));
 
   const perCategory = await Promise.all(
     categories.map(async ({ slug }) => {
