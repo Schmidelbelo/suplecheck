@@ -192,6 +192,7 @@ Classificação do que vem depois do lançamento, dividido por tamanho de mudan�
 - Ativação comercial de programas de afiliado adicionais além do já ativo — infraestrutura pronta (`prisma/configureStoreAffiliate.ts` com dry-run), falta só o link/tag real de cada loja aprovada (ver `docs/READINESS_PRODUCAO_BETA.md §3` para a lista priorizada).
 - Rastreamento de impressão de card/ranking, para permitir CTR real (hoje só existe contagem de clique).
 - Suporte a programas de afiliado por cupom (Adaptogen, Probiótica) — exige uma feature nova, não apenas configuração, porque o modelo atual pressupõe redirecionamento rastreável por URL.
+- Suporte a link de afiliado por-oferta para Mercado Livre — validado em produção (2026-09-16) que o link oficial (`meli.la/<código>`) é gerado individualmente por produto no painel, não um template aplicável via `Store.affiliateBaseUrl` (que pressupõe um valor único por loja); mesma categoria de gap do item de cupom acima, precisa de campo por-oferta (ex.: `PriceEntry.affiliateUrl`) — ver `docs/READINESS_PRODUCAO_BETA.md §3.1`.
 - Testes E2E (Playwright/Cypress) — cobertura hoje é só unit/integration.
 
 ---
