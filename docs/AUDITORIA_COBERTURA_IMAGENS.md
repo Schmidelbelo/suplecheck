@@ -155,6 +155,28 @@ as páginas de `growth-creatina-monohidratada-300g` e
 `atlhetica-creatina-300g` renderizam o nome novo; nenhuma imagem foi
 publicada; nenhum afiliado foi alterado.
 
+## 7. Próxima ação recomendada (registrada, não executada)
+
+Com os 2 erros de catálogo corrigidos (§6), o próximo passo é resolver
+manualmente — **não em lote automático** — os 3 placeholders mais
+visíveis em `/ofertas` que ainda dependem de pesquisa de fonte nova (não
+são erro de catálogo, então já podem ser buscados):
+
+1. **`probiotica-epic-pre-treino-300g`** (Probiótica Epic Pré-Treino) — fonte bloqueada
+2. **`growth-coenzima-q10-100mg-60-capsulas`** (Growth CoQ10) — fonte sem metadata
+3. **`neo-quimica-melatonina-021mg-90-comprimidos`** (Neo Química Melatonina) — fonte genérica
+
+Regras para essa resolução manual, quando for executada:
+
+- **Não publicar nenhuma imagem sem fonte real confirmada** — nunca aceitar candidato de baixa confiança ou de produto/sabor diferente do exato.
+- **Não inventar candidato** — se não existir fonte pública confiável para o produto exato, o item continua `PENDING`, mostrando o card ilustrativo (comportamento honesto, não é bug).
+- **`nutrata-creatina-creapure-250g` continua pendente** por ambiguidade real de SKU (§6) — não faz parte deste lote e não deve ser resolvido por aproximação.
+- **Afiliados continuam intocados** — nenhuma ação de imagem deve alterar `Store.isAffiliate`, `affiliateBaseUrl` ou qualquer dado de monetização.
+
+Nenhum script foi rodado, nenhuma imagem foi publicada, nenhum banco ou
+código foi alterado para registrar esta recomendação — é só o próximo
+item da fila, documentado para quando for autorizado a executar.
+
 ---
 
-_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data._
+_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada._
