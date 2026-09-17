@@ -72,6 +72,7 @@ export const priceService = {
         priceCents: input.priceCents,
         currency: input.currency,
         url: input.url,
+        affiliateUrl: input.affiliateUrl,
         availability: input.availability,
       },
     });
