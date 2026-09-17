@@ -122,13 +122,12 @@ com dado já capturado; nenhum terceiro existe ainda sem inventar
 captura nova (fora do escopo desta tarefa, ver nota no fim desta
 seção).
 
-### 1. Integralmédica Sinister Mass 3kg (`integralmedica-sinister-mass-3kg`)
+### 1. Integralmédica Sinister Mass 3kg (`integralmedica-sinister-mass-3kg`) — ❌ DESCARTADO (2026-09-17)
 
 - **URL Mercado Livre já capturada**: `https://produto.mercadolivre.com.br/MLB-962580047-hipercalorico-sinister-mass-3kg-integralmedica-brinde-_JM`
-- **Catálogo**: sem sabor especificado no nome/atributos — hipercalórico, 3kg, 599kcal/dose.
-- **Por que é relativamente seguro**: nome e peso do catálogo batem com a URL, sem conflito de sabor/variante aparente.
-- **Risco de ambiguidade**: **médio** — a URL contém `-brinde-` (indica uma promoção com brinde incluído no anúncio original). Precisa confirmar, ao abrir a página antes de gerar o deeplink, se esse anúncio específico ainda está ativo e se a promoção de brinde ainda é real — anúncios com brinde temporário podem ser pausados/alterados pelo vendedor a qualquer momento, o que tornaria o deeplink órfão (Mercado Livre normalmente desativa/redireciona nesse caso, mas vale checar antes).
-- **Prioridade**: **2** — seguro no que diz respeito a produto/marca/peso, só precisa da checagem de anúncio ativo antes de gerar o link.
+- **Validação manual (navegador real)**: a URL **não abre mais como anúncio válido** — cai em "Parece que esta página não existe". Confirma a suspeita já registrada aqui (risco do `-brinde-` = anúncio promocional temporário, pausado/removido pelo vendedor).
+- **Resultado**: descartado por enquanto. `PriceEntry.url` desta oferta está desatualizada (o anúncio de origem não existe mais) — isso é um problema de dado de preço/captura, não de afiliado; não é este documento que resolve, mas fica registrado para quem cuidar da atualização de captura de preço deste produto.
+- **Não configurar `affiliateUrl`** para este produto enquanto a `PriceEntry.url` não for recapturada contra um anúncio real e ativo.
 
 ### 2. Max Titanium Mass Titanium 17500 3kg (`max-titanium-mass-titanium-17500-3kg`)
 
@@ -136,16 +135,17 @@ seção).
 - **Catálogo**: sem sabor especificado no nome/atributos — hipercalórico, 3kg, 619kcal/dose.
 - **Por que NÃO é tão seguro quanto o outro**: a URL já capturada é explicitamente **sabor morango** (`sabor-morango` no slug), mas o catálogo não compromete o produto a nenhum sabor específico — mesma categoria de ambiguidade já documentada para o caso Probiótica Epic Pré-Treino (`docs/AUDITORIA_COBERTURA_IMAGENS.md §8.3`): se a marca vende esse hipercalórico em mais de um sabor, o SKU do SupleScore pode não representar especificamente "morango", e configurar esse deeplink arriscaria vincular uma imagem/link de sabor específico a um produto genérico no catálogo.
 - **Risco de ambiguidade**: **alto** — precisa confirmar antes se Max Titanium vende esse hipercalórico só em morango (sem ambiguidade real) ou em múltiplos sabores (ambiguidade real, mesmo tratamento do caso Probiótica: não configurar até resolver no catálogo).
-- **Prioridade**: **3** — só depois de confirmar sabor único ou corrigir o catálogo pra especificar o sabor certo.
+- **Prioridade**: **único candidato restante** (2026-09-17, depois do candidato 1 ser descartado) — mas só configurável depois de resolver a ambiguidade de sabor, não antes.
 
 ### Sobre o "3º candidato"
 
 Não existe um terceiro produto com `PriceEntry` da loja `mercado-livre`
-já capturada — só os 2 acima, além do que já foi configurado. Gerar um
-terceiro exigiria capturar uma URL nova do Mercado Livre pra outro
-produto do catálogo primeiro (fluxo de captura de preço, não de
-afiliado) — fora do escopo desta tarefa (proibido "rodar backfill"/
-"configurar nova oferta"). Registrado aqui como decisão honesta, não
+já capturada — só os 2 acima (1 descartado, 1 com ambiguidade não
+resolvida), além do que já foi configurado. Gerar um terceiro exigiria
+capturar uma URL nova do Mercado Livre pra outro produto do catálogo
+primeiro (fluxo de captura de preço, não de afiliado) — fora do escopo
+desta tarefa (proibido "rodar backfill"/"configurar nova oferta").
+Registrado aqui como decisão honesta, não
 como lacuna escondida.
 
 ---

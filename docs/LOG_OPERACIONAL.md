@@ -181,6 +181,26 @@ API administrativa já existente). Nenhum outro `affiliateUrl`
 preenchido. Amazon, Netshoes, Nutrata, imagens e `affiliate-discovery`
 não tocados.
 
+### Procedimento operacional + validação do próximo candidato Mercado Livre
+
+Criado `docs/PROCEDIMENTO_AFILIADO_MERCADO_LIVRE.md` — passo a passo
+repetível pra configurar novas ofertas. Levantamento contra produção
+achou só 2 candidatos com `PriceEntry.url` do Mercado Livre já
+capturada (além do que já foi configurado).
+
+Validação manual do candidato 1 (Integralmédica Sinister Mass 3kg):
+a URL capturada **não abre mais como anúncio válido** — "Parece que
+esta página não existe" no navegador real. **Descartado** — a captura
+de preço desta oferta está desatualizada (problema de dado de preço,
+não de afiliado), não configurar `affiliateUrl` até recapturar contra
+um anúncio ativo.
+
+Único candidato restante: Max Titanium Mass Titanium 17500 3kg — ainda
+com ambiguidade de sabor não resolvida (URL capturada é "sabor
+morango", catálogo não especifica sabor). Não configurado.
+
+Nenhum `affiliateUrl` preenchido, nenhum código/banco alterado.
+
 ## 2026-09-16
 
 ### Resumo do dia
