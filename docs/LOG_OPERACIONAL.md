@@ -76,6 +76,49 @@ insistindo hoje. `/ofertas` responde 200. Nenhum afiliado, Mercado
 Livre, Netshoes, Nutrata, slug ou `affiliate-discovery` tocado; nenhum
 lote automático.
 
+### Frente de imagens encerrada por hoje — auditoria rápida da experiência pública
+
+Com a frente de imagens encerrada por hoje, rodada uma auditoria rápida
+só de leitura (HTTP), sem alterar código/banco/afiliados/imagens, para
+procurar problema visual/SEO/link quebrado óbvio antes de fechar o dia.
+
+**Páginas verificadas**: `/`, `/ofertas`, `/creatina`, 3 produtos com
+imagem real (Vitafor, Growth, Atlhetica) e 1 produto ainda com
+placeholder (Nutrata).
+
+**Verificado e correto**:
+
+- Todas as páginas principais respondem 200.
+- 22 links de navegação/rodapé da home e os links de produto amostrados
+  em `/ofertas`/`/creatina` respondem 200 — nenhum link quebrado.
+- Nenhuma imagem quebrada — todas as URLs de imagem (Blob e local)
+  carregam 200.
+- SEO básico presente e coerente em todas as páginas checadas: title,
+  meta description, canonical, um único `h1`, JSON-LD `Product` +
+  `BreadcrumbList`.
+- `robots.txt` e `sitemap.xml` respondem 200.
+- Nenhum texto quebrado visível ao usuário (`undefined`, `NaN`,
+  `R$0,00`) — únicas ocorrências encontradas são artefatos internos do
+  bundle React/Next, não visíveis na página renderizada.
+- Cards com placeholder em `/ofertas` batem exatamente com os 3 itens
+  já documentados como pendentes — nenhum novo placeholder inesperado.
+
+**Nenhum problema objetivo encontrado.**
+
+**Frente de imagens encerrada por hoje.** Seguem pendentes, sem
+insistência:
+
+- `growth-coenzima-q10-100mg-60-capsulas` — fonte bloqueada.
+- `probiotica-epic-pre-treino-300g` — ambiguidade de sabor.
+- `nutrata-creatina-creapure-250g` — ambiguidade de SKU/peso; não
+  seguir a menos que apareça fonte forte nova que confirme o SKU exato
+  e explique o preço já capturado.
+
+**Amazon fica para checar amanhã**, aguardando revisão fiscal.
+
+Nenhum código, banco, afiliado ou imagem alterado para esta auditoria;
+`affiliate-discovery` não tocado.
+
 ## 2026-09-16
 
 ### Resumo do dia
