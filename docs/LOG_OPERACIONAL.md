@@ -2,6 +2,33 @@
 
 Registro curto de continuidade do projeto. Atualizar no fim do dia ou ao encerrar uma frente importante.
 
+## 2026-09-17
+
+### Atualização de contexto — Netshoes/Rakuten (antes de qualquer trabalho novo)
+
+O suporte da Rakuten Advertising respondeu: a conta foi **rejeitada
+permanentemente** pelo anunciante Netshoes. Isso explica o "painel com
+problema de interação" registrado no log de 2026-09-16 (item 23) — não
+era um bug de UI, era a rejeição em si impedindo qualquer clique/ação
+no painel.
+
+Efeito prático:
+
+- Netshoes deixa de ser tratado como "aguardando suporte" ou "campanha
+  aparentemente ativa" — é **afiliado indisponível por decisão do
+  anunciante**, não uma pendência técnica temporária.
+- **Não configurar** `affiliateBaseUrl` para Netshoes.
+- **Não insistir** no painel Rakuten/Netshoes — não há mais nada a
+  destravar ali.
+- Produto(s) apontando para a loja Netshoes no catálogo: tratar como
+  loja sem monetização afiliada por enquanto, ou trocar futuramente por
+  outra loja com afiliado válido — decisão comercial, não técnica.
+- `docs/READINESS_PRODUCAO_BETA.md` §1/§3.1/§4.2 atualizados com esse
+  status corrigido.
+
+Nenhum código, banco, afiliado (além desta correção documental de
+status), imagem ou env var foi alterado para registrar isto.
+
 ## 2026-09-16
 
 ### Resumo do dia
@@ -103,4 +130,3 @@ Criterio de aceite:
 - os 3 itens ficam resolvidos com foto real ou documentados honestamente como ainda pendentes;
 - qualquer alteracao de banco/imagem e reportada com antes/depois.
 ```
-
