@@ -46,23 +46,40 @@ candidato para este fluxo** (já resolvido pelo modelo de loja).
 
 **Achado colateral, fora do escopo desta auditoria mas relevante pra
 quem cuidar de captura de preço**: das 15 ofertas atuais da loja
-`amazon-br`, **6 têm URL de busca genérica** (`amazon.com.br/s?k=...`),
-não a página de um produto específico:
+`amazon-br`, **6 tinham URL de busca genérica** (`amazon.com.br/s?k=...`),
+não a página de um produto específico. O afiliado técnico continuava
+funcionando (a tag é aplicada em cima da própria URL de busca), mas o
+clique mandava o usuário pra uma lista de resultados, não pro produto
+exato — qualidade de conversão pior que um link direto.
 
-- `growth-creatina-monohidratada-300g`
-- `max-titanium-creatina-300g`
-- `black-skull-creatina-300g`
-- `atlhetica-creatina-300g`
-- `nutrata-creatina-creapure-250g`
-- `optimum-nutrition-creatine-300g`
+### 3.1 Correção aplicada (2026-09-17) — 3 de 6 resolvidas
 
-O afiliado técnico continua funcionando (a tag é aplicada em cima da
-própria URL de busca), mas o clique manda o usuário pra uma lista de
-resultados, não pro produto exato — qualidade de conversão pior que um
-link direto. Não é um problema de afiliado, é captura de preço
-desatualizada (mesma categoria do achado do Integralmédica Sinister
-Mass no Mercado Livre). Registrado aqui como observação, não é ação
-desta auditoria.
+Pra cada um dos 6, pesquisado o ASIN real do produto exato (marca,
+peso, sabor/variante batendo) e validado via a própria página do
+produto antes de escrever — mesmo rigor já usado pro Mercado Livre.
+
+**Corrigidas** (nova `PriceEntry` criada via `POST /api/catalog/skus/{id}/prices`,
+mesmo preço já capturado, só a `url`; `Store.affiliateBaseUrl` intocado;
+`/go` validado com `tag=suplescore-20` aplicado):
+
+| Produto                           | URL antiga                                                            | URL nova                                                                                                                                      |
+| --------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `max-titanium-creatina-300g`      | `amazon.com.br/s?k=Max+Titanium+Creatina+300g`                        | `amazon.com.br/.../dp/B07DVJC66X` — "MAX TITANIUM CREATINA 300 GR MONOHIDRATADA", unidade única, sem sabor                                    |
+| `atlhetica-creatina-300g`         | `amazon.com.br/s?k=Atlhetica+Nutrition+Creatina+Nitro+300g`           | `amazon.com.br/.../dp/B07MPZLM1N` — "Creatina 100% Pure em Pó 300g, Atlhetica Nutrition", bate exatamente com o nome já corrigido no catálogo |
+| `optimum-nutrition-creatine-300g` | `amazon.com.br/s?k=Optimum+Nutrition+Micronized+Creatine+Powder+300g` | `amazon.com.br/.../dp/B07774XR8W` — "Optimum Nutrition Creatina Monohidratada Micronizada em Pó Sem Sabor 300g", unidade única                |
+
+**Não corrigidas — ambiguidade real, deixadas com a URL de busca genérica**:
+
+| Produto                              | Motivo                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `growth-creatina-monohidratada-300g` | Growth vende **duas linhas distintas** de creatina 250g na Amazon: "Creatina Monohidratada" (regular) e "Creatina Creapure" (premium, certificação alemã) — todos os resultados de busca encontrados eram da linha Creapure; o catálogo não especifica qual linha este SKU representa. Mesma categoria de risco documentada em `docs/DESENHO_AFILIADO_POR_OFERTA.md`/auditoria de imagens: não escolher por aproximação. |
+| `black-skull-creatina-300g`          | Black Skull vende múltiplas sub-linhas com o mesmo peso (**"Creator"** vs **"Creatine Turbo"**, este último com maltodextrina/carboidrato adicionado — produto diferente, não só sabor) mais variantes com sabor (laranja, uva). Nome do catálogo ("Creatina Black Skull 300g") não indica qual sub-linha.                                                                                                               |
+| `nutrata-creatina-creapure-250g`     | Ambiguidade de SKU já conhecida e documentada (`docs/AUDITORIA_COBERTURA_IMAGENS.md §6`) — Nutrata vende real em 150g/300g, não 250g. Mesmo bloqueio de antes, não resolvido por este achado da Amazon.                                                                                                                                                                                                                  |
+
+**Validação executada**: `npm run typecheck` limpo, 37/37 testes
+unitários de pricing/monetização passando (nenhum código tocado — só
+dado via API já existente), `/go` confirmado pros 3 produtos
+corrigidos com `tag=suplescore-20` aplicado corretamente.
 
 Adicionalmente, **3 ofertas de outras lojas** (`loja-oficial`,
 `netshoes`) também têm `PriceEntry.url` apontando pra
@@ -129,9 +146,7 @@ sentido revisitar):
    17500 3kg** no catálogo (confirmar se a marca vende só em morango,
    ou corrigir o nome/atributos pra refletir o sabor certo) — depois
    disso, reavaliar como candidato.
-3. Corrigir as **6 URLs de busca genérica da Amazon** listadas na §3 —
-   não bloqueia monetização (já funciona via tag), mas melhora
-   qualidade de conversão.
+3. ~~Corrigir as 6 URLs de busca genérica da Amazon~~ — **3 de 6 corrigidas em 2026-09-17** (§3.1): `max-titanium-creatina-300g`, `atlhetica-creatina-300g`, `optimum-nutrition-creatine-300g`. As 3 restantes (`growth-creatina-monohidratada-300g`, `black-skull-creatina-300g`, `nutrata-creatina-creapure-250g`) têm ambiguidade real de linha/SKU — precisam de decisão de catálogo antes, não são candidatas a correção automática.
 
 **O que precisa de ação humana**:
 
