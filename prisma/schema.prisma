@@ -310,6 +310,13 @@ model PriceEntry {
   priceCents    Int
   currency      String            @default("BRL")
   url           String?
+  /// Link de afiliado já pronto para ESTA oferta específica, quando o
+  /// programa exige geração manual por produto (ex.: deeplink Mercado
+  /// Livre) em vez de um template aplicável a qualquer URL da loja.
+  /// Quando presente, usado como destino final do `/go` diretamente —
+  /// `Store.affiliateBaseUrl` é ignorado para esta captura. Quando
+  /// ausente (o caso normal hoje), nada muda.
+  affiliateUrl  String?
   availability  StockAvailability @default(UNKNOWN)
   /// Rastreabilidade de origem (Data Pipeline §4.10) — nulo quando
   /// capturado fora de um lote de importação (cadastro manual pontual).
