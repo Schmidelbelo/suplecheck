@@ -177,6 +177,67 @@ Nenhum script foi rodado, nenhuma imagem foi publicada, nenhum banco ou
 código foi alterado para registrar esta recomendação — é só o próximo
 item da fila, documentado para quando for autorizado a executar.
 
+## 8. Resolução manual (2026-09-17) — 1 de 3 resolvido, 2 seguem pendentes
+
+Retomada item a item, cada produto pesquisado individualmente contra
+fonte real e específica — nenhum lote automático, nenhuma imagem
+publicada sem validação clara do produto exato.
+
+### 8.1 `neo-quimica-melatonina-021mg-90-comprimidos` — ✅ resolvido
+
+- **Fonte**: a própria `sourceUrl` já registrada no catálogo (Amazon,
+  `dp/B0B5S7L3VN`) — não uma fonte nova, o produto exato já apontado
+  pelo dado existente.
+- **Validação**: tabela de especificação do produto na página confirma
+  `Marca: NEO QUIMICA`, `Sabor: Maracujá` — batendo exatamente com
+  `Product.attributes.ingredients` ("sabor maracujá") já no catálogo.
+  Título confirma "90 cápsulas". Imagem baixada e inspecionada
+  visualmente antes de publicar: rótulo mostra "Neo Química — Melatonina
+  — 90 unidades — Suplemento Alimentar em Comprimido Orodispersível" —
+  produto exato, sem ambiguidade de marca/sabor/quantidade.
+- **Ação**: candidato baixado e publicado via
+  `POST /api/admin/images/upload` (endpoint administrativo existente de
+  upload manual — não criação de candidato automático, não lote).
+- **Antes**: card ilustrativo (`neo-quimica-melatonina-021mg-90-comprimidos-card.webp`), `PendingImage` com `status: PENDING`.
+- **Depois**: capa real no Blob (`.../products/neo-quimica-melatonina-021mg-90-comprimidos.webp`, HTTP 200, confirmada publicamente acessível); `PendingImage` removido da fila (guardrail automático); página do produto (`/categorias/melatonina/neo-quimica-melatonina-021mg-90-comprimidos`) já renderiza a imagem nova.
+
+### 8.2 `growth-coenzima-q10-100mg-60-capsulas` — ainda `PENDING`
+
+Pesquisa tentou 5 fontes distintas (site oficial `gsuplementos.com.br` —
+o mesmo já registrado como `sourceUrl` no catálogo —, além de
+`fitfield.com.br`, `essenciabrasileira.com.br`, `towersuplementos.com`,
+`drogaraia.com.br`, `americanas.com.br`): todas bloqueadas (verificação
+anti-bot, "Acesso Bloqueado", DNS inacessível a partir deste ambiente,
+ou 403/404). Nenhuma retornou conteúdo utilizável. **Reconfirma** a
+causa já registrada no `PendingImage.reason` ("fonte sem metadata"/
+bloqueio de acesso) — mantido `PENDING`, nenhum candidato inventado.
+
+### 8.3 `probiotica-epic-pre-treino-300g` — ainda `PENDING`, causa nova identificada
+
+Fonte oficial (`probiotica.com.br/epic-300g/p`) respondeu normalmente,
+mas revelou uma ambiguidade real: **Epic Pré-Treino 300g é vendido em
+pelo menos 5 sabores distintos** (Melancia, Brazilian Fruits, Guaraná
+com Laranja, Tipo Energético, entre outros), cada um com SKU e foto
+própria — confirmado via JSON-LD `Product` da página oficial, um bloco
+por sabor. O catálogo do SupleScore **não especifica sabor** para este
+produto (`Product.attributes.ingredients` não menciona nenhum sabor
+específico). Sem saber qual sabor o preço/oferta capturados realmente
+representam, publicar a foto de qualquer sabor arriscaria "imagem de
+sabor diferente" — proibido nesta tarefa. Mantido `PENDING`. Causa a
+documentar/corrigir no `PendingImage.reason` (sem endpoint disponível
+para isso, mesma limitação já registrada em §6): produto tem sabor
+ambíguo no catálogo, precisa de decisão de qual sabor representar antes
+de qualquer busca de imagem fazer sentido — mesma categoria de problema
+do caso Nutrata (§6), não resolver por aproximação.
+
+### 8.4 Validação pós-mudança
+
+- `/ofertas` responde 200, estável.
+- Fila `PendingImage`: 18 → 17 (só a melatonina saiu).
+- Nenhum afiliado alterado, nenhum `affiliateBaseUrl` tocado, Mercado
+  Livre e Netshoes não mexidos, Nutrata não mexido, nenhum slug
+  alterado, nenhum lote automático rodado.
+
 ---
 
-_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada._
+_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada. §8 (2026-09-17) é a segunda exceção: 1 imagem publicada via upload manual validado item a item, 2 produtos seguem `PENDING` por bloqueio de fonte e ambiguidade de sabor, respectivamente._

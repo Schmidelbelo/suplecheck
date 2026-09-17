@@ -29,6 +29,29 @@ Efeito prático:
 Nenhum código, banco, afiliado (além desta correção documental de
 status), imagem ou env var foi alterado para registrar isto.
 
+### Frente visual `/ofertas` — 1 de 3 placeholders resolvido
+
+Trabalho item a item nos 3 placeholders mais visíveis em `/ofertas`
+(sem lote automático, sem afiliados/Nutrata/slugs tocados — ver
+`docs/AUDITORIA_COBERTURA_IMAGENS.md §8` para o relatório completo):
+
+- **`neo-quimica-melatonina-021mg-90-comprimidos`**: ✅ resolvido. Fonte
+  já registrada no catálogo (Amazon) validada — marca, sabor (maracujá)
+  e quantidade (90) confirmados na página, imagem inspecionada
+  visualmente antes de publicar. Publicado via
+  `POST /api/admin/images/upload`. Fila `PendingImage`: 18 → 17.
+- **`growth-coenzima-q10-100mg-60-capsulas`**: continua `PENDING`. 5
+  fontes tentadas, todas bloqueadas (anti-bot/DNS/403) — reconfirma a
+  causa já registrada, nenhum candidato inventado.
+- **`probiotica-epic-pre-treino-300g`**: continua `PENDING`. Causa nova
+  identificada: produto vendido em pelo menos 5 sabores distintos, cada
+  um com foto própria, e o catálogo não especifica qual sabor este SKU
+  representa — mesma categoria de ambiguidade do caso Nutrata, não
+  resolvido por aproximação.
+
+`/ofertas` validado 200 depois da mudança. Nenhum afiliado, banco (além
+do `ProductImage`/`PendingImage` deste item), código ou slug alterado.
+
 ## 2026-09-16
 
 ### Resumo do dia
