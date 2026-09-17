@@ -77,7 +77,7 @@ tínhamos (foto real já publicada), 1 segue pendente.
 | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `growth-creatina-monohidratada-300g` | Growth vende **duas linhas distintas** de creatina 250g: "Creatina Monohidratada" (regular) e "Creatina Creapure" (premium) — resultados de busca encontrados na hora eram todos da linha Creapure; catálogo não especifica qual linha. **Resolvido — §3.2.** |
 | `black-skull-creatina-300g`          | Black Skull vende múltiplas sub-linhas (**"Creator"** vs **"Creatine Turbo"**, com maltodextrina — produto diferente, não só sabor) mais variantes de sabor. **Resolvido — §3.2.**                                                                            |
-| `nutrata-creatina-creapure-250g`     | Ambiguidade de SKU já conhecida (`docs/AUDITORIA_COBERTURA_IMAGENS.md §6`) — Nutrata vende real em 150g/300g, não 250g. **Continua pendente — §3.2.**                                                                                                         |
+| `nutrata-creatina-creapure-250g`     | Ambiguidade de SKU já conhecida (`docs/AUDITORIA_COBERTURA_IMAGENS.md §6`) — Nutrata vende real em 150g/300g, não 250g; preço capturado não batia com nenhum dos dois. **Despublicado (`UNPUBLISHED`) — §3.2.**                                               |
 
 **Validação executada (primeira rodada)**: `npm run typecheck` limpo,
 37/37 testes unitários de pricing/monetização passando (nenhum código
@@ -124,9 +124,9 @@ necessário adivinhar.
 Black Skull`, `Sabor Sem sabor`, `Peso do produto 300 Gramas`. Nome
   do produto **não precisou mudar**.
 
-#### `nutrata-creatina-creapure-250g` — ⏳ pendente de confirmação humana (auditoria dedicada, 2026-09-17)
+#### `nutrata-creatina-creapure-250g` — ⏸️ pausado/despublicado (2026-09-17)
 
-**Cadastro atual completo** (produção):
+**Cadastro no momento da auditoria dedicada** (produção):
 
 - Nome: `Creatina Creapure 250g` | Slug: `nutrata-creatina-creapure-250g` | Status: `PUBLISHED`
 - Marca: Nutrata | Categoria: creatina | `attributes: null` (nenhum sabor/ingrediente registrado, diferente dos outros produtos de creatina do catálogo)
@@ -145,10 +145,16 @@ Black Skull`, `Sabor Sem sabor`, `Peso do produto 300 Gramas`. Nome
 - O preço já capturado (R$69,90) **não bate com nenhum dos dois tamanhos reais** na própria Amazon (150g real ≈ R$126,80 — quase o dobro do capturado; 300g real seria ainda mais caro). Isso não é só "peso errado no nome" — o preço capturado não corresponde a nenhuma combinação real conhecida, o que é um sinal mais sério: a captura original pode ter vindo de uma fonte errada desde o início (nunca existiu uma correspondência real por trás desses R$69,90).
 - Sem imagem real e sem preço batendo, não há evidência forte o bastante pra escolher 150g ou 300g — escolher qualquer um dos dois seria aproximação, exatamente o que está proibido.
 
-**Classificação final**: **2 — pendente de confirmação humana**, mas com uma ressalva importante: a evidência aponta mais pra "captura de dado inválida desde a origem" do que pra um simples erro de peso. A decisão real que falta não é só "qual peso corrigir", é **decidir entre**:
+**Classificação na auditoria dedicada**: **2 — pendente de confirmação humana**, mas com uma ressalva importante: a evidência apontava mais pra "captura de dado inválida desde a origem" do que pra um simples erro de peso. A decisão real que faltava não era só "qual peso corrigir", era **decidir entre**:
 (a) recapturar preço/URL reais contra um ASIN verdadeiro (150g **ou** 300g — precisa de alguém confirmar qual desses dois é o produto que deveria estar sendo rastreado, já que R$69,90 não corresponde a nenhum), **ou**
 (b) se não houver como determinar qual dos dois era a intenção original, tratar como cadastro inválido e pausar/despublicar o produto (`status: UNPUBLISHED`) até uma nova captura de preço legítima existir.
-Nenhuma das duas ações foi executada nesta auditoria — decisão fica para quem tem contexto comercial/de captura de preço.
+
+**Ação executada (2026-09-17, mesmo dia, autorização explícita)**: opção (b) — produto **despublicado** (`Product.status: PUBLISHED → UNPUBLISHED`) via update direto em produção, escopo único a este produto. Nenhum outro campo mudou:
+
+- `PriceEntry` histórico (3 linhas, `R$69,90`, mesma URL de busca genérica, `affiliateUrl: null`) **intacto** — nada foi apagado nem sobrescrito (a tabela é append-only e não recebeu nenhuma linha nova).
+- Nenhum `affiliateUrl` configurado, nenhuma troca por 150g/300g, nenhuma imagem, schema ou migration alterados.
+- Validado após a mudança: `status` confirmado `UNPUBLISHED` em produção, e as 3 `PriceEntry` confirmadas byte-a-byte iguais às de antes.
+- Reversível a qualquer momento: quando alguém confirmar o peso real (150g ou 300g) e existir uma captura de preço/URL legítima, basta uma nova `PriceEntry` real + `status: PUBLISHED` de volta.
 
 **Validação executada (segunda rodada)**: `npm run typecheck` limpo,
 37/37 testes unitários passando (nenhum código tocado), `/go`
