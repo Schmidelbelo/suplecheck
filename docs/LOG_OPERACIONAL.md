@@ -52,6 +52,30 @@ Trabalho item a item nos 3 placeholders mais visíveis em `/ofertas`
 `/ofertas` validado 200 depois da mudança. Nenhum afiliado, banco (além
 do `ProductImage`/`PendingImage` deste item), código ou slug alterado.
 
+### Segunda rodada — mais 2 placeholders resolvidos após correção de catálogo
+
+Com Growth e Atlhetica já com nome certo no catálogo (§ acima), esses
+dois deixaram de ser "erro de catálogo" e viraram pesquisáveis. Fonte
+forte encontrada e validada visualmente pra ambos antes de publicar
+(ver `docs/AUDITORIA_COBERTURA_IMAGENS.md §9` para o relatório
+completo):
+
+- **`growth-creatina-monohidratada-300g`**: ✅ resolvido (fonte:
+  xtrategynutrition.com). Fila: 17 → 16.
+- **`atlhetica-creatina-300g`**: ✅ resolvido (fonte:
+  curitibasuplementos.com.br — Amazon bloqueou com captcha, site
+  oficial da marca tinha `og:image` quebrado, ambos descartados). Fila:
+  16 → 15.
+
+**Total do dia**: 3 imagens publicadas, fila `PendingImage` 18 → 15.
+Limite seguro do dia atingido — os 3 restantes
+(`growth-coenzima-q10-100mg-60-capsulas`, `probiotica-epic-pre-treino-300g`,
+`nutrata-creatina-creapure-250g`) têm causa real documentada (fonte
+bloqueada, ambiguidade de sabor, ambiguidade de SKU) que não se resolve
+insistindo hoje. `/ofertas` responde 200. Nenhum afiliado, Mercado
+Livre, Netshoes, Nutrata, slug ou `affiliate-discovery` tocado; nenhum
+lote automático.
+
 ## 2026-09-16
 
 ### Resumo do dia

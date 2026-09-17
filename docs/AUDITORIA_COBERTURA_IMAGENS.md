@@ -230,7 +230,7 @@ ambíguo no catálogo, precisa de decisão de qual sabor representar antes
 de qualquer busca de imagem fazer sentido — mesma categoria de problema
 do caso Nutrata (§6), não resolver por aproximação.
 
-### 8.4 Validação pós-mudança
+### 8.4 Validação pós-mudança (primeira rodada)
 
 - `/ofertas` responde 200, estável.
 - Fila `PendingImage`: 18 → 17 (só a melatonina saiu).
@@ -238,6 +238,81 @@ do caso Nutrata (§6), não resolver por aproximação.
   Livre e Netshoes não mexidos, Nutrata não mexido, nenhum slug
   alterado, nenhum lote automático rodado.
 
+## 9. Segunda rodada (2026-09-17) — reavaliação após correção de catálogo
+
+Com `growth-creatina-monohidratada-300g` e `atlhetica-creatina-300g` já
+corrigidos no catálogo (§6, nomes certos: `Creatina Monohidratada 250g`
+e `Creatina 100% Pure 300g`), esses dois deixaram de ser "erro de
+catálogo" e passaram a ser pesquisáveis como qualquer outro placeholder.
+Reavaliados agora, individualmente, com fonte forte encontrada para os
+dois:
+
+### 9.1 `growth-creatina-monohidratada-300g` — ✅ resolvido
+
+- **Fonte**: `xtrategynutrition.com` (revenda internacional) — título da
+  página "Creatina Monohidratada/Creatine Monohydrate Powder 250g -
+  Growth Supplements" bate exatamente com o nome corrigido no catálogo.
+- **Validação**: imagem baixada e inspecionada visualmente antes de
+  publicar — rótulo mostra "Growth — Monohidratada Creatina —
+  Suplemento Alimentar em Pó — Peso Líquido 250g". Produto, marca e peso
+  exatos, sem ambiguidade de sabor (produto é sem sabor).
+- **Ação**: publicado via `POST /api/admin/images/upload`.
+- **Antes**: card ilustrativo, `PendingImage` `PENDING`. **Depois**:
+  capa real no Blob (`.../products/growth-creatina-monohidratada-300g.webp`,
+  HTTP 200), `PendingImage` removido, página do produto já renderiza a
+  imagem nova.
+
+### 9.2 `atlhetica-creatina-300g` — ✅ resolvido
+
+- **Fonte**: `curitibasuplementos.com.br` — título "Creatine 100% Pure
+  (300g)" bate com o nome corrigido no catálogo. (Fontes tentadas antes
+  desta: Amazon bloqueou com captcha após uso intensivo nesta sessão;
+  o site oficial `atlheticanutrition.com.br` carregou normalmente mas
+  seu `og:image` apontava para um arquivo quebrado/vazio no CDN deles —
+  descartado por não ser uma imagem real, não por desconfiança da
+  fonte.)
+- **Validação**: imagem baixada e inspecionada visualmente antes de
+  publicar — rótulo mostra "Atlhetica Nutrition — Creatine Monohydrate
+  100% Pure — 3g Creatine". Produto, marca e peso exatos.
+- **Ação**: publicado via `POST /api/admin/images/upload`.
+- **Antes**: card ilustrativo, `PendingImage` `PENDING`. **Depois**:
+  capa real no Blob (`.../products/atlhetica-creatina-300g.webp`, HTTP
+  200), `PendingImage` removido, página do produto já renderiza a
+  imagem nova.
+
+### 9.3 Itens não reavaliados (causa inalterada, não insistido)
+
+- `growth-coenzima-q10-100mg-60-capsulas`: continua bloqueado nas
+  mesmas 5 fontes já tentadas em §8.2 — não insistido de novo, mesma
+  causa.
+- `probiotica-epic-pre-treino-300g`: continua ambíguo por sabor (§8.3)
+  — não insistido de novo, mesma causa.
+- `nutrata-creatina-creapure-250g`: não tocado, ambiguidade de SKU
+  segue sem fonte forte o bastante para decidir (§6).
+
+### 9.4 Validação pós-mudança (segunda rodada)
+
+- `/ofertas` responde 200, estável.
+- Fila `PendingImage`: 17 → 15 (Growth e Atlhetica saíram).
+- Páginas `/creatina/growth-creatina-monohidratada-300g` e
+  `/creatina/atlhetica-creatina-300g` confirmadas renderizando a imagem
+  nova.
+- Nenhum afiliado, Mercado Livre, Netshoes, Nutrata, slug, banco além
+  de `ProductImage`/`PendingImage` destes 2 itens, ou trabalho de
+  `affiliate-discovery` tocado. Nenhum lote automático rodado — os 2
+  itens foram pesquisados e publicados um de cada vez.
+
+**Total do dia (2026-09-17)**: 3 imagens publicadas
+(`neo-quimica-melatonina-021mg-90-comprimidos`,
+`growth-creatina-monohidratada-300g`, `atlhetica-creatina-300g`), fila
+`PendingImage` caiu de 18 para 15. A frente visual chegou no limite
+seguro do dia: os 3 itens restantes (`growth-coenzima-q10-...`,
+`probiotica-epic-pre-treino-300g`, `nutrata-creatina-creapure-250g`)
+têm causas reais e documentadas que não se resolvem por mais tentativas
+hoje — exigem, respectivamente, uma fonte que não esteja bloqueada,
+uma decisão de qual sabor o SKU representa, e uma fonte forte o
+bastante para desempatar 150g/300g.
+
 ---
 
-_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada. §8 (2026-09-17) é a segunda exceção: 1 imagem publicada via upload manual validado item a item, 2 produtos seguem `PENDING` por bloqueio de fonte e ambiguidade de sabor, respectivamente._
+_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada. §8/§9 (2026-09-17) são a segunda exceção: 3 imagens publicadas via upload manual validado item a item ao longo do dia, 3 produtos seguem `PENDING` por bloqueio de fonte, ambiguidade de sabor e ambiguidade de SKU, respectivamente._
