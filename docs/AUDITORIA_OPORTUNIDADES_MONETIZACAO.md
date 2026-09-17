@@ -68,18 +68,86 @@ mesmo preço já capturado, só a `url`; `Store.affiliateBaseUrl` intocado;
 | `atlhetica-creatina-300g`         | `amazon.com.br/s?k=Atlhetica+Nutrition+Creatina+Nitro+300g`           | `amazon.com.br/.../dp/B07MPZLM1N` — "Creatina 100% Pure em Pó 300g, Atlhetica Nutrition", bate exatamente com o nome já corrigido no catálogo |
 | `optimum-nutrition-creatine-300g` | `amazon.com.br/s?k=Optimum+Nutrition+Micronized+Creatine+Powder+300g` | `amazon.com.br/.../dp/B07774XR8W` — "Optimum Nutrition Creatina Monohidratada Micronizada em Pó Sem Sabor 300g", unidade única                |
 
-**Não corrigidas — ambiguidade real, deixadas com a URL de busca genérica**:
+**Situação em 2026-09-17 (primeira rodada)** — as 3 abaixo ficaram sem
+correção por ambiguidade real. Reavaliadas na §3.2 (mesmo dia,
+retomada específica): 2 das 3 foram resolvidas usando evidência que já
+tínhamos (foto real já publicada), 1 segue pendente.
 
-| Produto                              | Motivo                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `growth-creatina-monohidratada-300g` | Growth vende **duas linhas distintas** de creatina 250g na Amazon: "Creatina Monohidratada" (regular) e "Creatina Creapure" (premium, certificação alemã) — todos os resultados de busca encontrados eram da linha Creapure; o catálogo não especifica qual linha este SKU representa. Mesma categoria de risco documentada em `docs/DESENHO_AFILIADO_POR_OFERTA.md`/auditoria de imagens: não escolher por aproximação. |
-| `black-skull-creatina-300g`          | Black Skull vende múltiplas sub-linhas com o mesmo peso (**"Creator"** vs **"Creatine Turbo"**, este último com maltodextrina/carboidrato adicionado — produto diferente, não só sabor) mais variantes com sabor (laranja, uva). Nome do catálogo ("Creatina Black Skull 300g") não indica qual sub-linha.                                                                                                               |
-| `nutrata-creatina-creapure-250g`     | Ambiguidade de SKU já conhecida e documentada (`docs/AUDITORIA_COBERTURA_IMAGENS.md §6`) — Nutrata vende real em 150g/300g, não 250g. Mesmo bloqueio de antes, não resolvido por este achado da Amazon.                                                                                                                                                                                                                  |
+| Produto                              | Motivo original                                                                                                                                                                                                                                               |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `growth-creatina-monohidratada-300g` | Growth vende **duas linhas distintas** de creatina 250g: "Creatina Monohidratada" (regular) e "Creatina Creapure" (premium) — resultados de busca encontrados na hora eram todos da linha Creapure; catálogo não especifica qual linha. **Resolvido — §3.2.** |
+| `black-skull-creatina-300g`          | Black Skull vende múltiplas sub-linhas (**"Creator"** vs **"Creatine Turbo"**, com maltodextrina — produto diferente, não só sabor) mais variantes de sabor. **Resolvido — §3.2.**                                                                            |
+| `nutrata-creatina-creapure-250g`     | Ambiguidade de SKU já conhecida (`docs/AUDITORIA_COBERTURA_IMAGENS.md §6`) — Nutrata vende real em 150g/300g, não 250g. **Continua pendente — §3.2.**                                                                                                         |
 
-**Validação executada**: `npm run typecheck` limpo, 37/37 testes
-unitários de pricing/monetização passando (nenhum código tocado — só
-dado via API já existente), `/go` confirmado pros 3 produtos
-corrigidos com `tag=suplescore-20` aplicado corretamente.
+**Validação executada (primeira rodada)**: `npm run typecheck` limpo,
+37/37 testes unitários de pricing/monetização passando (nenhum código
+tocado — só dado via API já existente), `/go` confirmado pros 3
+produtos corrigidos com `tag=suplescore-20` aplicado corretamente.
+
+### 3.2 Resolução das 3 ambiguidades (mesmo dia, retomada dedicada)
+
+Método: comparar o nome cadastrado com as opções reais da Amazon e,
+quando a busca sozinha não bastava, usar **a foto real já publicada**
+do produto (quando existia) como evidência decisiva — ela mostra
+exatamente qual linha/variante está fotografada, então não é
+necessário adivinhar.
+
+#### `growth-creatina-monohidratada-300g` — ✅ corrigível, corrigido
+
+- **Classificação do problema**: linha errada nos resultados de busca
+  (não um problema do cadastro em si).
+- **Evidência**: a foto real já publicada (`growth-creatina-monohidratada-300g.webp`)
+  mostra o rótulo "Growth — Monohidratada Creatina — Suplemento
+  Alimentar em Pó — Peso Líquido 250g", **sem nenhuma menção a
+  Creapure**. Confirma que o cadastro já representa a linha regular —
+  o problema era só a URL da Amazon apontar pra busca genérica, que
+  por acaso só trazia resultados da linha Creapure.
+- **Correção aplicada**: `PriceEntry.url` → `amazon.com.br/.../dp/B0CJG32CZ6`
+  ("Creatina Growth Monohidratada 250g Original", sem menção a
+  Creapure, preço ~R$42 batendo com a faixa já capturada de R$49,90).
+  Nome do produto **não precisou mudar** — já estava correto.
+- **Ressalva**: o campo "Marca" nessa listagem da Amazon aparece como
+  "Genérico" (provável higiene de cadastro do vendedor, não indica
+  produto errado — título e ausência de Creapure já confirmam a linha
+  certa).
+
+#### `black-skull-creatina-300g` — ✅ corrigível, corrigido
+
+- **Classificação do problema**: mesma coisa — linha errada nos
+  resultados de busca, não um problema do cadastro.
+- **Evidência**: a foto real já publicada (`black-skull-creatina-300g.webp`)
+  mostra o rótulo "Black Skull — CREATOR — Heavy Pure Creatine —
+  Unflavored/Sem Sabor — 300g" — decisivo: é a linha **Creator**, não
+  Creatine Turbo.
+- **Correção aplicada**: `PriceEntry.url` → `amazon.com.br/.../dp/B09MJK3PMB`
+  — confirmado na própria tabela de especificação da página: `Marca
+Black Skull`, `Sabor Sem sabor`, `Peso do produto 300 Gramas`. Nome
+  do produto **não precisou mudar**.
+
+#### `nutrata-creatina-creapure-250g` — ⏳ continua pendente, não corrigido
+
+- **Classificação do problema**: **peso incorreto / SKU inexistente**
+  — diferente dos outros dois, aqui o problema é o próprio cadastro:
+  Nutrata não vende 250g de verdade (só 150g e 300g).
+- **Por que não dá pra aplicar o mesmo truque dos outros dois**: não
+  existe foto real publicada pra este produto ainda (continua
+  mostrando o card ilustrativo) — não há evidência decisiva disponível
+  hoje pra escolher entre 150g e 300g. O preço já capturado (R$69,90)
+  também não bate com a faixa real de nenhum dos dois tamanhos (150g:
+  ~R$116–162; 300g: ~R$149–299), então preço também não desempata.
+- **O que precisa de confirmação humana**: uma nota fiscal, captura de
+  preço confiável, ou confirmação direta da loja de origem do R$69,90
+  — mesma pendência já registrada em `docs/AUDITORIA_COBERTURA_IMAGENS.md §6`
+  e `docs/PROCEDIMENTO_AFILIADO_MERCADO_LIVRE.md`. Não resolvido por
+  esta tarefa, e não deve ser resolvido por aproximação.
+
+**Validação executada (segunda rodada)**: `npm run typecheck` limpo,
+37/37 testes unitários passando (nenhum código tocado), `/go`
+confirmado pros 2 produtos corrigidos com `tag=suplescore-20`
+aplicado. **Total do dia**: 5 de 6 URLs de busca genérica da Amazon
+corrigidas; só `nutrata-creatina-creapure-250g` segue pendente, por um
+motivo diferente dos outros (dado de catálogo, não escolha de
+listagem).
 
 Adicionalmente, **3 ofertas de outras lojas** (`loja-oficial`,
 `netshoes`) também têm `PriceEntry.url` apontando pra
@@ -146,7 +214,7 @@ sentido revisitar):
    17500 3kg** no catálogo (confirmar se a marca vende só em morango,
    ou corrigir o nome/atributos pra refletir o sabor certo) — depois
    disso, reavaliar como candidato.
-3. ~~Corrigir as 6 URLs de busca genérica da Amazon~~ — **3 de 6 corrigidas em 2026-09-17** (§3.1): `max-titanium-creatina-300g`, `atlhetica-creatina-300g`, `optimum-nutrition-creatine-300g`. As 3 restantes (`growth-creatina-monohidratada-300g`, `black-skull-creatina-300g`, `nutrata-creatina-creapure-250g`) têm ambiguidade real de linha/SKU — precisam de decisão de catálogo antes, não são candidatas a correção automática.
+3. ~~Corrigir as 6 URLs de busca genérica da Amazon~~ — **5 de 6 corrigidas em 2026-09-17** (§3.1/§3.2): `max-titanium-creatina-300g`, `atlhetica-creatina-300g`, `optimum-nutrition-creatine-300g`, `growth-creatina-monohidratada-300g`, `black-skull-creatina-300g`. Só `nutrata-creatina-creapure-250g` segue pendente — não é ambiguidade de listagem, é ambiguidade de dado de catálogo (peso 250g não existe de verdade), precisa de confirmação humana (nota fiscal ou fonte forte) antes de qualquer correção.
 
 **O que precisa de ação humana**:
 
