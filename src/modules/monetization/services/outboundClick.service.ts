@@ -79,6 +79,7 @@ export async function resolveOutboundClick(
             take: 1,
             select: {
               url: true,
+              affiliateUrl: true,
               store: {
                 select: { id: true, isAffiliate: true, affiliateBaseUrl: true },
               },
@@ -95,10 +96,15 @@ export async function resolveOutboundClick(
     return { status: "no_offer", productSlug: product.slug, categorySlug: product.category.slug };
   }
 
-  const { url, isAffiliateLink } = buildAffiliateUrl({
-    destinationUrl: priceEntry.url,
-    store: priceEntry.store,
-  });
+  // `PriceEntry.affiliateUrl` tem precedência quando presente — é o
+  // link de afiliado já pronto para ESTA oferta específica (ex.:
+  // deeplink Mercado Livre gerado por produto no painel deles), que
+  // Store.affiliateBaseUrl não sabe reproduzir (não é um template
+  // aplicável a qualquer URL da loja). Sem ele, comportamento idêntico
+  // a antes: buildAffiliateUrl resolve via Store.
+  const { url, isAffiliateLink } = priceEntry.affiliateUrl
+    ? { url: priceEntry.affiliateUrl, isAffiliateLink: true }
+    : buildAffiliateUrl({ destinationUrl: priceEntry.url, store: priceEntry.store });
 
   // Última barreira contra open redirect: mesmo com `buildAffiliateUrl`
   // já validando o protocolo, um `PriceEntry.url` corrompido poderia em

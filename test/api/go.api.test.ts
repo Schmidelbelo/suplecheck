@@ -237,4 +237,48 @@ describe("GET /go/[productId]", () => {
       await cleanup();
     }
   });
+
+  it("usa PriceEntry.affiliateUrl como destino final quando presente, mesmo numa loja sem programa de afiliado (caso Mercado Livre: deeplink por oferta, não por loja)", async () => {
+    await setup();
+    try {
+      // Segunda captura, mais recente, na loja SEM afiliado
+      // (`storeDirectId`) — mas com `affiliateUrl` preenchido nesta
+      // captura específica. Precisa ter precedência mesmo a loja não
+      // tendo `isAffiliate`/`affiliateBaseUrl` nenhum, exatamente o
+      // caso real do Mercado Livre (link por produto, não por loja).
+      await client.priceEntry.create({
+        data: {
+          skuId: productWithOfferSkuId,
+          storeId: storeDirectId,
+          priceCents: 7000,
+          url: "https://loja-direta.example/produto-go-teste-affiliate-url",
+          affiliateUrl: "https://meli.la/go-test-deeplink",
+        },
+      });
+
+      const { GET } = await import("../../src/app/go/[productId]/route");
+      const res = await GET(
+        new Request(`http://localhost/go/${productWithOfferSlug}?source=product-page`),
+        { params: Promise.resolve({ productId: productWithOfferSlug }) },
+      );
+
+      expect(res.status).toBe(302);
+      // O destino é o affiliateUrl da oferta, NUNCA o priceEntry.url cru
+      // nem qualquer transformação de Store.affiliateBaseUrl (a loja
+      // nem tem um configurado).
+      expect(res.headers.get("location")).toBe("https://meli.la/go-test-deeplink");
+
+      const clicks = await client.outboundClick.findMany({
+        where: { productId: productWithOfferId },
+      });
+      expect(clicks).toHaveLength(1);
+      expect(clicks[0]).toMatchObject({
+        storeId: storeDirectId,
+        source: "product-page",
+        wasAffiliate: true,
+      });
+    } finally {
+      await cleanup();
+    }
+  });
 });
