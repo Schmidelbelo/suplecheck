@@ -124,22 +124,31 @@ necessário adivinhar.
 Black Skull`, `Sabor Sem sabor`, `Peso do produto 300 Gramas`. Nome
   do produto **não precisou mudar**.
 
-#### `nutrata-creatina-creapure-250g` — ⏳ continua pendente, não corrigido
+#### `nutrata-creatina-creapure-250g` — ⏳ pendente de confirmação humana (auditoria dedicada, 2026-09-17)
 
-- **Classificação do problema**: **peso incorreto / SKU inexistente**
-  — diferente dos outros dois, aqui o problema é o próprio cadastro:
-  Nutrata não vende 250g de verdade (só 150g e 300g).
-- **Por que não dá pra aplicar o mesmo truque dos outros dois**: não
-  existe foto real publicada pra este produto ainda (continua
-  mostrando o card ilustrativo) — não há evidência decisiva disponível
-  hoje pra escolher entre 150g e 300g. O preço já capturado (R$69,90)
-  também não bate com a faixa real de nenhum dos dois tamanhos (150g:
-  ~R$116–162; 300g: ~R$149–299), então preço também não desempata.
-- **O que precisa de confirmação humana**: uma nota fiscal, captura de
-  preço confiável, ou confirmação direta da loja de origem do R$69,90
-  — mesma pendência já registrada em `docs/AUDITORIA_COBERTURA_IMAGENS.md §6`
-  e `docs/PROCEDIMENTO_AFILIADO_MERCADO_LIVRE.md`. Não resolvido por
-  esta tarefa, e não deve ser resolvido por aproximação.
+**Cadastro atual completo** (produção):
+
+- Nome: `Creatina Creapure 250g` | Slug: `nutrata-creatina-creapure-250g` | Status: `PUBLISHED`
+- Marca: Nutrata | Categoria: creatina | `attributes: null` (nenhum sabor/ingrediente registrado, diferente dos outros produtos de creatina do catálogo)
+- Imagem: card ilustrativo (`-card.webp`) — **nenhuma foto real publicada**, sem evidência visual disponível pra desambiguar (diferente de Growth/Black Skull, que puderam ser resolvidos assim)
+- Oferta: SKU `250g`, loja **`amazon-br`** (não uma loja genérica — é especificamente a Amazon), `R$69,90`, 3 capturas idênticas entre 02–03/09, todas com a mesma URL de busca genérica (`amazon.com.br/s?k=Nutrata+Creatina+Creapure+250g`) — nunca teve uma URL de produto real.
+
+**Comparação com fontes reais (Amazon, especificamente — mesma loja da captura)**:
+
+- Nutrata Creatina Creapure **150g** existe de verdade na Amazon: `amazon.com.br/.../dp/B07MDZRJ7R`, preço real ~R$126,80.
+- Nutrata Creatina Creapure **300g** existe de verdade na Amazon: `amazon.com.br/.../dp/B07MF3MJSW`.
+- **250g não existe em nenhum lugar** — nem Amazon, nem loja oficial (`loja.nutrata.com.br`), confirmado por duas buscas independentes.
+- Achado adicional: a Nutrata também vende uma linha **"Creatin UP"** (não-Creapure) — mais um motivo pra não presumir qual produto exato o preço capturado representa.
+
+**Por que fica pendente, não corrigido nem pausado agora**:
+
+- O preço já capturado (R$69,90) **não bate com nenhum dos dois tamanhos reais** na própria Amazon (150g real ≈ R$126,80 — quase o dobro do capturado; 300g real seria ainda mais caro). Isso não é só "peso errado no nome" — o preço capturado não corresponde a nenhuma combinação real conhecida, o que é um sinal mais sério: a captura original pode ter vindo de uma fonte errada desde o início (nunca existiu uma correspondência real por trás desses R$69,90).
+- Sem imagem real e sem preço batendo, não há evidência forte o bastante pra escolher 150g ou 300g — escolher qualquer um dos dois seria aproximação, exatamente o que está proibido.
+
+**Classificação final**: **2 — pendente de confirmação humana**, mas com uma ressalva importante: a evidência aponta mais pra "captura de dado inválida desde a origem" do que pra um simples erro de peso. A decisão real que falta não é só "qual peso corrigir", é **decidir entre**:
+(a) recapturar preço/URL reais contra um ASIN verdadeiro (150g **ou** 300g — precisa de alguém confirmar qual desses dois é o produto que deveria estar sendo rastreado, já que R$69,90 não corresponde a nenhum), **ou**
+(b) se não houver como determinar qual dos dois era a intenção original, tratar como cadastro inválido e pausar/despublicar o produto (`status: UNPUBLISHED`) até uma nova captura de preço legítima existir.
+Nenhuma das duas ações foi executada nesta auditoria — decisão fica para quem tem contexto comercial/de captura de preço.
 
 **Validação executada (segunda rodada)**: `npm run typecheck` limpo,
 37/37 testes unitários passando (nenhum código tocado), `/go`
