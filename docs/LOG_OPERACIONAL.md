@@ -119,6 +119,68 @@ insistência:
 Nenhum código, banco, afiliado ou imagem alterado para esta auditoria;
 `affiliate-discovery` não tocado.
 
+### Afiliado por oferta (Mercado Livre) — schema, código e primeiro teste real em produção
+
+Executado o plano de `docs/DESENHO_AFILIADO_POR_OFERTA.md` em 4 etapas
+pequenas e sequenciais, cada uma com commit próprio, typecheck e testes
+antes de avançar:
+
+1. **Schema/migration** — `PriceEntry.affiliateUrl` (nullable) adicionado
+   ao schema; migration `20260917124803_add_price_entry_affiliate_url`
+   gerada via diff puro (sem tocar banco nesse momento).
+2. **Tipos/validação** — `recordPriceSchema` ganhou `affiliateUrl`
+   opcional, validado como URL.
+3. **API/admin** — `price.service.ts` (`recordPrice`) passa a persistir
+   o campo; a rota `POST /api/catalog/skus/[id]/prices` já era genérica,
+   sem mudança própria.
+4. **Consumo no `/go`** — `outboundClick.service.ts`: quando
+   `PriceEntry.affiliateUrl` está preenchido, tem precedência total como
+   destino final do redirect, ignorando `Store.affiliateBaseUrl` só
+   naquela captura; ausente, comportamento idêntico ao anterior. Novo
+   teste em `test/api/go.api.test.ts` cobrindo o caso.
+
+Migration aplicada primeiro em dev, depois em produção (mesmo host Neon
+nos dois `.env`, confirmado) — 83 registros existentes confirmados com
+`affiliateUrl = NULL` antes de qualquer preenchimento real.
+
+**Teste real de 1 oferta em produção** — validação ponta a ponta do
+fluxo completo, sem lote:
+
+- **Produto**: Growth Supplements Óleo de Peixe Ultra 75 Cápsulas
+  (`growth-oleo-de-peixe-ultra-75-capsulas`).
+- **Loja**: `mercado-livre` (`Store.affiliateBaseUrl` **não alterado**
+  — segue `null`, `isAffiliate: false`; a precedência do
+  `PriceEntry.affiliateUrl` funciona independente disso).
+- **Link usado**: `https://meli.la/2jWrJqm` — deeplink oficial gerado
+  no painel de afiliados do Mercado Livre, na página exata deste
+  produto (`mercadolivre.com.br/.../p/MLB20559531`). Um link antigo/
+  genérico de teste (`meli.la/16T3cTu`, de uma validação anterior sem
+  produto atrelado) foi colado por engano no meio da tarefa e
+  **descartado antes de qualquer escrita** — não usado.
+- **`PriceEntry` criado**: `cmu5pkln80001jy043cjkt67c`, via
+  `POST /api/catalog/skus/[id]/prices` (API já existente, protegida por
+  `ADMIN_API_KEY`) — mesmo preço/URL já capturados antes, só
+  acrescentando `affiliateUrl`.
+- **`/go` validado**: `GET /go/growth-oleo-de-peixe-ultra-75-capsulas`
+  redireciona (302) exatamente para `https://meli.la/2jWrJqm`.
+- **Tracking validado**: novo `OutboundClick` gravado com
+  `wasAffiliate: true`; o clique histórico do mesmo produto de
+  2026-09-12 (antes da mudança) permanece `wasAffiliate: false` —
+  histórico não reescrito, comportamento append-only preservado.
+- **Único registro afetado**: confirmado **1 de 84** `PriceEntry` no
+  banco inteiro com `affiliateUrl` preenchido — só este.
+- **Demais produtos sem `affiliateUrl`**: comportamento antigo
+  confirmado intacto — outro produto da mesma loja `mercado-livre`
+  (Max Titanium Mass Titanium 17500 3kg, sem `affiliateUrl`) continua
+  redirecionando pra URL direta, exatamente como antes.
+- **Visibilidade preservada**: página do produto responde 200, produto
+  continua listado em `/categorias/omega-3`, `/ofertas` responde 200.
+
+Nenhum código alterado para rodar este teste (só chamadas HTTP contra a
+API administrativa já existente). Nenhum outro `affiliateUrl`
+preenchido. Amazon, Netshoes, Nutrata, imagens e `affiliate-discovery`
+não tocados.
+
 ## 2026-09-16
 
 ### Resumo do dia
