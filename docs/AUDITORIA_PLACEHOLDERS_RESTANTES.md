@@ -147,29 +147,72 @@ automático, não lote).
   necessariamente bloqueada, só sem metadata padrão) para achar a
   imagem certa manualmente. Não investigados a fundo nesta auditoria.
 
+## 5.1 Triagem profunda dos 6 itens de "fonte bloqueada" (2026-09-18)
+
+Cada um dos 6 pesquisado individualmente contra fonte alternativa,
+respeitando o limite de publicar no máximo 1 com evidência forte:
+
+- **`max-titanium-zma-90-capsulas` — ✅ resolvido.** Fonte alternativa
+  (`otimanutri.com.br`) confirmou nome exato "ZMA - 90 Cápsulas", Max
+  Titanium. Imagem baixada e inspecionada visualmente: rótulo mostra
+  "7mg de Zinco, 258mg de Magnésio, 1,3mg de Vitamina B6 por porção,
+  90 cápsulas" — **os três valores batem exatamente** com
+  `Product.attributes` já no catálogo (`magnesiumPerDoseMg: 258`),
+  confirmação numérica decisiva, não só nome. Publicada via
+  `POST /api/admin/images/upload`. `PendingImage` removido (14 → 13).
+- **`probiotica-hiper-100-whey-900g`** — pesquisa revelou que o
+  produto real tem **4 sabores** (baunilha, chocolate, cookies and
+  cream, morango), cada um com foto própria (embalagem "pode variar"
+  mencionado até no próprio título da listagem Amazon). Cadastro não
+  especifica sabor. **Não é candidato seguro** — mesma categoria de
+  ambiguidade dos outros casos de sabor, mantido `PENDING`.
+- **`growth-cafeina-100mg-120-capsulas`** — sem ambiguidade de
+  produto (fórmula única, sem sabor), mas todas as fontes alternativas
+  tentadas (`captainsupplements.com.br`, `virtualsuplementos.com.br`,
+  `gsuplementos.com.br`) falharam por DNS inacessível deste ambiente.
+  Mantido `PENDING` — não é ambiguidade, é bloqueio de acesso mesmo.
+- **`growth-melatonina-021mg-100-capsulas`**,
+  **`growth-coenzima-q10-100mg-60-capsulas`** (já esgotado em rodadas
+  anteriores, não insistido de novo) e **`growth-cafeina-200mg-60-capsulas`**
+  — não tiveram fonte alternativa viável encontrada nesta rodada
+  (tempo/esforço desta frente já esgotado no item resolvido + nos 2
+  investigados a fundo). Mantidos `PENDING`, ficam para próxima
+  retomada.
+
+**Critério respeitado**: exatamente 1 imagem publicada
+(`max-titanium-zma-90-capsulas`), nenhuma imagem de sabor/dose
+diferente aceita, nenhum outro produto tocado.
+
+**Validação pós-mudança**: `/ofertas` responde 200; `ProductImage`/
+`PendingImage` confirmados só para este produto (consulta direta ao
+banco); nenhum preço, afiliado, ranking, Amazon/Mercado Livre/
+Netshoes, código, schema ou `affiliate-discovery` alterado.
+
 ## 6. Resumo do entregável
 
-| Categoria                                                                      | Qtde | Itens                                                                                                                                                                                                                      |
-| ------------------------------------------------------------------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Total de placeholders (`PendingImage`)                                         | 15   | —                                                                                                                                                                                                                          |
-| Relevantes (`PUBLISHED`, afeta vitrine)                                        | 13   | —                                                                                                                                                                                                                          |
-| ✅ Candidato seguro — **resolvido em 2026-09-18**                              | 1    | `growth-pasta-de-amendoim-integral-torrado-1kg`                                                                                                                                                                            |
-| 🔴 Pendência — precisa confirmação humana (ambiguidade real)                   | 3    | `darkness-evora-pw-limao-150g`, `probiotica-epic-pre-treino-300g`, `soldiers-nutrition-whey-protein-concentrado-1kg`                                                                                                       |
-| ⏸️ Placeholder mantido — produto despublicado/fixture (sem efeito visual)      | 2    | `nutrata-creatina-creapure-250g`, `Produto Price Stats`                                                                                                                                                                    |
-| 📋 Placeholder mantido — fonte bloqueada, não investigado a fundo ainda        | 6    | `probiotica-hiper-100-whey-900g`, `growth-cafeina-100mg-120-capsulas`, `growth-melatonina-021mg-100-capsulas`, `max-titanium-zma-90-capsulas`, `growth-coenzima-q10-100mg-60-capsulas`, `growth-cafeina-200mg-60-capsulas` |
-| 📋 Placeholder mantido — sem metadata de imagem, não investigado a fundo ainda | 3    | `integralmedica-coq10-30-capsulas`, `growth-zma-ultra-120-comprimidos`, `probiotica-pro-collagen-330g`                                                                                                                     |
+| Categoria                                                                      | Qtde | Itens                                                                                                                                                    |
+| ------------------------------------------------------------------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Total de placeholders (`PendingImage`)                                         | 15   | —                                                                                                                                                        |
+| Relevantes (`PUBLISHED`, afeta vitrine)                                        | 13   | —                                                                                                                                                        |
+| ✅ Candidato seguro — **resolvido em 2026-09-18**                              | 2    | `growth-pasta-de-amendoim-integral-torrado-1kg`, `max-titanium-zma-90-capsulas`                                                                          |
+| 🔴 Pendência — precisa confirmação humana (ambiguidade real)                   | 4    | `darkness-evora-pw-limao-150g`, `probiotica-epic-pre-treino-300g`, `soldiers-nutrition-whey-protein-concentrado-1kg`, `probiotica-hiper-100-whey-900g`   |
+| ⏸️ Placeholder mantido — produto despublicado/fixture (sem efeito visual)      | 2    | `nutrata-creatina-creapure-250g`, `Produto Price Stats`                                                                                                  |
+| 📋 Placeholder mantido — fonte bloqueada, tentada e não resolvida ainda        | 4    | `growth-cafeina-100mg-120-capsulas`, `growth-melatonina-021mg-100-capsulas`, `growth-coenzima-q10-100mg-60-capsulas`, `growth-cafeina-200mg-60-capsulas` |
+| 📋 Placeholder mantido — sem metadata de imagem, não investigado a fundo ainda | 3    | `integralmedica-coq10-30-capsulas`, `growth-zma-ultra-120-comprimidos`, `probiotica-pro-collagen-330g`                                                   |
 
-**Nenhuma imagem foi baixada, publicada ou alterada nesta auditoria.**
-Nenhum catálogo, afiliado, ranking, código, schema ou
-`affiliate-discovery` tocado.
+**Estado atualizado (2026-09-18): 2 imagens publicadas ao todo nesta
+frente** (`growth-pasta-de-amendoim-integral-torrado-1kg` e
+`max-titanium-zma-90-capsulas`), fila `PendingImage` caiu de 15 para 13. Nenhum catálogo, afiliado, ranking, código, schema ou
+`affiliate-discovery` tocado em nenhuma das duas publicações.
 
 ## 7. Próxima ação recomendada
 
-Se a frente for retomada: validar `growth-pasta-de-amendoim-integral-torrado-1kg`
-primeiro (único candidato de baixo risco identificado), com o mesmo
-rigor das resoluções anteriores — baixar e inspecionar visualmente a
-imagem antes de publicar, confirmar peso 1kg e ausência de sabor no
-rótulo. Os demais itens ficam para lotes futuros, cada um investigado
-individualmente (nunca em lote automático), respeitando as mesmas
-regras já estabelecidas: nunca publicar sem fonte real confirmada,
-nunca aceitar produto/sabor/peso diferente do exato.
+Se a frente for retomada: dos itens restantes, nenhum tem evidência
+forte pronta ainda — todos exigem nova pesquisa de fonte (os 4 de
+"fonte bloqueada") ou inspeção manual da página (os 3 de "sem
+metadata"), ou decisão humana de sabor (os 4 de ambiguidade real,
+incluindo `probiotica-hiper-100-whey-900g`, achado nesta rodada). Cada
+um deve continuar sendo investigado individualmente (nunca em lote
+automático), respeitando as mesmas regras já estabelecidas: nunca
+publicar sem fonte real confirmada, nunca aceitar produto/sabor/dose
+diferente do exato.
