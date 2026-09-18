@@ -62,7 +62,7 @@ Todas as 4 compartilham `attributes: null` no cadastro (nenhum sabor
 registrado) — mesmo sinal de qualidade de dado mais fraco que os
 produtos já corrigidos tinham antes da correção.
 
-### `probiotica-creatina-300g` — 🟢 baixo risco
+### `probiotica-creatina-300g` — 🟢 baixo risco — validação dedicada concluída (2026-09-18)
 
 Busca web confirma uma única linha real na Amazon: **"Creatina
 Monohidratada Pura 300g"** (múltiplos ASINs — `B07G7JPTCV`,
@@ -73,6 +73,31 @@ em `netshoes`, que **não tem caminho de monetização real** (rejeição
 permanente já documentada) — mover para `amazon-br` com URL de
 produto real destrava monetização que hoje não existe, não é só
 "melhorar" uma que já funciona.
+
+**Validação manual dedicada** (extensão Claude in Chrome indisponível
+nesta sessão — validado via `WebFetch`/`WebSearch` real contra a
+Amazon, mesmo padrão usado quando o navegador não estava acessível em
+tarefas anteriores):
+
+| Critério                                         | Resultado                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Produto exato: Probiótica Creatina 300g       | ✅ confirmado — título da página `dp/B07G7JPTCV`: **"Probiótica Creatina Monohidratada - 300G"**, marca Probiótica                                                                                                                                                                                 |
+| 2. Linha única, sem variação obrigatória ambígua | ✅ site oficial da marca (`probiotica.com.br/creatina-300g/p`) confirma **uma única linha "Creatina Monohidratada Pura"** — sem linha concorrente tipo Creapure/Creafort que existe em outros candidatos (Vitafor)                                                                                 |
+| 3. Peso 300g                                     | ✅ confirmado na página do produto e no site oficial                                                                                                                                                                                                                                               |
+| 4. Sabor/sem sabor compatível                    | ✅ produto é creatina pura, sem sabor — nenhuma tabela de especificação lista variante de sabor, compatível com o cadastro (`attributes: null`)                                                                                                                                                    |
+| 5. Loja/oferta atual                             | `netshoes`, `isAffiliate: true` mas `affiliateBaseUrl: null` — **sem monetização real hoje** (Netshoes rejeitada permanentemente, `docs/LOG_OPERACIONAL.md` 2026-09-17)                                                                                                                            |
+| 6. URL específica ou genérica                    | ❌ genérica desde a primeira captura (`amazon.com.br/s?k=Probiótica+Creatina+300g`, 2026-09-02) — mesmo padrão do caso Nutrata (nunca foi uma página de produto real)                                                                                                                              |
+| 7. Alternativa segura existe                     | ✅ `amazon.com.br/.../dp/B07G7JPTCV` — página de produto real, título/marca/peso batendo exatamente com o cadastro                                                                                                                                                                                 |
+| 8. Afiliado aplicável hoje                       | ✅ **sim, automaticamente** — `amazon-br` já é `isAffiliate: true` com `affiliateBaseUrl` configurado (`tag=suplescore-20`); não precisa de `affiliateUrl` por oferta, só corrigir `url` (e trocar `storeId` de `netshoes` para `amazon-br`, já que a oferta atual está numa loja sem monetização) |
+
+**Classificação final: 🟢 candidata segura.** **Recomendação: corrigir
+URL + loja para Amazon** (não é caso de afiliado por oferta tipo
+Mercado Livre — é o mesmo modelo por template de loja já usado nas 5
+correções de 2026-09-17). Nenhuma escrita feita nesta validação —
+fica pronta para execução na próxima frente autorizada, com o mesmo
+rigor: nova `PriceEntry` em `amazon-br` com a `url` real, mesmo
+`priceCents` já capturado (R$44,90, não inventar preço novo), depois
+validar `/go` com `tag=suplescore-20` aplicado.
 
 ### `integralmedica-creatina-creapure-300g` — 🟡 médio risco
 
@@ -137,6 +162,9 @@ afiliado real disponível):
 
 1. 🟢 **`probiotica-creatina-300g`** — baixo risco, prioridade máxima
    (destrava monetização que hoje não existe, linha única confirmada).
+   **Validação dedicada concluída em 2026-09-18** — pronta para
+   correção assim que autorizado (URL real `dp/B07G7JPTCV` + troca de
+   loja `netshoes` → `amazon-br`).
 2. 🟡 **`integralmedica-creatina-creapure-300g`** — médio risco,
    precisa confirmação visual da página exata antes de escrever.
 3. 🟡 **`dux-creatina-300g`** — médio risco, precisa confirmar se é a
