@@ -156,6 +156,97 @@ Black Skull`, `Sabor Sem sabor`, `Peso do produto 300 Gramas`. Nome
 - Validado após a mudança: `status` confirmado `UNPUBLISHED` em produção, e as 3 `PriceEntry` confirmadas byte-a-byte iguais às de antes.
 - Reversível a qualquer momento: quando alguém confirmar o peso real (150g ou 300g) e existir uma captura de preço/URL legítima, basta uma nova `PriceEntry` real + `status: PUBLISHED` de volta.
 
+#### Investigação de origem da captura (2026-09-18, só leitura) — decisão final
+
+Retomada específica: reconstruir de onde veio o dado original, não só
+confirmar que ele está errado.
+
+**Linha do tempo exata, reconstruída via `Product`/`Sku`/`PriceEntry`/`ImportBatch`**:
+
+1. `2026-09-02T14:46:42Z` — `Product` criado com `Sku.variantLabel: "250g"`.
+2. `2026-09-02T14:46:43Z` (mesmo segundo) — **primeira `PriceEntry`**,
+   `importBatchId: null` (fora de qualquer job — cadastro manual/script
+   pontual, não o price-capture automático), já com a URL de busca
+   genérica `amazon.com.br/s?k=Nutrata+Creatina+Creapure+250g` e
+   `R$69,90`. **A URL genérica não é uma degradação posterior — já
+   nasceu assim**, no mesmo instante da criação do produto.
+3. `2026-09-03T01:25Z` e `2026-09-03T18:22Z` — duas recapturas via
+   `price-capture-job` (`ImportBatch.source: "price-capture-job"`,
+   `status: COMPLETED`), ambas contra a **mesma URL de busca genérica**,
+   ambas devolvendo o **mesmo preço exato** `R$69,90`. Preço idêntico em
+   3 capturas ao longo de 2 dias, contra uma URL de busca (não uma
+   página de produto), é mais consistente com um job que não está de
+   fato lendo uma página de produto real do que com um preço de mercado
+   estável.
+
+**Achado adicional, independente desta investigação**: já existe um
+registro `PendingProductImage` (fila de imagens, criado em
+`2026-09-14T16:32Z`, `status: PENDING`) para este produto, com
+`reason`: _"ERRO DE DADOS DO CATÁLOGO: Nutrata só vende Creatina
+Creapure em 150g e 300g — 250g não é uma embalagem real da marca.
+Nenhuma fotografia pública corresponde a este peso. Requer correção do
+peso no catálogo antes de qualquer busca de imagem fazer sentido."_ —
+ou seja, **a frente de imagens já tinha chegado à mesma conclusão de
+forma independente**, três dias antes da minha auditoria original.
+
+**Comparação de preço com o catálogo real da marca** (confirmado por
+busca web, 2026-09-18): Creapure 150g ≈ R$126,80 (Amazon) / R$149
+(loja oficial); Creapure 300g ≈ R$274 (loja oficial). Nenhum bate com
+R$69,90. A Nutrata também vende linhas **não-Creapure** bem mais
+baratas sob o mesmo guarda-chuva "creatina" — por exemplo "Predator
+Creatina 100% Monohidratada" e "Creatina Monohidratada" avulsa — cuja
+faixa de preço é compatível com R$69,90. Não foi possível confirmar o
+preço exato de nenhuma delas (Amazon bloqueou tanto `curl` quanto
+`WebFetch` com página de captcha/erro 500 nesta tentativa), então isso
+fica como **hipótese plausível, não confirmada**: a captura pode ter
+vindo de um produto Nutrata real, mas de uma linha/peso completamente
+diferente do que o nome do cadastro sugere — não simplesmente "o peso
+errado dentro da mesma linha Creapure".
+
+**Diagnóstico final**: combinação de pelo menos dois dos padrões de
+erro listados no escopo desta tarefa — **peso inventado** (o SKU
+"250g" nunca existiu na linha Creapure) **+ URL genérica desde a
+criação** (nunca foi uma página de produto real, em nenhuma das 3
+capturas). Não há evidência de que seja um simples "peso digitado
+errado dentro da mesma embalagem real" — a combinação peso-fantasma +
+URL de busca desde o primeiro registro aponta para **erro de
+cadastro/mapeamento na origem**, não para degradação de um dado que um
+dia esteve correto.
+
+**Recomendação objetiva**:
+
+- **Classificação: 1 — manter `UNPUBLISHED`** (já é o estado atual,
+  zero risco adicional, reversível).
+- **Não é seguro classificar como 2 ou 3** (corrigir para 150g ou
+  300g): não há evidência forte o bastante ligando o preço/URL
+  capturados a nenhum dos dois tamanhos reais — forçar uma
+  correspondência seria aproximação, o padrão que este projeto
+  rejeitou consistentemente em casos anteriores (Growth, Black Skull
+  só foram corrigidos com foto real decisiva; aqui não existe
+  evidência equivalente).
+- **Caminho recomendado para quem for resolver definitivamente: 4 —
+  recapturar do zero**, mas não "corrigindo" este registro — o correto
+  é criar duas ofertas novas e corretas (Creapure 150g via
+  `dp/B07MDZRJ7R`, Creapure 300g via `dp/B07MF3MJSW`, ambas já
+  confirmadas como reais) como cadastros próprios, e então avaliar se
+  o registro atual (`nutrata-creatina-creapure-250g`) deve ser
+  arquivado/descartado (opção 5) por representar uma variante que
+  nunca existiu — decisão de negócio (manter o slug antigo redirecionando,
+  remover de vez, etc.) que cabe a quem administra o catálogo, não a
+  esta investigação.
+- **Risco desta recomendação**: **baixo** — não envolve nenhuma escrita
+  agora; é só uma leitura mais profunda que reforça a decisão já
+  tomada (manter `UNPUBLISHED`) com uma causa raiz mais precisa, e
+  aponta path seguro (recaptura nova, não correção aproximada) para
+  quando alguém decidir agir.
+
+**Nenhuma ação de escrita executada nesta investigação** — só leitura
+(`Product`, `Sku`, `PriceEntry`, `ImportBatch`, `PendingProductImage`
+em produção, mais 2 buscas web). `affiliateUrl` não configurado, preço
+não alterado, ranking não tocado, Amazon/Mercado Livre/Netshoes não
+mexidos, imagens não alteradas, `affiliate-discovery` intocado, nenhum
+código/schema/migration alterado.
+
 **Validação executada (segunda rodada)**: `npm run typecheck` limpo,
 37/37 testes unitários passando (nenhum código tocado), `/go`
 confirmado pros 2 produtos corrigidos com `tag=suplescore-20`
