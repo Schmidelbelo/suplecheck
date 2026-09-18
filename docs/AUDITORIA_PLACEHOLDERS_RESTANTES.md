@@ -292,3 +292,26 @@ Os 4 itens de ambiguidade de sabor (8.1) e os 2 de fonte
 esgotada/marca errada em `growth-coenzima-q10-100mg-60-capsulas` ficam
 fora de qualquer lote automático — dependem de decisão humana externa
 a este sistema, não de mais tentativas de busca.
+
+## 10. Tentativa das 3 fontes novas (2026-09-18) — nenhuma imagem publicada
+
+Retomada específica da recomendação do §9.1, restrita às 3 fontes já
+identificadas — nenhuma fonte substituta usada fora da lista.
+
+| Produto                                | Fonte tentada                                                              | Resultado                                                                                                                                                                                                                                                                                                                   |
+| -------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `growth-cafeina-100mg-120-capsulas`    | Shopee (`shopee.com.br/...i.251929510.22998387773`)                        | ❌ Conteúdo vazio — mesma renderização client-side-only que já bloqueou outras tentativas via Shopee nesta sessão (não é um erro de rede, a página não expõe conteúdo estático extraível)                                                                                                                                   |
+| `growth-cafeina-200mg-60-capsulas`     | `cirurgicaestilo.com.br` (a própria `sourceUrl` já registrada no catálogo) | ❌ DNS inacessível deste ambiente (`ENOTFOUND`), com e sem `www.`                                                                                                                                                                                                                                                           |
+| `growth-melatonina-021mg-100-capsulas` | Premium Suplementos (`premiumsupplementos.com`)                            | ❌ DNS inacessível deste ambiente (`ENOTFOUND`); adicionalmente, busca dedicada não confirmou que a loja sequer vende Melatonina da Growth (só Cafeína e Extrato de Laranja Moro apareceram nos resultados indexados) — mesmo que o DNS respondesse, a fonte não estava confirmada como válida para este produto específico |
+
+**Nenhuma das 3 fontes produziu evidência utilizável.** Conforme o
+critério de parada definido para esta frente: **nenhuma imagem
+publicada**. `PendingImage` permanece em 13. Nenhum catálogo, preço,
+afiliado, ranking, CoQ10, item de sabor ambíguo, item sem metadata,
+código, schema ou `affiliate-discovery` tocado.
+
+Não há mais fonte candidata conhecida e não tentada para nenhum dos 3
+itens deste lote — a próxima tentativa exigiria descobrir uma fonte
+nova (não apenas retry das 3 já esgotadas), ou aguardar que os domínios
+com DNS inacessível voltem a resolver (comportamento intermitente já
+observado neste ambiente ao longo da sessão, mas não previsível).
