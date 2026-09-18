@@ -2,6 +2,69 @@
 
 Registro curto de continuidade do projeto. Atualizar no fim do dia ou ao encerrar uma frente importante.
 
+## 2026-09-18
+
+### Fechamento — Nutrata despublicada, filtro de status no ranking, deploy e reprocessamento
+
+Continuação direta do achado de 2026-09-17 (Nutrata despublicada mas
+ainda visível em `/ofertas`/`/creatina`). Frente fechada nesta data com
+todas as pontas resolvidas.
+
+**O que foi feito, em ordem:**
+
+1. Investigação read-only revelou a causa real: `/ofertas`/`/creatina`
+   leem um snapshot pré-computado de `Ranking`, e nenhum ponto do
+   pipeline (`listLatestByCategory`, `loadPresentations`) filtrava
+   `Product.status` — por isso um produto despublicado, com
+   `ProductScore` antiga ainda válida, continuava aparecendo. Registrado
+   em `docs/PENDENCIA_RANKING_FILTRO_STATUS.md`.
+2. Corrigido no código (commit `4e930fa`): filtro `status: "PUBLISHED"`
+   adicionado em `PrismaIndexResultRepository.listLatestByCategory`
+   (geração do ranking) e em `productViewService.loadPresentations`
+   (rede de segurança na leitura pública — ranking, mercado,
+   recomendação). `RankingMapper`/`RankingApplicationService` não
+   precisaram mudar. Testes novos/ajustados cobrindo o caso,
+   `typecheck` limpo, 201/201 testes passando.
+3. **Deploy em produção**: a partir de um `git worktree` limpo no
+   commit `4e930fa` (nunca a partir da working tree principal, que tem
+   `affiliate-discovery` não commitado) — `vercel --prod`. 4 tentativas
+   por instabilidade de rede transitória (mesmo padrão de flakiness já
+   visto com o Neon nesta sessão); a build final ficou `● Ready`, aliada
+   a `suplescore.com.br`.
+4. **Reprocessamento**: `POST /api/evaluation/rankings/creatina` —
+   snapshot novo com 10 entradas (antes 11); `nutrata-creatina-creapure-250g`
+   fora da lista.
+
+**Estado final confirmado:**
+
+- Produção está no commit `4e930fa`.
+- Ranking de `creatina` foi reprocessado após o deploy.
+- `nutrata-creatina-creapure-250g` continua `UNPUBLISHED` e não aparece
+  mais em `/creatina` nem `/ofertas`.
+- As 5 URLs Amazon corrigidas (`max-titanium-creatina-300g`,
+  `atlhetica-creatina-300g`, `optimum-nutrition-creatine-300g`,
+  `growth-creatina-monohidratada-300g`, `black-skull-creatina-300g`)
+  continuam redirecionando via `/go` para a página de produto
+  específica com `tag=suplescore-20` — nenhuma caiu em URL de busca.
+- Mercado Livre (Growth Óleo de Peixe Ultra 75 Cápsulas) continua
+  redirecionando via `/go` para `https://meli.la/2jWrJqm`.
+- Tracking validado em 6/6 cliques (5 Amazon + 1 Mercado Livre), todos
+  com `OutboundClick.wasAffiliate: true` e `storeId` consistente, sem
+  duplicação de produto/oferta.
+- Nesta operação final (deploy + reprocessamento + validação), nenhum
+  código, schema, migration, imagem ou afiliado foi alterado — só
+  ações operacionais (deploy do que já estava commitado/pushado +
+  chamada HTTP de reprocessamento + leitura de validação).
+- `affiliate-discovery` seguiu intocado durante toda a frente.
+
+Frente encerrada. Próximos itens conhecidos e ainda pendentes (não
+retomados agora): decisão humana sobre `nutrata-creatina-creapure-250g`
+(recapturar com peso confirmado ou manter despublicado
+permanentemente), ambiguidade de sabor do candidato Mercado Livre "Max
+Titanium Mass Titanium 17500 3kg", recaptura do Integralmédica Sinister
+Mass 3kg, e os 3 offers de `loja-oficial`/`netshoes` com URL
+possivelmente mal atribuída — nenhum desses foi tocado hoje.
+
 ## 2026-09-17
 
 ### Atualização de contexto — Netshoes/Rakuten (antes de qualquer trabalho novo)
