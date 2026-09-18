@@ -55,7 +55,7 @@ sendo da Amazon — corrigir exige trocar `url` **e** `storeId` (não só
 | --------------------------------------- | ----------------------------------------------------- | ----------------------------- | --------------- | ---------------------------- |
 | `probiotica-creatina-300g`              | ✅ `amazon-br` (corrigido 2026-09-18, era `netshoes`) | `true`, `affiliateBaseUrl` OK | R$44,90         | 🟢 **Corrigido**             |
 | `integralmedica-creatina-creapure-300g` | `loja-oficial`                                        | `false`                       | R$79,90         | 🟡 **Médio**                 |
-| `dux-creatina-300g`                     | `loja-oficial`                                        | `false`                       | R$64,90         | 🟡 **Médio**                 |
+| `dux-creatina-300g`                     | `loja-oficial`                                        | `false`                       | R$64,90         | 🔴 **Alto — não configurar** |
 | `vitafor-creatina-300g`                 | `loja-oficial`                                        | `false`                       | R$89,90         | 🔴 **Alto — não configurar** |
 
 Todas as 4 compartilham `attributes: null` no cadastro (nenhum sabor
@@ -141,7 +141,7 @@ das validações anteriores):
 
 **Classificação final: 🟡 médio risco — segue pendente, não corrigir agora.** O que falta: confirmação visual real da página do produto (navegador, não busca textual) para garantir que o ASIN escolhido é o pote único de 300g — sem isso, risco real de vincular a oferta a um bundle/kit que não corresponde ao preço/peso já cadastrado (R$79,90 por um único pote de 300g, valor que não bate com o preço de um kit de 2x/3x/4x nem necessariamente com o de um bundle com brinde). Sem a extensão do navegador disponível nesta sessão, não dá pra fechar com o mesmo rigor usado nas 5 correções anteriores — **fica pendente para quando o navegador estiver disponível ou alguém confirmar manualmente**.
 
-### `dux-creatina-300g` — 🟡 médio risco
+### `dux-creatina-300g` — 🔴 alto risco — reclassificado após validação dedicada (2026-09-18), não configurar
 
 Cadastro **não menciona "Creapure"** no nome, mas a Dux vende
 principalmente uma linha "100% Creapure Sem Sabor" na Amazon
@@ -151,6 +151,36 @@ representar essa linha específica ou uma linha genérica sem Creapure.
 Também existem variantes "Kit 2"/"Kit 3" (múltiplos potes) que **não
 são o mesmo produto** — risco real de pegar o kit errado em vez da
 unidade única.
+
+**Validação manual dedicada** (`WebFetch`/`WebSearch`, extensão do
+navegador indisponível nesta sessão): a própria Dux, em comunicado
+oficial (`duxhumanhealth.com/comunicados-oficiais`), confirma que
+vende **três linhas de creatina nomeadas e distintas** — "Monohidratada",
+"Creapure" e "Crealive" — descritas como "100% Creatina Monohidratada
+sem adição de outros ingredientes, com diferenças na origem da
+matéria-prima e tecnologia de processamento". Ou seja, **não é só
+ambiguidade de qual ASIN é o pote único** (como no caso Integralmédica)
+— é ambiguidade de **qual das três linhas nomeadas** o cadastro
+genérico "Creatina Dux 300g" pretende representar, e o cadastro
+(`attributes: null`, nome sem menção a nenhuma das três) não dá
+nenhuma pista.
+
+Tentativa de confirmar a página exata do produto 300g no site oficial
+(`duxhumanhealth.com/creatina-pote300g/p`) **resolveu para um produto
+diferente** (Glutamina 300g, não Creatina) — sinal adicional de que a
+estrutura de URLs da Dux mudou/está instável, reforçando que não dá
+pra confiar em correspondência por nome de slug sem confirmação visual
+real. Na Amazon, mesmo restringindo a busca à linha "Monohidratada"
+(excluindo Creapure e kits), ainda existem **múltiplos ASINs de
+unidade única concorrentes** (`B0F54GLPTF`, `B0F75CQW5T`,
+`B0BHL6FKYY`, `B0F64M63V7`) sem forma de decidir qual é o canônico só
+por busca textual.
+
+**Reclassificação: 🔴 alto risco — mesma categoria do caso Vitafor**
+(ambiguidade de linha nomeada, não só de listagem). Não configurar sem
+confirmação humana direta de qual das três linhas (Monohidratada,
+Creapure, Crealive) o produto do catálogo representa, e sem navegador
+real para confirmar visualmente o ASIN exato dentro da linha correta.
 
 ### `vitafor-creatina-300g` — 🔴 alto risco, não configurar agora
 
@@ -188,29 +218,31 @@ Netshoes). Fora do escopo desta leitura.
 
 ### Top candidatos seguros (por ordem de prioridade real, não 5 artificiais)
 
-Só existem **3 candidatos acionáveis** hoje nesta frente (não 5 — os
-demais 56 produtos ou já estão monetizados, ou não têm programa de
-afiliado real disponível):
+1 dos 4 candidatos já foi corrigido; dos 3 restantes, só 1 segue com
+chance real de correção (precisa navegador para confirmar), e 2 foram
+reclassificados como alto risco após validação dedicada:
 
 1. ✅ **`probiotica-creatina-300g`** — **corrigido em 2026-09-18**
    (URL real `dp/B07G7JPTCV`, loja trocada `netshoes` → `amazon-br`,
    `/go` validado com `tag=suplescore-20`).
 2. 🟡 **`integralmedica-creatina-creapure-300g`** — médio risco,
-   precisa confirmação visual da página exata antes de escrever.
-3. 🟡 **`dux-creatina-300g`** — médio risco, precisa confirmar se é a
-   linha Creapure e evitar pegar variante "Kit".
+   linha confirmada (Creapure), falta confirmação visual de qual ASIN
+   é o pote único (sem kit/bundle) — pendente de navegador real.
 
 ### Descartes/pendências
 
-1. 🔴 **`vitafor-creatina-300g`** — duas linhas reais distintas
+1. 🔴 **`dux-creatina-300g`** — reclassificado para alto risco: a Dux
+   vende oficialmente **três linhas nomeadas distintas** (Monohidratada,
+   Creapure, Crealive) e o cadastro não indica qual — não configurar.
+2. 🔴 **`vitafor-creatina-300g`** — duas linhas reais distintas
    (Monohidratada simples vs Creafort), sem evidência para escolher.
-2. ⏸️ **`nutrata-creatina-creapure-250g`** — já `UNPUBLISHED`, path
+3. ⏸️ **`nutrata-creatina-creapure-250g`** — já `UNPUBLISHED`, path
    seguro já documentado (recaptura do zero contra ASIN real).
-3. ❌ **`max-titanium-mass-titanium-17500-3kg`** (Mercado Livre) —
+4. ❌ **`max-titanium-mass-titanium-17500-3kg`** (Mercado Livre) —
    sabor ambíguo, descartado anteriormente.
-4. ❌ **`integralmedica-sinister-mass-3kg`** (Mercado Livre) —
+5. ❌ **`integralmedica-sinister-mass-3kg`** (Mercado Livre) —
    anúncio inativo, descartado anteriormente.
-5. — Nenhum quinto item real de descarte novo encontrado nesta
+6. — Nenhum quinto item real de descarte novo encontrado nesta
    auditoria; o catálogo restante (44 ofertas) simplesmente não tem
    programa de afiliado disponível, não é "descarte" no sentido de
    "candidato rejeitado", é "não aplicável ainda".
