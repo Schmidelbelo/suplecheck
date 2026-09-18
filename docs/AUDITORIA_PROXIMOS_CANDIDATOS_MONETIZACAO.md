@@ -51,18 +51,18 @@ apontando para uma loja **diferente** de `amazon-br`, mesmo a URL
 sendo da Amazon — corrigir exige trocar `url` **e** `storeId` (não só
 `url`).
 
-| Produto                                 | Loja atual                                                   | `isAffiliate` atual            | Preço capturado | Risco                        |
-| --------------------------------------- | ------------------------------------------------------------ | ------------------------------ | --------------- | ---------------------------- |
-| `probiotica-creatina-300g`              | `netshoes` (rejeitado permanentemente, sem monetização real) | `true`, sem `affiliateBaseUrl` | R$44,90         | 🟢 **Baixo**                 |
-| `integralmedica-creatina-creapure-300g` | `loja-oficial`                                               | `false`                        | R$79,90         | 🟡 **Médio**                 |
-| `dux-creatina-300g`                     | `loja-oficial`                                               | `false`                        | R$64,90         | 🟡 **Médio**                 |
-| `vitafor-creatina-300g`                 | `loja-oficial`                                               | `false`                        | R$89,90         | 🔴 **Alto — não configurar** |
+| Produto                                 | Loja atual                                            | `isAffiliate` atual           | Preço capturado | Risco                        |
+| --------------------------------------- | ----------------------------------------------------- | ----------------------------- | --------------- | ---------------------------- |
+| `probiotica-creatina-300g`              | ✅ `amazon-br` (corrigido 2026-09-18, era `netshoes`) | `true`, `affiliateBaseUrl` OK | R$44,90         | 🟢 **Corrigido**             |
+| `integralmedica-creatina-creapure-300g` | `loja-oficial`                                        | `false`                       | R$79,90         | 🟡 **Médio**                 |
+| `dux-creatina-300g`                     | `loja-oficial`                                        | `false`                       | R$64,90         | 🟡 **Médio**                 |
+| `vitafor-creatina-300g`                 | `loja-oficial`                                        | `false`                       | R$89,90         | 🔴 **Alto — não configurar** |
 
 Todas as 4 compartilham `attributes: null` no cadastro (nenhum sabor
 registrado) — mesmo sinal de qualidade de dado mais fraco que os
 produtos já corrigidos tinham antes da correção.
 
-### `probiotica-creatina-300g` — 🟢 baixo risco — validação dedicada concluída (2026-09-18)
+### `probiotica-creatina-300g` — 🟢 baixo risco — ✅ CORRIGIDO (2026-09-18)
 
 Busca web confirma uma única linha real na Amazon: **"Creatina
 Monohidratada Pura 300g"** (múltiplos ASINs — `B07G7JPTCV`,
@@ -90,14 +90,30 @@ tarefas anteriores):
 | 7. Alternativa segura existe                     | ✅ `amazon.com.br/.../dp/B07G7JPTCV` — página de produto real, título/marca/peso batendo exatamente com o cadastro                                                                                                                                                                                 |
 | 8. Afiliado aplicável hoje                       | ✅ **sim, automaticamente** — `amazon-br` já é `isAffiliate: true` com `affiliateBaseUrl` configurado (`tag=suplescore-20`); não precisa de `affiliateUrl` por oferta, só corrigir `url` (e trocar `storeId` de `netshoes` para `amazon-br`, já que a oferta atual está numa loja sem monetização) |
 
-**Classificação final: 🟢 candidata segura.** **Recomendação: corrigir
-URL + loja para Amazon** (não é caso de afiliado por oferta tipo
-Mercado Livre — é o mesmo modelo por template de loja já usado nas 5
-correções de 2026-09-17). Nenhuma escrita feita nesta validação —
-fica pronta para execução na próxima frente autorizada, com o mesmo
-rigor: nova `PriceEntry` em `amazon-br` com a `url` real, mesmo
-`priceCents` já capturado (R$44,90, não inventar preço novo), depois
-validar `/go` com `tag=suplescore-20` aplicado.
+**Classificação final: 🟢 candidata segura.**
+
+**Correção executada (2026-09-18, autorização explícita)**: nova
+`PriceEntry` criada via `POST /api/catalog/skus/{id}/prices` —
+`storeId: amazon-br`, `url: .../dp/B07G7JPTCV`, **mesmo `priceCents`
+já capturado (R$44,90, não inventado)**, `affiliateUrl` **não**
+preenchido (não é necessário — `amazon-br` já resolve via
+`Store.affiliateBaseUrl`). Histórico anterior (3 capturas em
+`netshoes`, URL genérica) permanece intacto — `PriceEntry` é
+append-only, nada foi apagado ou sobrescrito.
+
+**Validação pós-correção**:
+
+| Critério                                  | Resultado                                                                                                            |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `/go/probiotica-creatina-300g`            | ✅ `Location: https://www.amazon.com.br/Creatina-Pura-Probi%C3%B3tica-300g/dp/B07G7JPTCV?tag=suplescore-20`          |
+| Produto continua na vitrine (`/creatina`) | ✅ presente                                                                                                          |
+| Tracking                                  | ✅ `OutboundClick` novo com `wasAffiliate: true`, `storeId: amazon-br`                                               |
+| Isolamento — só esta oferta mudou         | ✅ confirmado: exatamente 1 `PriceEntry` nova criada no banco inteiro (janela de 5 min), nenhum outro produto tocado |
+| Código/schema/migration                   | ✅ nenhum alterado — mudança 100% via API existente, sem necessidade de rodar typecheck/testes                       |
+
+Único produto restante da lista de 4 (§2) sem monetização real: os
+outros 3 (`integralmedica-creatina-creapure-300g`, `dux-creatina-300g`,
+`vitafor-creatina-300g`) continuam pendentes, sem alteração.
 
 ### `integralmedica-creatina-creapure-300g` — 🟡 médio risco
 
@@ -160,11 +176,9 @@ Só existem **3 candidatos acionáveis** hoje nesta frente (não 5 — os
 demais 56 produtos ou já estão monetizados, ou não têm programa de
 afiliado real disponível):
 
-1. 🟢 **`probiotica-creatina-300g`** — baixo risco, prioridade máxima
-   (destrava monetização que hoje não existe, linha única confirmada).
-   **Validação dedicada concluída em 2026-09-18** — pronta para
-   correção assim que autorizado (URL real `dp/B07G7JPTCV` + troca de
-   loja `netshoes` → `amazon-br`).
+1. ✅ **`probiotica-creatina-300g`** — **corrigido em 2026-09-18**
+   (URL real `dp/B07G7JPTCV`, loja trocada `netshoes` → `amazon-br`,
+   `/go` validado com `tag=suplescore-20`).
 2. 🟡 **`integralmedica-creatina-creapure-300g`** — médio risco,
    precisa confirmação visual da página exata antes de escrever.
 3. 🟡 **`dux-creatina-300g`** — médio risco, precisa confirmar se é a
