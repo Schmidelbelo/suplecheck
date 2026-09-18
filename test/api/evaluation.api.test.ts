@@ -174,6 +174,8 @@ describe("API /api/evaluation", () => {
       await import("../../src/app/api/evaluation/rankings/[categorySlug]/view/route");
     const { GET: GET_PRODUCT_VIEW } =
       await import("../../src/app/api/evaluation/products/[idOrSlug]/view/route");
+    const { PUT: PUT_PRODUCT_STATUS } =
+      await import("../../src/app/api/catalog/products/[idOrSlug]/status/route");
 
     const category = await (
       await POST_CAT(
@@ -204,6 +206,15 @@ describe("API /api/evaluation", () => {
         }),
       )
     ).json();
+    // Geração de ranking exige produto PUBLISHED (listLatestByCategory
+    // filtra por status) — produto novo nasce DRAFT por padrão.
+    await PUT_PRODUCT_STATUS(
+      new Request(`http://localhost/api/catalog/products/${product.slug}/status`, {
+        method: "PUT",
+        body: JSON.stringify({ status: "PUBLISHED" }),
+      }),
+      { params: Promise.resolve({ idOrSlug: product.slug }) },
+    );
 
     const { container } = await import("../../src/lib/container");
     const methodology = await container.useCases.createMethodology.execute({

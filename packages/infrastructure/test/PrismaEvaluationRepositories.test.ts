@@ -132,4 +132,69 @@ describe("PrismaMethodologyRepository + PrismaIndexResultRepository + PrismaRank
     const latestRanking = await rankings.findLatest(category.slug);
     expect(latestRanking?.entries[0]?.supplementId).toBe(product.id);
   });
+
+  it("listLatestByCategory() não inclui produto UNPUBLISHED, mesmo com ProductScore existente", async () => {
+    const category = await client.category.create({
+      data: { slug: `repo-eval-status-cat-${suffix}`, name: "Categoria Repo Eval Status" },
+    });
+    createdCategoryIds.push(category.id);
+
+    const brand = await client.brand.create({
+      data: { slug: `repo-eval-status-brand-${suffix}`, name: "Marca Repo Eval Status" },
+    });
+    createdBrandIds.push(brand.id);
+
+    const publishedProduct = await client.product.create({
+      data: {
+        slug: `repo-eval-status-published-${suffix}`,
+        name: "Produto Publicado",
+        categoryId: category.id,
+        brandId: brand.id,
+        status: "PUBLISHED",
+      },
+    });
+    createdProductIds.push(publishedProduct.id);
+
+    const unpublishedProduct = await client.product.create({
+      data: {
+        slug: `repo-eval-status-unpublished-${suffix}`,
+        name: "Produto Despublicado",
+        categoryId: category.id,
+        brandId: brand.id,
+        status: "UNPUBLISHED",
+      },
+    });
+    createdProductIds.push(unpublishedProduct.id);
+
+    const methodologyId = `repo-eval-status-methodology-${suffix}`;
+    createdMethodologyIds.push(methodologyId);
+    await methodologies.save({
+      id: methodologyId,
+      name: "Metodologia Repo Eval Status",
+      version: "1.0.0",
+      aggregationStrategyName: "weighted-average",
+      assignments: [{ criterionId: "cost-benefit", weight: 1, enabled: true }],
+      classification: [],
+      categoryOverrides: [],
+    });
+
+    for (const product of [publishedProduct, unpublishedProduct]) {
+      await indexResults.save({
+        supplementId: product.id,
+        categorySlug: category.slug,
+        methodologyId,
+        methodologyVersion: "1.0.0",
+        finalScore: 70,
+        classificationTier: "GOOD",
+        classificationLabel: "Bom",
+        breakdown: [{ criterionId: "cost-benefit", score: 70, weight: 1, notes: [], flags: [] }],
+        calculatedAt: new Date().toISOString(),
+      });
+    }
+
+    const byCategory = await indexResults.listLatestByCategory(category.slug);
+    const supplementIds = byCategory.map((r) => r.supplementId);
+    expect(supplementIds).toContain(publishedProduct.id);
+    expect(supplementIds).not.toContain(unpublishedProduct.id);
+  });
 });

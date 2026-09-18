@@ -116,7 +116,11 @@ export class PrismaIndexResultRepository implements IndexResultRepositoryPort {
 
     const latestPerProduct = await this.client.productScore.groupBy({
       by: ["productId"],
-      where: { categoryId: category.id },
+      // Produto despublicado não entra no ranking, mesmo que tenha uma
+      // ProductScore antiga de quando ainda era PUBLISHED — sem isso, o
+      // snapshot gerado a partir daqui continuaria incluindo produtos
+      // que não deveriam mais aparecer em `/ofertas`/`/creatina`.
+      where: { categoryId: category.id, product: { status: "PUBLISHED" } },
       _max: { calculatedAt: true },
     });
     if (latestPerProduct.length === 0) return [];
@@ -124,6 +128,7 @@ export class PrismaIndexResultRepository implements IndexResultRepositoryPort {
     const rows = await this.client.productScore.findMany({
       where: {
         categoryId: category.id,
+        product: { status: "PUBLISHED" },
         OR: latestPerProduct
           .filter((entry) => entry._max.calculatedAt !== null)
           .map((entry) => ({ productId: entry.productId, calculatedAt: entry._max.calculatedAt! })),

@@ -198,6 +198,11 @@ describe("Avaliação — integração ponta a ponta", () => {
       facts: facts("baixa"),
     });
 
+    // Geração de ranking exige produto PUBLISHED (listLatestByCategory
+    // filtra por status) — produto novo nasce DRAFT por padrão.
+    await container.useCases.setSupplementStatus.execute({ id: productA.id, status: "PUBLISHED" });
+    await container.useCases.setSupplementStatus.execute({ id: productB.id, status: "PUBLISHED" });
+
     const ranking = await container.useCases.generateRanking.execute({
       categorySlug: category.slug,
     });

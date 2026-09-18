@@ -119,7 +119,11 @@ export const productViewService = {
     if (productIds.length === 0) return new Map();
 
     const rows = await prisma.product.findMany({
-      where: { id: { in: [...productIds] } },
+      // Rede de segurança contra snapshots de ranking/avaliação gerados
+      // antes de uma despublicação: mesmo que `productIds` traga um
+      // produto não mais PUBLISHED, ele nunca aparece nas vitrines
+      // públicas que consomem esta função (ranking, mercado, recomendação).
+      where: { id: { in: [...productIds] }, status: "PUBLISHED" },
       include,
     });
 
