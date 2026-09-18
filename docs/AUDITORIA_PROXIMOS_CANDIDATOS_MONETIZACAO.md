@@ -115,7 +115,7 @@ append-only, nada foi apagado ou sobrescrito.
 outros 3 (`integralmedica-creatina-creapure-300g`, `dux-creatina-300g`,
 `vitafor-creatina-300g`) continuam pendentes, sem alteração.
 
-### `integralmedica-creatina-creapure-300g` — 🟡 médio risco
+### `integralmedica-creatina-creapure-300g` — 🟡 médio risco — validação dedicada concluída (2026-09-18), segue pendente
 
 Nome do cadastro já especifica **"Creapure"**, o que ajuda a
 descartar a linha "Hardcore"/regular da marca. Mas a busca encontrou
@@ -124,6 +124,22 @@ múltiplas listagens plausíveis para a linha Creapure (`B0CVP6GFKS` —
 visual da página exata antes de escrever, mesmo padrão já usado nas 5
 correções anteriores (não é ambiguidade de linha, é ambiguidade de
 qual anúncio/vendedor é o canônico).
+
+**Validação manual dedicada** (extensão Claude in Chrome indisponível
+nesta sessão — validado via `WebFetch`/`WebSearch` real, mesmo padrão
+das validações anteriores):
+
+| Critério                                        | Resultado                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Produto exato: Integralmédica Creatina Creapure | ✅ confirmado — página oficial da marca (`integralmedica.com.br/creatina-creapure-300g/p`) devolve exatamente **"Creatina Creapure 300g"**, marca Integralmédica                                                                                                                                                                                                                                                       |
+| Linha Creapure (não Hardcore/regular)           | ✅ confirmada — site oficial trata "Creatina Creapure" e "Creatina 100% Pura" como produtos **distintos**, cadastro já especifica Creapure                                                                                                                                                                                                                                                                             |
+| Peso 300g                                       | ✅ confirmado                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Sabor                                           | ✅ Neutro/sem sabor, compatível com `attributes: null`                                                                                                                                                                                                                                                                                                                                                                 |
+| Loja atual                                      | `loja-oficial`, `isAffiliate: false` — mesma URL de busca genérica da Amazon desde a primeira captura                                                                                                                                                                                                                                                                                                                  |
+| URL específica ou genérica                      | ❌ genérica (`amazon.com.br/s?k=...`)                                                                                                                                                                                                                                                                                                                                                                                  |
+| Alternativa segura na Amazon                    | ⚠️ **não isolada com confiança** — toda tentativa de encontrar o pote único de 300g sem complemento devolveu variações concorrentes: bundle com coqueteleira/squeeze (`B0CVP6GFKS`, `B07RFM1FWV`), kits multi-pote (2x/3x/4x — `B07Y3V5QBJ`, `B07RGKKM48`, `B07XZLNVHJ`), e a linha errada "Hardcore" (`B07L5WFHXW`). Nenhuma busca isolou de forma decisiva um ASIN de "só o pote 300g Creapure, sem brinde, sem kit" |
+
+**Classificação final: 🟡 médio risco — segue pendente, não corrigir agora.** O que falta: confirmação visual real da página do produto (navegador, não busca textual) para garantir que o ASIN escolhido é o pote único de 300g — sem isso, risco real de vincular a oferta a um bundle/kit que não corresponde ao preço/peso já cadastrado (R$79,90 por um único pote de 300g, valor que não bate com o preço de um kit de 2x/3x/4x nem necessariamente com o de um bundle com brinde). Sem a extensão do navegador disponível nesta sessão, não dá pra fechar com o mesmo rigor usado nas 5 correções anteriores — **fica pendente para quando o navegador estiver disponível ou alguém confirmar manualmente**.
 
 ### `dux-creatina-300g` — 🟡 médio risco
 
