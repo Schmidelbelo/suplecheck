@@ -4,6 +4,41 @@ Registro curto de continuidade do projeto. Atualizar no fim do dia ou ao encerra
 
 ## 2026-09-18
 
+### Fechamento — rodada de candidatos monetizáveis (Probiótica/Integralmédica/Dux/Vitafor)
+
+Frente aberta e fechada no mesmo dia: mapeamento de próximos
+candidatos seguros de monetização/correção de URL (continuação das 6
+URLs Amazon corrigidas em 2026-09-17), documentada em
+`docs/AUDITORIA_PROXIMOS_CANDIDATOS_MONETIZACAO.md`.
+
+**Estado final:**
+
+- `probiotica-creatina-300g` — ✅ **corrigida e validada**: `PriceEntry`
+  nova em `amazon-br`, URL real `dp/B07G7JPTCV`, mesmo preço já
+  capturado (R$44,90), `/go` confirmado com `tag=suplescore-20`,
+  tracking `wasAffiliate: true`.
+- `integralmedica-creatina-creapure-300g` — ⏸️ **pendente de
+  confirmação visual real/navegador**: linha (Creapure) confirmada via
+  site oficial, mas nenhuma busca textual isolou com segurança qual
+  ASIN é o pote único de 300g sem kit/bundle.
+- `dux-creatina-300g` — ❌ **descartada por alto risco**: comunicado
+  oficial da Dux confirma três linhas nomeadas distintas (Monohidratada,
+  Creapure, Crealive), cadastro não indica qual.
+- `vitafor-creatina-300g` — ❌ **descartada**: duas linhas reais
+  distintas (Monohidratada simples vs Creafort), sem evidência para
+  escolher.
+- `nutrata-creatina-creapure-250g` — continua `UNPUBLISHED`, sem
+  mudança nesta rodada.
+- Candidatos Mercado Livre (`max-titanium-mass-titanium-17500-3kg`,
+  `integralmedica-sinister-mass-3kg`) — seguem descartados, sem ação
+  segura disponível.
+- Nenhum outro candidato seguro restante: as demais 44 ofertas do
+  catálogo não têm programa de afiliado disponível hoje.
+
+`affiliate-discovery` seguiu intocado. Nenhum código/schema/migration/
+imagem/ranking alterado nesta rodada — só a correção pontual da
+Probiótica (via API já existente) e documentação.
+
 ### Fechamento — Nutrata despublicada, filtro de status no ranking, deploy e reprocessamento
 
 Continuação direta do achado de 2026-09-17 (Nutrata despublicada mas

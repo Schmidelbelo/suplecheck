@@ -247,7 +247,7 @@ reclassificados como alto risco após validação dedicada:
    programa de afiliado disponível, não é "descarte" no sentido de
    "candidato rejeitado", é "não aplicável ainda".
 
-### Próxima ação recomendada
+### Próxima ação recomendada (histórico — ver "Fechamento" abaixo para o estado final)
 
 Não configurar nada ainda. Se a frente for retomada: validar
 manualmente (navegador real, mesmo rigor das 5 correções anteriores)
@@ -257,3 +257,26 @@ maior ganho — sai de "sem monetização real" para "monetizado"), depois
 confirmação visual adicional. `vitafor-creatina-300g` só entra em jogo
 se surgir evidência forte (foto real publicada ou confirmação humana
 de qual linha o cadastro representa).
+
+---
+
+## Fechamento desta rodada (2026-09-18)
+
+Estado final de todos os candidatos avaliados nesta frente:
+
+| Candidato                                              | Estado final                                                                                                                                 |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `probiotica-creatina-300g`                             | ✅ **Corrigida e validada** — URL/loja trocadas para `amazon-br`/`dp/B07G7JPTCV`, `/go` e tracking confirmados                               |
+| `integralmedica-creatina-creapure-300g`                | ⏸️ **Pendente de confirmação visual real/navegador** — linha (Creapure) confirmada, ASIN exato do pote único ainda não isolado com segurança |
+| `dux-creatina-300g`                                    | ❌ **Descartada por alto risco** — três linhas nomeadas distintas (Monohidratada/Creapure/Crealive), cadastro não indica qual                |
+| `vitafor-creatina-300g`                                | ❌ **Descartada por linhas reais distintas** (Monohidratada simples vs Creafort)                                                             |
+| `nutrata-creatina-creapure-250g`                       | ⏸️ **Continua `UNPUBLISHED`** — sem mudança nesta rodada                                                                                     |
+| `max-titanium-mass-titanium-17500-3kg` (Mercado Livre) | ❌ Descartado — sabor ambíguo (rodada anterior)                                                                                              |
+| `integralmedica-sinister-mass-3kg` (Mercado Livre)     | ❌ Descartado — anúncio inativo (rodada anterior)                                                                                            |
+
+**Nenhum outro candidato seguro restante nesta rodada** — as demais 44
+ofertas do catálogo não têm programa de afiliado disponível hoje (não
+é descarte por ambiguidade, é ausência de programa).
+
+Nenhuma ação de escrita adicional executada para produzir este
+fechamento — só documentação. `affiliate-discovery` seguiu intocado.
