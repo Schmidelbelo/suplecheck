@@ -216,3 +216,79 @@ um deve continuar sendo investigado individualmente (nunca em lote
 automático), respeitando as mesmas regras já estabelecidas: nunca
 publicar sem fonte real confirmada, nunca aceitar produto/sabor/dose
 diferente do exato.
+
+---
+
+## 8. Fechamento — mapa final dos 13 restantes (2026-09-18)
+
+Confirmado em produção (só leitura): **13 registros em `PendingImage`**
+depois das 2 resoluções desta data (Growth Pasta de Amendoim, Max
+Titanium ZMA). Classificação final:
+
+### 8.1 Ambiguidade de sabor/variação (4) — precisa decisão humana
+
+| Produto                                           | Sabores/variações reais confirmadas                                                                                                                              | Ação humana necessária                                                                                                       | Vale insistir hoje?                                                                                   |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `probiotica-hiper-100-whey-900g`                  | 4 (baunilha, chocolate, cookies and cream, morango)                                                                                                              | Decidir qual sabor o preço/oferta capturados representam, ou aceitar que o cadastro fique sem sabor definido permanentemente | Não — precisa de dado que só existe fora deste sistema (nota fiscal, confirmação da captura original) |
+| `probiotica-epic-pre-treino-300g`                 | 6 (Brazilian Fruits, Frutas Vermelhas, Guaraná com Laranja, Limão, Melancia, Tipo Energético)                                                                    | Mesma decisão acima                                                                                                          | Não                                                                                                   |
+| `soldiers-nutrition-whey-protein-concentrado-1kg` | 7 (Morango, Mocaccino, Beijinho, Baunilha, Natural, Cookies, Chocolate Belga)                                                                                    | Mesma decisão acima                                                                                                          | Não                                                                                                   |
+| `darkness-evora-pw-limao-150g`                    | 1 conhecida (Limão, já no nome do cadastro) — não é ambiguidade de qual sabor, é **fonte que erra o sabor** (2 tentativas já devolveram produto/sabor diferente) | Achar uma terceira fonte que garanta visualmente o sabor Limão antes de aceitar                                              | Talvez, mas não hoje — já usou 2 tentativas, uma terceira exige fonte nova ainda não identificada     |
+
+### 8.2 Fonte bloqueada sem alternativa encontrada (4)
+
+| Produto                                 | Fontes já tentadas                                                                                                                                      | Fonte provável para próxima tentativa                                                                                                         | Vale insistir hoje?                                           |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `growth-coenzima-q10-100mg-60-capsulas` | 8 no total (essenciabrasileira, fitfield, towersuplementos, drogaraia, americanas, nutrigenes — marca errada, shopee, gsuplementos — bloqueio anti-bot) | Nenhuma óbvia restante — praticamente todas as lojas menores já tentadas                                                                      | Não — retornos decrescentes, mesma causa reconfirmada 2x hoje |
+| `growth-cafeina-100mg-120-capsulas`     | 3 (captainsupplements, virtualsuplementos, gsuplementos — todas DNS inacessível deste ambiente)                                                         | `shopee.com.br`, `reduza.com.br`, `premiumsupplementos.com` (achadas em busca, não tentadas ainda)                                            | Sim, em outro ciclo — ainda há fontes não tentadas            |
+| `growth-cafeina-200mg-60-capsulas`      | 0 tentativas nesta sessão (causa herdada de rodada anterior)                                                                                            | `cirurgicaestilo.com.br` (a própria `sourceUrl` já no catálogo)                                                                               | Sim, em outro ciclo — ainda não foi tentado hoje              |
+| `growth-melatonina-021mg-100-capsulas`  | 0 tentativas nesta sessão (causa herdada de rodada anterior)                                                                                            | `essenciabrasileira.com.br` (a própria `sourceUrl`) — mesmo domínio que falhou por DNS para outros itens hoje, pode ser instabilidade pontual | Sim, em outro ciclo                                           |
+
+### 8.3 Sem metadata suficiente (3) — precisa inspeção manual da página
+
+| Produto                            | Situação                               | Fonte provável                                                                                                | Vale insistir hoje?                                                                   |
+| ---------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `integralmedica-coq10-30-capsulas` | Página carrega, sem `og:image`/JSON-LD | Mesma `sourceUrl` já registrada — precisa inspeção visual manual da página (não busca automática de metadata) | Não — exige navegador real, indisponível nesta sessão (Chrome extension não conectou) |
+| `growth-zma-ultra-120-comprimidos` | Mesma situação                         | Idem                                                                                                          | Não                                                                                   |
+| `probiotica-pro-collagen-330g`     | Mesma situação                         | Idem                                                                                                          | Não                                                                                   |
+
+### 8.4 Despublicado/sem efeito visual (2) — sem ação de imagem necessária
+
+| Produto                          | Motivo                                                                                                                                         |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nutrata-creatina-creapure-250g` | `UNPUBLISHED` — não aparece em nenhuma vitrine pública; resolver imagem não muda nada visível até (e a menos que) seja recapturado/republicado |
+| `Produto Price Stats`            | Fixture de teste `ARCHIVED`, invisível publicamente — limpeza cosmética, sem urgência                                                          |
+
+### 8.5 Resumo por grupo
+
+| Grupo                                                  | Qtde   |
+| ------------------------------------------------------ | ------ |
+| Ambiguidade de sabor/variação (precisa decisão humana) | 4      |
+| Fonte bloqueada sem alternativa encontrada ainda       | 4      |
+| Sem metadata suficiente (precisa navegador real)       | 3      |
+| Despublicado/fixture (sem efeito visual)               | 2      |
+| **Total**                                              | **13** |
+
+**Nenhum dos 13 tem candidato pronto para publicar hoje** — os 3 grupos
+acionáveis (8.1, 8.2, 8.3) exigem, respectivamente: decisão humana de
+sabor, uma fonte nova ainda não tentada, ou acesso a navegador real
+(indisponível nesta sessão). Nenhuma imagem foi baixada, publicada ou
+alterada nesta frente de fechamento — só leitura e classificação.
+
+## 9. Próxima frente recomendada
+
+Nenhuma das 3 categorias acionáveis é resolvível com o que está
+disponível nesta sessão agora. Duas opções concretas para retomada:
+
+1. **Tentar as 3 fontes novas do grupo 8.2** (`growth-cafeina-100mg-120-capsulas`
+   via Shopee/Reduza/Premium Suplementos, `growth-cafeina-200mg-60-capsulas`
+   via `cirurgicaestilo.com.br`, `growth-melatonina-021mg-100-capsulas`
+   via nova tentativa em `essenciabrasileira.com.br`) — são os únicos
+   com fonte candidata concreta ainda não esgotada.
+2. **Resolver os 3 itens de "sem metadata"** (8.3) quando houver acesso
+   a navegador real (Chrome extension conectada) — inspeção visual
+   manual da página já é suficiente, não precisa de fonte nova.
+
+Os 4 itens de ambiguidade de sabor (8.1) e os 2 de fonte
+esgotada/marca errada em `growth-coenzima-q10-100mg-60-capsulas` ficam
+fora de qualquer lote automático — dependem de decisão humana externa
+a este sistema, não de mais tentativas de busca.
