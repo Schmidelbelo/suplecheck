@@ -313,6 +313,67 @@ hoje — exigem, respectivamente, uma fonte que não esteja bloqueada,
 uma decisão de qual sabor o SKU representa, e uma fonte forte o
 bastante para desempatar 150g/300g.
 
+## 10. Terceira rodada (2026-09-18) — reconfirmação, nenhuma imagem nova publicada
+
+Retomada dos 3 itens historicamente citados como "próxima ação"
+(§7/§9.3). Estado real na produção, verificado antes de qualquer
+tentativa:
+
+- **`neo-quimica-melatonina-021mg-90-comprimidos`** — **já resolvido**
+  desde §8.1 (2026-09-17): `PendingImage` confirmado `null` no banco
+  hoje (não está mais na fila). Nenhuma ação necessária — incluído
+  aqui só para fechar a lista com precisão, a recomendação anterior
+  estava desatualizada nesse item específico.
+
+### 10.1 `growth-coenzima-q10-100mg-60-capsulas` — continua `PENDING`
+
+Tentadas 3 fontes **novas** (além das 5 já esgotadas em §8.2):
+`nutrigenes.com.br` (carregou, mas é produto de **marca diferente**
+— NutriGenes, não Growth Supplements — descartado por não ser o
+produto certo, não por bloqueio), `shopee.com.br` (conteúdo vazio,
+mesmo padrão de bloqueio das outras fontes JS-pesadas já tentadas) e
+nova tentativa em `gsuplementos.com.br` (bloqueado por verificação de
+navegador, "Verifying your browser..."). `essenciabrasileira.com.br`
+(a própria `sourceUrl` do catálogo) e `towersuplementos.com` falharam
+por DNS inacessível deste ambiente — mesmo sintoma já registrado em
+§8.2. **Nenhuma fonte nova produziu uma imagem real utilizável.**
+Mantido `PENDING`, nenhum candidato inventado, nenhuma imagem de outra
+marca aceita por aproximação.
+
+### 10.2 `probiotica-epic-pre-treino-300g` — continua `PENDING`, ambiguidade confirmada com mais detalhe
+
+A página oficial (`probiotica.com.br/epic-300g/p`) **confirma
+explicitamente 6 sabores reais** (não 5, como estimado em §8.3):
+Brazilian Fruits, Frutas Vermelhas, Guaraná com Laranja, Limão,
+Melancia, Tipo Energético — cada um com imagem própria hospedada no
+VTEX (`supleylab.vtexassets.com`). A página carrega com **"Limão"**
+pré-selecionado por padrão ao abrir sem parâmetro de sabor — mas isso
+é só o comportamento default da vitrine do site (provavelmente ordem
+alfabética ou estoque), **não é evidência de qual sabor foi realmente
+capturado** no `PriceEntry` do catálogo (a `url` registrada é a página
+genérica, sem parâmetro de sabor). Aceitar o sabor "default da página"
+seria exatamente o tipo de aproximação já rejeitada em casos
+anteriores (Nutrata, Growth/Black Skull antes de terem foto real
+decisiva) — **não usado como critério**. Cadastro (`attributes`) segue
+sem menção a sabor. Mantido `PENDING`.
+
+### 10.3 Validação pós-rodada
+
+- Nenhuma escrita executada — nenhum `PendingImage`, `ProductImage`,
+  `Product`, preço, ranking ou afiliado alterado.
+- `/ofertas` confirmado respondendo 200 antes e depois desta rodada.
+- Fila `PendingImage` inalterada nesta rodada (segue como estava desde
+  §9.4: 15, com os mesmos 2 itens desta lista entre eles).
+- Amazon, Mercado Livre, Netshoes, `affiliate-discovery`: não tocados.
+
+**Classificação final dos 3 itens desta tarefa**:
+
+| Produto                                       | Classificação                                                                                                              |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `neo-quimica-melatonina-021mg-90-comprimidos` | ✅ Imagem real já aplicada (resolvido em 2026-09-17)                                                                       |
+| `growth-coenzima-q10-100mg-60-capsulas`       | ⏸️ Placeholder mantido — fonte insuficiente (8 fontes tentadas ao todo, todas bloqueadas/indisponíveis ou de marca errada) |
+| `probiotica-epic-pre-treino-300g`             | ⏸️ Placeholder mantido — ambiguidade real (6 sabores confirmados, catálogo não especifica qual)                            |
+
 ---
 
-_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada. §8/§9 (2026-09-17) são a segunda exceção: 3 imagens publicadas via upload manual validado item a item ao longo do dia, 3 produtos seguem `PENDING` por bloqueio de fonte, ambiguidade de sabor e ambiguidade de SKU, respectivamente._
+_Auditoria gerada em 2026-09-16, contra o estado de produção após a publicação de imagens em `0881c9e`. Só leitura — nenhuma imagem publicada, nenhum `PendingImage` criado/alterado, nenhum código ou banco tocado. §6 é a exceção: 2 correções pontuais de `Product.name` via API administrativa já existente, aplicadas na mesma data. §7 é só recomendação registrada, não executada. §8/§9 (2026-09-17) são a segunda exceção: 3 imagens publicadas via upload manual validado item a item ao longo do dia, 3 produtos seguem `PENDING` por bloqueio de fonte, ambiguidade de sabor e ambiguidade de SKU, respectivamente. §10 (2026-09-18) é a terceira rodada: só leitura/reconfirmação, nenhuma imagem nova publicada — os 2 itens restantes seguem `PENDING` por causa real e documentada, não resolvida por mais tentativas de busca textual._
