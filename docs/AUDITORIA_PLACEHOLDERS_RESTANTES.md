@@ -40,7 +40,7 @@ despublicando o produto, fora do escopo de imagem agora.
 
 ## 3. Top candidatos seguros (avaliação de viabilidade, sem baixar imagem)
 
-### `growth-pasta-de-amendoim-integral-torrado-1kg` — 🟢 risco baixo
+### `growth-pasta-de-amendoim-integral-torrado-1kg` — 🟢 risco baixo — ✅ RESOLVIDO (2026-09-18)
 
 - **Marca**: Growth Supplements.
 - **Por que é candidato seguro**: a causa registrada é só "fonte
@@ -65,6 +65,29 @@ torrado (ingrediente único)"`) descrevem a versão **integral/natural
   errado.
 - **Risco**: 🟢 baixo — peso e composição já desambiguam a variante;
   falta só encontrar/confirmar a foto real.
+
+**Resolução aplicada (2026-09-18)**: fonte real confirmada em
+`goldstarsupplements.com.br/produtos/pasta-de-amendoim-integral-torrado-1kg-original-growth-supplements/`
+— a mesma URL já registrada como `sourceUrl` do produto, não uma fonte
+nova. Nome exato confirmado: **"Pasta de Amendoim Integral Torrado 1Kg
+Original - Growth Supplements"**. Imagem baixada e **inspecionada
+visualmente** antes de publicar — rótulo confirma "PASTA DE AMENDOIM —
+SABOR NATURAL — AMENDOIM INTEGRAL — PESO LÍQ. 1,005KG — GROWTH
+SUPPLEMENTS", exatamente o produto do cadastro, sem sabor colorido, sem
+mistura com a linha de 500g. Publicada via `POST /api/admin/images/upload`
+(endpoint administrativo existente, upload manual — não candidato
+automático, não lote).
+
+- **Antes**: card ilustrativo, `PendingImage` `PENDING`.
+- **Depois**: capa real no Vercel Blob
+  (`.../products/growth-pasta-de-amendoim-integral-torrado-1kg.webp`,
+  HTTP 200), `PendingImage` removido da fila (15 → 14), página do
+  produto (`/categorias/pasta-de-amendoim/growth-pasta-de-amendoim-integral-torrado-1kg`)
+  confirmada renderizando a imagem nova.
+- **Validação**: `/ofertas` responde 200 antes e depois; nenhum outro
+  `PendingImage`/`ProductImage`/produto tocado (confirmado por consulta
+  direta ao banco); nenhum preço, afiliado, ranking, Amazon/Mercado
+  Livre/Netshoes ou `affiliate-discovery` alterado.
 
 ### `soldiers-nutrition-whey-protein-concentrado-1kg` — 🔴 reclassificado para alto risco
 
@@ -130,7 +153,7 @@ torrado (ingrediente único)"`) descrevem a versão **integral/natural
 | ------------------------------------------------------------------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Total de placeholders (`PendingImage`)                                         | 15   | —                                                                                                                                                                                                                          |
 | Relevantes (`PUBLISHED`, afeta vitrine)                                        | 13   | —                                                                                                                                                                                                                          |
-| 🟢 Candidato seguro para resolver a seguir                                     | 1    | `growth-pasta-de-amendoim-integral-torrado-1kg`                                                                                                                                                                            |
+| ✅ Candidato seguro — **resolvido em 2026-09-18**                              | 1    | `growth-pasta-de-amendoim-integral-torrado-1kg`                                                                                                                                                                            |
 | 🔴 Pendência — precisa confirmação humana (ambiguidade real)                   | 3    | `darkness-evora-pw-limao-150g`, `probiotica-epic-pre-treino-300g`, `soldiers-nutrition-whey-protein-concentrado-1kg`                                                                                                       |
 | ⏸️ Placeholder mantido — produto despublicado/fixture (sem efeito visual)      | 2    | `nutrata-creatina-creapure-250g`, `Produto Price Stats`                                                                                                                                                                    |
 | 📋 Placeholder mantido — fonte bloqueada, não investigado a fundo ainda        | 6    | `probiotica-hiper-100-whey-900g`, `growth-cafeina-100mg-120-capsulas`, `growth-melatonina-021mg-100-capsulas`, `max-titanium-zma-90-capsulas`, `growth-coenzima-q10-100mg-60-capsulas`, `growth-cafeina-200mg-60-capsulas` |
