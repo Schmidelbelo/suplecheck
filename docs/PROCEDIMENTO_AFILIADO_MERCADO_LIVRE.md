@@ -129,6 +129,30 @@ seção).
 - **Resultado**: descartado por enquanto. `PriceEntry.url` desta oferta está desatualizada (o anúncio de origem não existe mais) — isso é um problema de dado de preço/captura, não de afiliado; não é este documento que resolve, mas fica registrado para quem cuidar da atualização de captura de preço deste produto.
 - **Não configurar `affiliateUrl`** para este produto enquanto a `PriceEntry.url` não for recapturada contra um anúncio real e ativo.
 
+**Retomada da recaptura (2026-09-21) — candidato encontrado, não confirmado, nada aplicado**:
+
+- Busca web (texto) encontrou um anúncio ativo aparente do mesmo
+  produto sob outro vendedor: `MLB-2104998441`
+  ("Hipercalórico Sinister Mass 3kg - Integralmedica -envio Full",
+  G7 Nutrição Esportiva, **R$78,99**) — marca, produto e peso batem
+  (Integralmédica, Sinister Mass, 3kg); este anúncio específico não
+  menciona brinde no título (diferente do original `-brinde-`, que já
+  estava morto).
+- **Não foi possível confirmar visualmente que o anúncio está ativo**
+  — Mercado Livre bloqueia `WebFetch` direto (`403 Forbidden`, mesmo
+  padrão de bloqueio já visto com a Amazon), e a extensão Claude in
+  Chrome (que permitiu a validação visual anterior, em 2026-09-17)
+  está desconectada nesta sessão. Tentativas em 3 domínios espelho de
+  revendedor também falharam (DNS inacessível ou certificado
+  inválido).
+- **Decisão explícita do usuário**: parar sem recapturar — nenhuma
+  `PriceEntry` nova foi criada, `PriceEntry.url` do produto continua
+  a mesma (URL antiga, já morta). Candidato fica registrado, mas
+  **não confirmado**, para quando houver acesso a navegador real.
+- **Nenhuma escrita realizada**: nenhum banco, catálogo, preço,
+  afiliado, imagem, ranking, Max Titanium, Amazon, Netshoes, código,
+  schema ou `affiliate-discovery` alterado.
+
 ### 2. Max Titanium Mass Titanium 17500 3kg (`max-titanium-mass-titanium-17500-3kg`)
 
 - **URL Mercado Livre já capturada**: `https://www.mercadolivre.com.br/hipercalorico-mass-titanium-17500-3kg-max-titanium-sabor-morango/p/MLB18724697`
