@@ -458,3 +458,18 @@ identidade do produto já está feita e não precisa ser refeita; só
 falta baixar a imagem de novo quando a fonte responder e confirmar
 que os bytes batem com o que foi inspecionado em §11.1 antes de
 publicar.
+
+## 13. Nova tentativa de download (2026-09-21) — fonte ainda fora do ar
+
+Repetida a mesma URL de imagem já validada (nenhuma fonte trocada,
+nenhuma nova validação necessária, conforme escopo autorizado). **Site
+ainda em manutenção**: resposta HTTP 200 com 5185 bytes de HTML
+(`"Site em manutenção"`), mesmo conteúdo e mesmo tamanho da tentativa
+anterior — não é a imagem `.jpg`. Conforme critério de parada
+explícito desta tarefa, **nenhuma imagem foi baixada nem publicada**.
+
+Nenhuma escrita realizada: `PendingImage` continua em 13, nenhum outro
+produto/imagem tocado, nenhum catálogo/nome/dose/preço/afiliado/
+ranking/código/schema/`affiliate-discovery` alterado. A validação de
+identidade do produto (§12) continua válida e não precisa ser refeita
+quando a fonte voltar.
