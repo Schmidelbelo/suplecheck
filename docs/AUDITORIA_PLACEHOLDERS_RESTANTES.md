@@ -315,3 +315,100 @@ itens deste lote — a próxima tentativa exigiria descobrir uma fonte
 nova (não apenas retry das 3 já esgotadas), ou aguardar que os domínios
 com DNS inacessível voltem a resolver (comportamento intermitente já
 observado neste ambiente ao longo da sessão, mas não previsível).
+
+## 11. Auditoria do grupo "sem metadata suficiente" (2026-09-21)
+
+Investigação individual dos 3 itens do grupo 8.3 — a causa registrada
+pelo pipeline automático é "página carregou, mas sem `og:image`/
+JSON-LD", mas isso não significa que a página não tenha imagem
+nenhuma, só que o pipeline automático não sabe extraí-la sem essas
+tags. Inspeção manual (via `WebFetch`, convertendo HTML para
+markdown) consegue às vezes achar imagens em tags `<img>` comuns que o
+pipeline ignora.
+
+### 11.1 `integralmedica-coq10-30-capsulas` — 🟢 candidato seguro para próxima etapa
+
+- **Nome no catálogo**: "Integralmédica CoQ10 30 Cápsulas" | **Marca**:
+  Integralmédica | **Dose registrada**: 100mg CoQ10/dose | **Loja da
+  captura**: Nutri Fast Shop, R$145,90 | **URL original**: a própria
+  `sourceUrl` já registrada (`nutrifastshop.com.br/.../coq10-coenzima-q10-integralmedica-30-caps/`).
+- **Motivo do "sem metadata"**: a página carrega normalmente (não é
+  bloqueio anti-bot), só não expõe `og:image`/JSON-LD `Product` — por
+  isso o pipeline automático não conseguiu extrair, mas uma imagem de
+  produto real existe na página em uma tag `<img>` comum.
+- **Imagem encontrada e inspecionada visualmente**: rótulo confirma
+  "IntegralMédica — CoQ10 ATP Synthesis — Coenzima Q10 em Cápsulas —
+  Contém 30 Cápsulas" — marca, produto e quantidade batem exatamente
+  com o cadastro. Sem indício de sabor/variante (CoQ10 é cápsula pura,
+  não há linha colorida conhecida da marca para este produto).
+- **Risco identificado, não bloqueante**: a página de origem informa
+  **67mg de CoQ10 por cápsula**, enquanto o catálogo registra
+  `coq10PerDoseMg: 100`. É uma discrepância de dado nutricional, não
+  de identidade do produto (mesma marca, mesmo nome, mesma
+  quantidade de cápsulas) — não impede usar a foto (a foto não muda
+  com a dosagem, é a mesma embalagem), mas fica registrado como
+  achado à parte para quem cuidar da qualidade de dado do catálogo
+  (fora do escopo desta tarefa, que é só imagem).
+- **Classificação**: 🟢 **candidato seguro** — nome/marca/quantidade
+  confirmados por foto real e inspecionada visualmente; pode avançar
+  para publicação em uma próxima frente autorizada.
+
+### 11.2 `growth-zma-ultra-120-comprimidos` — 🔍 precisa confirmação humana/navegador
+
+- **Nome no catálogo**: "Growth ZMA Ultra 120 Comprimidos" | **Marca**:
+  Growth Supplements | **Dose registrada**: 260mg magnésio/dose |
+  **Loja da captura**: Loja Oficial Growth Supplements
+  (`gsuplementos.com.br`), R$69,90 | **URL original**: a própria
+  `sourceUrl` já registrada.
+- **Motivo real da falta de metadata**: **não é falta de metadata** —
+  a página está atrás de uma **verificação anti-bot** ("Verifying
+  your browser..."), a mesma proteção que já bloqueou outras
+  tentativas nesta loja em rodadas anteriores (`gsuplementos.com.br`
+  também bloqueou a tentativa de `growth-coenzima-q10-100mg-60-capsulas`).
+  `WebFetch` não consegue passar dessa verificação — só um navegador
+  real (extensão Chrome, indisponível nesta sessão) resolveria.
+- **Risco de imagem errada**: não avaliável ainda — não há imagem
+  candidata para julgar.
+- **Classificação**: 🔍 **precisa navegador real** — não é ambiguidade
+  de produto, é limitação de ferramenta desta sessão.
+
+### 11.3 `probiotica-pro-collagen-330g` — 🔴 reclassificado para ambiguidade de sabor
+
+- **Nome no catálogo**: "Probiótica Pro Collagen 330g" | **Marca**:
+  Probiótica | **Dose registrada**: 11g colágeno/dose | **Loja da
+  captura**: CWB Gold Suplementos, R$99,90 | **URL original da
+  `PriceEntry`**: `cwbgold.com.br/produto/probiotica-pro-collagen-330g.html`
+  (nota: o `PendingImage.sourceUrl` registrado é diferente,
+  `nutrifastshop.com.br`, mas a fonte oficial usada nesta investigação
+  foi `probiotica.com.br/pro-collagen/p`, a mesma já citada em
+  `attributes.sourceUrl`).
+- **Achado desta investigação**: a página oficial confirma que o
+  produto é vendido em **3 sabores reais** — Tangerina, Abacaxi com
+  Hortelã e Limão — cada um com fotos próprias. O cadastro
+  (`attributes.ingredients`: "aromatizantes" genérico, sem nome de
+  sabor) **não especifica qual**. **Não é mais um caso de "sem
+  metadata"** — é ambiguidade real de variação, mesma categoria dos
+  outros 4 itens já classificados assim (Probiótica Hiper Whey, Epic
+  Pré-Treino, Soldiers Nutrition, Darkness Évora).
+- **Classificação**: 🔴 **ambiguidade de sabor — mantém placeholder**,
+  precisa da mesma decisão humana externa já descrita para os outros
+  casos de sabor (§8.1).
+
+### 11.4 Validação
+
+Nenhuma imagem baixada/publicada permanentemente (uma foi baixada
+temporariamente só para inspeção visual do CoQ10 e removida em
+seguida). Nenhum catálogo, preço, afiliado, ranking, item de sabor já
+conhecido, item de fonte bloqueada por DNS, código, schema ou
+`affiliate-discovery` alterado.
+
+### 11.5 Recomendação — no máximo 1 próximo item
+
+**`integralmedica-coq10-30-capsulas`** é o único dos 3 pronto para
+avançar — nome, marca e quantidade já confirmados por foto real
+inspecionada visualmente. Recomendo esta ser a próxima publicação,
+sujeita à mesma autorização explícita já usada nas publicações
+anteriores desta frente (Growth Pasta de Amendoim, Max Titanium ZMA).
+Os outros 2 ficam: `growth-zma-ultra-120-comprimidos` pendente de
+navegador real; `probiotica-pro-collagen-330g` pendente de decisão
+humana de sabor (junto com os outros 4 casos já conhecidos).
