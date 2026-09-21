@@ -29,6 +29,15 @@ const nextConfig: NextConfig = {
         destination: "https://suplescore.com.br/:path*",
         permanent: true,
       },
+      // Slug corrigido em 2026-09-21: o produto é vendido em 250g, não
+      // 300g (ver docs/AUDITORIA_QUALIDADE_DADOS_OFERTAS.md) — o slug
+      // antigo pode já estar indexado/linkado externamente, então
+      // redireciona (301) em vez de deixar 404.
+      {
+        source: "/creatina/growth-creatina-monohidratada-300g",
+        destination: "/creatina/growth-creatina-monohidratada-250g",
+        permanent: true,
+      },
     ];
   },
 
