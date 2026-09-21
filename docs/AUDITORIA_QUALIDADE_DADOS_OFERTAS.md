@@ -106,3 +106,36 @@ decidida aqui):
 Nenhuma das duas foi executada nesta auditoria (altera catálogo/slug,
 fora do escopo "somente leitura" desta tarefa) — fica registrada como
 a próxima decisão concreta a tomar.
+
+## 6. Correção aplicada (2026-09-21) — slug renomeado com redirect
+
+Opção 1 (renomear) executada, com autorização explícita:
+
+- **`Product.slug`** alterado diretamente em produção:
+  `growth-creatina-monohidratada-300g` → `growth-creatina-monohidratada-250g`
+  (só o campo `slug`; preço, imagem, `affiliateUrl` e todos os demais
+  campos preservados — nenhum outro produto tocado).
+- **Redirect 301** (na prática `308 Permanent Redirect`, o equivalente
+  moderno do Next.js para `permanent: true` — tratado de forma
+  idêntica pelos buscadores) adicionado em `next.config.ts`
+  `redirects()`, o mesmo mecanismo já usado para o redirect
+  `www → apex`. Não exigiu schema/migration novo.
+- Deploy feito a partir de um `git worktree` limpo no commit
+  `09b2db4` (nunca a partir da working tree principal, que tem
+  `affiliate-discovery` não commitado), via `vercel --prod`.
+
+**Validação pós-deploy**:
+
+| Critério                                       | Resultado                                                                                                                                                                                                                                                                                                                                          |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/creatina/growth-creatina-monohidratada-250g` | ✅ 200                                                                                                                                                                                                                                                                                                                                             |
+| `/creatina/growth-creatina-monohidratada-300g` | ✅ `308` → `Location: /creatina/growth-creatina-monohidratada-250g`                                                                                                                                                                                                                                                                                |
+| `/go/growth-creatina-monohidratada-250g`       | ✅ redireciona para `dp/B0CJG32CZ6?tag=suplescore-20`, tracking confirmado (`wasAffiliate: true`)                                                                                                                                                                                                                                                  |
+| `<link rel="canonical">` na página nova        | ✅ aponta para o slug novo                                                                                                                                                                                                                                                                                                                         |
+| `sitemap-produtos.xml`                         | ✅ só o slug novo (0 ocorrências do antigo) — gerado dinamicamente do banco, sem mudança de código adicional                                                                                                                                                                                                                                       |
+| `/ofertas`                                     | ✅ 200, usa o slug novo nos links de produto (a única ocorrência remanescente do texto "300g" é o **nome do arquivo de imagem** no Vercel Blob, `growth-creatina-monohidratada-300g.webp` — artefato de quando a imagem foi publicada sob o slug antigo; a imagem em si renderiza normalmente e não foi tocada, não é uma referência de rota/slug) |
+| `npm run typecheck`                            | ✅ limpo                                                                                                                                                                                                                                                                                                                                           |
+| Testes                                         | ✅ 201/201 (1 falha isolada em `evaluation.api.test.ts` na primeira rodada, reconfirmada como flakiness transiente de conexão — passou limpo ao rodar de novo sozinho)                                                                                                                                                                             |
+
+Nenhum outro produto, preço, imagem, afiliado ou ranking alterado.
+`affiliate-discovery` seguiu intocado durante todo o processo.
