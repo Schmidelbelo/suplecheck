@@ -412,3 +412,49 @@ anteriores desta frente (Growth Pasta de Amendoim, Max Titanium ZMA).
 Os outros 2 ficam: `growth-zma-ultra-120-comprimidos` pendente de
 navegador real; `probiotica-pro-collagen-330g` pendente de decisão
 humana de sabor (junto com os outros 4 casos já conhecidos).
+
+## 12. Tentativa de publicação de `integralmedica-coq10-30-capsulas` (2026-09-21) — adiada, fonte fora do ar
+
+Autorização recebida para publicar, com validação final antes de
+escrever. Validação de identidade do produto **concluída com sucesso**
+antes de qualquer tentativa de download:
+
+- Confirmado que a Integralmédica vende **só um** produto de CoQ10 em
+  30 cápsulas — "COQ 10 ATP Synthesis VO2, 30 Cápsulas" (confirmado
+  também na Centauro, mesmo nome). O único outro produto de CoQ10 da
+  marca é um combo diferente, "CoQ10 + Ômega 3" (**60 cápsulas**,
+  fórmula com 1043mg de ômega-3 + 100mg CoQ10 por dose) — quantidade
+  de cápsulas e fórmula diferentes, produto claramente distinto, não
+  o mesmo SKU.
+- Isso confirma: a discrepância 67mg (fonte) vs 100mg (catálogo) **não
+  indica outro produto/SKU** — o único CoQ10 de 30 cápsulas da marca é
+  o já fotografado e inspecionado em §11.1; o valor de 100mg no
+  catálogo provavelmente veio por engano da fórmula do combo de 60
+  cápsulas (dado de outro produto, copiado por engano na captura
+  original) — mas isso é um problema de dado nutricional, não de qual
+  produto/imagem usar.
+
+**Execução adiada**: ao tentar rebaixar a imagem já identificada em
+§11.1 para publicar (mesma URL,
+`nutrifastshop.com.br/img/products/coq10-coenzima-q10-integralmedica-30-caps_1_630.jpg`),
+**o site de origem está fora do ar** — 3 tentativas consecutivas
+devolveram a página de manutenção do site (`"Site em manutenção"`,
+HTTP 200 mas conteúdo HTML, não a imagem), não o arquivo `.jpg` visto
+anteriormente nesta mesma frente. Como as regras desta tarefa exigem
+usar "somente a imagem real já inspecionada" e a fonte está
+indisponível para re-confirmar os bytes agora, **a publicação não foi
+executada** — não é um problema de identidade de produto (essa parte
+está resolvida), é indisponibilidade momentânea da fonte.
+
+**Nenhuma escrita realizada**: nenhum `PendingImage`/`ProductImage`
+alterado, `PendingImage` continua em 13. `growth-zma-ultra-120-comprimidos`
+e `probiotica-pro-collagen-330g` não tocados. Nenhum catálogo, nome,
+dose, preço, afiliado, ranking, código, schema ou `affiliate-discovery`
+alterado.
+
+**Próxima ação recomendada**: repetir a tentativa de download mais
+tarde (o site pode voltar do modo manutenção) — a validação de
+identidade do produto já está feita e não precisa ser refeita; só
+falta baixar a imagem de novo quando a fonte responder e confirmar
+que os bytes batem com o que foi inspecionado em §11.1 antes de
+publicar.
