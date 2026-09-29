@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
-import { buildOutboundHref } from "@/modules/monetization/lib/outboundLinkHref";
+import { TrackedOutboundLink } from "@/modules/analytics/components/TrackedOutboundLink";
 import type { RankingViewEntry } from "../types";
 
 const SLOT_META = {
@@ -53,17 +53,15 @@ export function AlternativeRecommendationCard({
       {/* Sem preço, nenhum CTA externo falso — só o link de detalhes acima. */}
       {product.price ? (
         <Button asChild size="sm" className="w-full">
-          <a
-            href={buildOutboundHref({
-              productSlug: product.slug,
-              source: "alternative-recommendation",
-              position: entry.position,
-            })}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
+          <TrackedOutboundLink
+            productSlug={product.slug}
+            storeSlug={product.price.store.slug}
+            isAffiliate={product.price.isAffiliate}
+            source="alternative-recommendation"
+            position={entry.position}
           >
             Ver oferta
-          </a>
+          </TrackedOutboundLink>
         </Button>
       ) : null}
     </Card>

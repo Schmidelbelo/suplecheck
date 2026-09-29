@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { formatCurrencyBRL } from "@/lib/utils/format";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
-import { buildOutboundHref } from "@/modules/monetization/lib/outboundLinkHref";
+import { TrackedOutboundLink } from "@/modules/analytics/components/TrackedOutboundLink";
 import { classificationLabel, classificationBadgeVariant } from "../lib/classification";
 import { FavoriteButton } from "./FavoriteButton";
 import type { RankingViewEntry } from "../types";
@@ -108,17 +108,15 @@ export function RankingEntryCard({
         <FavoriteButton productId={product.id} productName={product.name} />
         {product.price ? (
           <Button asChild size="sm" className="w-full sm:w-auto">
-            <a
-              href={buildOutboundHref({
-                productSlug: product.slug,
-                source: "ranking",
-                position: entry.position,
-              })}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
+            <TrackedOutboundLink
+              productSlug={product.slug}
+              storeSlug={product.price.store.slug}
+              isAffiliate={product.price.isAffiliate}
+              source="ranking"
+              position={entry.position}
             >
               Ver oferta
-            </a>
+            </TrackedOutboundLink>
           </Button>
         ) : null}
         <Button asChild variant="outline" size="sm" className="w-full sm:w-auto">

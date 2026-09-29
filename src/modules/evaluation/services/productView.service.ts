@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { buildAffiliateUrl } from "@/modules/monetization/lib/affiliateUrl";
 
 /**
  * Composição de leitura para as páginas públicas de avaliação — junta o
@@ -34,7 +35,24 @@ export interface ProductPresentation {
     readonly store: { readonly slug: string; readonly name: string };
     /** `PriceEntry.availability` real, capturado junto com o preço — nunca assumido como `IN_STOCK`. */
     readonly availability: "IN_STOCK" | "OUT_OF_STOCK" | "UNKNOWN";
+    /**
+     * Se o clique nesta oferta sai como afiliado — mesma regra do `/go`
+     * (`PriceEntry.affiliateUrl`, senão `buildAffiliateUrl` com a loja).
+     * Só o booleano, nunca a URL de afiliado. Opcional: ausente em
+     * apresentações montadas fora de `toPresentation` (ex.: fixtures).
+     */
+    readonly isAffiliate?: boolean;
   } | null;
+}
+
+function isAffiliateOffer(entry: {
+  url: string | null;
+  affiliateUrl: string | null;
+  store: { isAffiliate: boolean; affiliateBaseUrl: string | null };
+}): boolean {
+  if (entry.affiliateUrl) return true;
+  if (!entry.url) return false;
+  return buildAffiliateUrl({ destinationUrl: entry.url, store: entry.store }).isAffiliateLink;
 }
 
 const include = {
@@ -92,6 +110,7 @@ function toPresentation(row: ProductWithPresentationData): ProductPresentation {
           url: priceEntry.url,
           store: { slug: priceEntry.store.slug, name: priceEntry.store.name },
           availability: priceEntry.availability,
+          isAffiliate: isAffiliateOffer(priceEntry),
         }
       : null,
   };

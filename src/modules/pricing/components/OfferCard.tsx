@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ProductMiniCard } from "@/components/shared/ProductMiniCard";
 import { productDetailPath } from "@/lib/catalog/productRoutes";
-import { buildOutboundHref } from "@/modules/monetization/lib/outboundLinkHref";
+import { TrackedOutboundLink } from "@/modules/analytics/components/TrackedOutboundLink";
 import type { ProductPriceInfo } from "../lib/offersOverview";
 
 /**
@@ -41,17 +41,15 @@ export function OfferCard({ info, footer }: { info: ProductPriceInfo; footer?: s
       <div className="mt-auto flex items-center gap-2">
         {entry.product.price ? (
           <Button asChild size="sm" className="flex-1">
-            <a
-              href={buildOutboundHref({
-                productSlug: entry.product.slug,
-                source: "offers",
-                position: entry.position,
-              })}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
+            <TrackedOutboundLink
+              productSlug={entry.product.slug}
+              storeSlug={entry.product.price.store.slug}
+              isAffiliate={entry.product.price.isAffiliate}
+              source="offers"
+              position={entry.position}
             >
               Ver oferta
-            </a>
+            </TrackedOutboundLink>
           </Button>
         ) : null}
         <Button asChild variant="outline" size="sm" className={entry.product.price ? "" : "flex-1"}>

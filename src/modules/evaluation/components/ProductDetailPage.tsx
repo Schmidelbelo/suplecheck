@@ -35,7 +35,7 @@ import { ScoreExplanationBars } from "@/modules/evaluation/components/ScoreExpla
 import { ProductViewTimeline } from "@/modules/evaluation/components/ProductViewTimeline";
 import { PriceIntelligenceSection } from "@/modules/pricing/components/PriceIntelligenceSection";
 import { encodeComparisonSlug } from "@/modules/comparison/lib/comparisonSlug";
-import { buildOutboundHref } from "@/modules/monetization/lib/outboundLinkHref";
+import { TrackedOutboundLink } from "@/modules/analytics/components/TrackedOutboundLink";
 import { ProductTrustPanel } from "@/modules/trust/components/ProductTrustPanel";
 import type { ProductView, RankingView, RankingViewEntry } from "@/modules/evaluation/types";
 
@@ -363,17 +363,15 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <Button asChild size="lg">
-                    <a
-                      href={buildOutboundHref({
-                        productSlug: slug,
-                        source: "product-page",
-                        position: currentEntry?.position,
-                      })}
-                      target="_blank"
-                      rel="noopener noreferrer nofollow"
+                    <TrackedOutboundLink
+                      productSlug={slug}
+                      storeSlug={presentation.price.store.slug}
+                      isAffiliate={presentation.price.isAffiliate}
+                      source="product-page"
+                      position={currentEntry?.position}
                     >
                       Ver oferta em {presentation.price.store.name}
-                    </a>
+                    </TrackedOutboundLink>
                   </Button>
                   <FavoriteButton productId={product.id} productName={product.name} />
                   <ShareButton title={product.name} text={`${product.name} no SupleScore`} />
@@ -604,18 +602,16 @@ export async function ProductDetailPage({ slug, categorySlug }: ProductDetailPag
       {presentation?.price ? (
         <div className="border-border bg-surface-raised fixed inset-x-0 bottom-0 z-(--z-overlay) border-t p-3 shadow-lg md:hidden">
           <Button asChild size="lg" className="w-full">
-            <a
-              href={buildOutboundHref({
-                productSlug: slug,
-                source: "product-page-mobile-bar",
-                position: currentEntry?.position,
-              })}
-              target="_blank"
-              rel="noopener noreferrer nofollow"
+            <TrackedOutboundLink
+              productSlug={slug}
+              storeSlug={presentation.price.store.slug}
+              isAffiliate={presentation.price.isAffiliate}
+              source="product-page-mobile-bar"
+              position={currentEntry?.position}
             >
               Ver oferta em {presentation.price.store.name} ·{" "}
               {formatCurrencyBRL(presentation.price.cents)}
-            </a>
+            </TrackedOutboundLink>
           </Button>
         </div>
       ) : null}
@@ -651,17 +647,15 @@ function RelatedProductCard({
       {/* Sem preço, nenhum CTA externo falso — só o link de comparação abaixo. */}
       {entry.product.price ? (
         <Button asChild size="sm" className="w-full">
-          <a
-            href={buildOutboundHref({
-              productSlug: entry.product.slug,
-              source: "related-product",
-              position: entry.position,
-            })}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
+          <TrackedOutboundLink
+            productSlug={entry.product.slug}
+            storeSlug={entry.product.price.store.slug}
+            isAffiliate={entry.product.price.isAffiliate}
+            source="related-product"
+            position={entry.position}
           >
             Ver oferta
-          </a>
+          </TrackedOutboundLink>
         </Button>
       ) : null}
       {currentSlug ? (
