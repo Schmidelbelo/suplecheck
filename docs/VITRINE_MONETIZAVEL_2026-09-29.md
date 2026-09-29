@@ -225,6 +225,10 @@ de item, a tag vale para o carrinho inteiro por 24h.
 
 ## Lista pronta para tráfego pago
 
+> **Substituída** por `docs/RECAPTURA_PRECOS_VITRINE_2026-09-29.md`
+> (preços recapturados; 3 produtos saíram por ASIN indisponível — 13
+> visíveis).
+
 Os 16 produtos abaixo têm clique monetizado validado hoje. A ordem sugere
 prioridade para campanha: ticket × intenção de compra × clareza do
 produto.
