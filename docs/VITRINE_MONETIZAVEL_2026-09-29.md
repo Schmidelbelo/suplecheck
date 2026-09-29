@@ -167,3 +167,90 @@ de item, a tag vale para o carrinho inteiro por 24h.
    produto na Amazon com ASIN confirmado em navegador real (por exemplo
    `integralmedica-creatina-creapure-300g`, Dux/Vitafor creatina, as
    linhas de whey das marcas oficiais) e republicar.
+
+---
+
+## Execução e validação (2026-09-29)
+
+### O que foi feito
+
+1. **Classificação** (este documento): commit `68a1fe9`.
+2. **Validação dos 16 monetizáveis antes de mexer na vitrine**:
+   `GET /go/{slug}?source=validacao-receita` nos 16 → todos `302`, com
+   15 indo para `amazon.com.br/.../dp/<ASIN>?tag=suplescore-20` e 1 para
+   `https://meli.la/2jWrJqm`. Foram gravados **16 `OutboundClick`, 16
+   com `wasAffiliate=true`**. Esses cliques de teste aparecem com
+   `source=unknown` (fonte fora da allowlist), então dá para separá-los
+   dos cliques reais.
+   - O `meli.la` responde `403` para `curl` (bloqueio anti-bot do
+     Mercado Livre). O destino já tinha sido validado em navegador real
+     em 2026-09-17 (`docs/LOG_OPERACIONAL.md`).
+3. **Despublicação**: `prisma/unpublishNonMonetizable.ts --apply` fez
+   43 produtos passarem de `PUBLISHED` para `UNPUBLISHED`, commit
+   `54e632d`. Resultado: `publishedProductCount: 16` em
+   `/api/admin/metrics`. Nenhuma linha foi apagada.
+4. **Cache**: `POST /api/admin/revalidate` rodado para as 13 categorias
+   e os 43 produtos afetados, mais `creatina`, que também revalida
+   `/ofertas` e `/mercado`. Todas as 44 chamadas retornaram `200`.
+5. **Correção de código**: a página de detalhe não olhava `status`, então
+   um produto despublicado continuava renderizando com canonical próprio
+   e botão "Ver oferta". Agora só produto `PUBLISHED` tem página pública;
+   os demais retornam 404 real, commit `e973352`. `tsc` passou e os 208
+   testes passaram.
+
+### Validação pública
+
+| Verificação                                                        | Resultado                                       |
+| ------------------------------------------------------------------ | ----------------------------------------------- |
+| `/ofertas`                                                         | `200`, 0 produtos removidos no HTML             |
+| `/`, `/creatina`, `/ranking`, `/mercado`, `/categorias`, `/marcas` | `200`, 0 removidos                              |
+| 13 páginas `/categorias/{slug}`                                    | todas `200`, 0 removidos                        |
+| `sitemap-produtos.xml`                                             | 16 URLs, 0 removidos                            |
+| `sitemap-comparacoes.xml`                                          | 20 URLs (eram 203), 0 removidos                 |
+| 43 páginas de produto removidas (após deploy de `e973352`)         | 43/43 `404`                                     |
+| 16 páginas de produto visíveis                                     | 16/16 `200`                                     |
+| Canonical dos 16 visíveis                                          | 16/16 apontam para a própria URL                |
+| `/go` dos 16 visíveis                                              | 16/16 `302` afiliado, 16/16 `wasAffiliate=true` |
+
+### Efeitos colaterais conhecidos (não bloqueiam)
+
+- **Categorias que ficaram vazias**: `barras-de-proteina`, `cafeina`,
+  `coenzima-q10`, `colageno`, `hipercaloricos`, `pasta-de-amendoim` e
+  `zma`. Elas respondem `200` com estado vazio e continuam no
+  `sitemap-categorias.xml`. Voltam a ter conteúdo quando algum produto
+  for republicado.
+- **`/go/{slug}` de produto despublicado continua redirecionando** para
+  a oferta antiga, sem afiliado. É intencional: link antigo ou anúncio
+  externo não quebra. Nenhuma superfície do site gera mais esse link.
+
+## Lista pronta para tráfego pago
+
+Os 16 produtos abaixo têm clique monetizado validado hoje. A ordem sugere
+prioridade para campanha: ticket × intenção de compra × clareza do
+produto.
+
+| #   | Produto                               | URL de destino do anúncio                                            | Preço     | Programa      | Observação                              |
+| --- | ------------------------------------- | -------------------------------------------------------------------- | --------- | ------------- | --------------------------------------- |
+| 1   | Growth Whey Concentrado 900g          | `/categorias/whey-protein/growth-whey-protein-concentrado-900g`      | R$ 194,90 | Amazon        | sabor pré-selecionado: chocolate        |
+| 2   | Black Skull Whey 80% HD 900g          | `/categorias/whey-protein/black-skull-whey-protein-concentrado-900g` | R$ 219,90 | Amazon        | sabor pré-selecionado: morango          |
+| 3   | Probiótica 100% Pure Whey 900g        | `/categorias/whey-protein/probiotica-100-pure-whey-900g`             | R$ 140,19 | Amazon        | sabor pré-selecionado: chocolate        |
+| 4   | Growth Creatina 250g                  | `/creatina/growth-creatina-monohidratada-250g`                       | R$ 49,90  | Amazon        | —                                       |
+| 5   | Max Titanium Creatina 300g            | `/creatina/max-titanium-creatina-300g`                               | R$ 54,90  | Amazon        | —                                       |
+| 6   | Probiótica Creatina 300g              | `/creatina/probiotica-creatina-300g`                                 | R$ 44,90  | Amazon        | —                                       |
+| 7   | Black Skull Creatina (Creator) 300g   | `/creatina/black-skull-creatina-300g`                                | R$ 59,90  | Amazon        | —                                       |
+| 8   | Atlhetica Creatina 100% Pure 300g     | `/creatina/atlhetica-creatina-300g`                                  | R$ 47,90  | Amazon        | —                                       |
+| 9   | Optimum Nutrition Creatina 300g       | `/creatina/optimum-nutrition-creatine-300g`                          | R$ 129,90 | Amazon        | ticket alto                             |
+| 10  | Integralmédica Ômega 3 1360mg 60 cáps | `/categorias/omega-3/integralmedica-omega-3-1360mg-60-capsulas`      | R$ 119,90 | Amazon        | —                                       |
+| 11  | Max Titanium Horus 300g               | `/categorias/pre-treino/max-titanium-horus-300g`                     | R$ 63,26  | Amazon        | sabor pré-selecionado: frutas vermelhas |
+| 12  | Darkness Évora PW Limão 150g          | `/categorias/pre-treino/darkness-evora-pw-limao-150g`                | R$ 47,67  | Amazon        | —                                       |
+| 13  | Integralmédica Glutamina 300g         | `/categorias/glutamina/integralmedica-glutamina-300g`                | R$ 44,63  | Amazon        | —                                       |
+| 14  | Max Titanium BCAA 2400 100 cáps       | `/categorias/bcaa/max-titanium-bcaa-2400-100-capsulas`               | R$ 40,71  | Amazon        | —                                       |
+| 15  | Growth Óleo de Peixe Ultra 75 cáps    | `/categorias/omega-3/growth-oleo-de-peixe-ultra-75-capsulas`         | R$ 36,90  | Mercado Livre | único não-Amazon                        |
+| 16  | Neo Química Melatonina 90             | `/categorias/melatonina/neo-quimica-melatonina-021mg-90-comprimidos` | R$ 23,60  | Amazon        | ticket baixo                            |
+
+Páginas de agrupamento também servem de destino, porque hoje só listam
+produto monetizado: `/creatina` (7 creatinas) e `/ofertas`.
+
+**Antes de subir verba**, recapture os preços com mais de 14 dias
+(capturas de 2026-09-09). O preço exibido pode ter divergido do preço
+real da Amazon.
