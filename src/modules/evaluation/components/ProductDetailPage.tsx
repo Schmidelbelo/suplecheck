@@ -51,8 +51,16 @@ export interface ProductDetailPageProps {
   categorySlug: string;
 }
 
+/**
+ * Só produto `PUBLISHED` tem página pública — um produto despublicado
+ * (ex.: tirado da vitrine por não ter monetização, ver
+ * `docs/VITRINE_MONETIZAVEL_2026-09-29.md`) vira 404 real em vez de
+ * continuar renderizando com canonical e botão de oferta. O dado
+ * histórico continua no banco; só a página some.
+ */
 async function loadProduct(slug: string): Promise<ProductView | null> {
-  return loadProductDetailView(slug);
+  const view = await loadProductDetailView(slug);
+  return view?.product.status === "PUBLISHED" ? view : null;
 }
 
 function pickRelatedProducts(
