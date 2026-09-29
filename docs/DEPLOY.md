@@ -94,8 +94,11 @@ Este é um passo manual, fora do código:
 2. Criar o projeto em <https://clarity.microsoft.com>, copiar o Project
    ID para `NEXT_PUBLIC_CLARITY_ID`.
 3. Redeploy. Os dois scripts (`AnalyticsScripts.tsx`) só são injetados
-   quando o respectivo ID existe — nada roda em preview/dev sem
-   configuração.
+   quando o respectivo ID existe **e** o visitante aceitou cookies de
+   análise — nada roda em preview/dev sem configuração.
+4. Evento de conversão do clique "Ver oferta" (`outbound_link_clicked`),
+   dimensões personalizadas, vinculação com o Google Ads e validação no
+   DebugView: ver `docs/ANALYTICS_GA4.md`.
 
 ## 5b. Autenticação da API de escrita
 

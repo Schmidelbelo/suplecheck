@@ -24,32 +24,42 @@ Todos os títulos têm ≤ 30 caracteres, as descrições ≤ 90 e os caminhos
 
 ## 0. Leia antes de ativar: 2 achados que mudam a leitura do teste
 
-### 0.1 O site não tem tag de medição nenhuma
+### 0.1 Medição: GA4 com evento de conversão no "Ver oferta"
 
-Os HTMLs de `/`, `/creatina` e da página de produto em produção (29/09)
-não carregam nenhum script do Google (nem GA4 nem tag de conversão do
-Google Ads). `NEXT_PUBLIC_GA_ID` não está definido no deploy, e o evento
-`outbound_link_clicked` do `/go` só é logado no servidor
-(`analytics.server.ts`), sem ir a lugar nenhum.
+> **Correção (29/09, depois da primeira versão deste plano)**: a versão
+> anterior desta seção dizia que o site não tinha GA4 e que
+> `NEXT_PUBLIC_GA_ID` não estava definido. **Estava errado**: a checagem
+> foi feita sem o cookie de consentimento. O GA4 (`G-FBX4LQ94H3`) e o
+> Clarity **já carregavam** em produção para quem aceita cookies. O que
+> faltava era o evento no clique de saída, e isso foi implementado.
 
-Consequências:
+Estado atual (ver `docs/ANALYTICS_GA4.md`):
 
-- **Não dá para usar lance por conversão** (Maximizar conversões, CPA
-  desejado). Por isso o plano usa **CPC manual**.
-- **UTM não é lida por ninguém hoje.** Vale colocá-la mesmo assim: fica
-  nos logs de request da Vercel e passa a valer no dia em que o GA4 for
-  ligado. O `gclid` (auto-tagging) também.
-- **A atribuição do teste será por janela de tempo.** Os cliques de saída
-  orgânicos nos 10 produtos A foram de 21 em 14 dias, e o site inteiro
-  teve de 0 a 1 clique de saída por dia nos últimos 10 dias. Com isso,
-  quase todo clique de saída novo durante a campanha pode ser atribuído
-  ao anúncio. Referência: `outbound_clicks` com `source` diferente de
-  `unknown` (os cliques de validação que fiz ficam em `unknown`).
-- **Recomendação para uma próxima tarefa (não feita aqui, exige mexer no
-  site)**: ligar o GA4 (`NEXT_PUBLIC_GA_ID`) e disparar um evento
-  client-side no clique de "Ver oferta", importado como conversão no
-  Google Ads. Sem isso, a campanha não passa de um teste de funil
-  medido à mão.
+- Todo botão "Ver oferta" dispara **`outbound_link_clicked`** no GA4, com
+  `product_slug`, `store_slug`, `destination_type`, `click_source`,
+  `was_affiliate`, `position` e as UTMs da sessão. Nenhuma URL de
+  afiliado vai para o GA4.
+- UTM e `gclid` da chegada ficam preservados na sessão mesmo se o
+  visitante aceitar os cookies depois de trocar de página.
+- **Antes de ativar**: registrar as dimensões personalizadas, marcar
+  `outbound_link_clicked` como evento-chave, vincular GA4 e Google Ads e
+  importar a conversão (passo a passo em `docs/ANALYTICS_GA4.md` §3).
+
+Consequências para este plano:
+
+- **Lance continua CPC manual** nos 7 dias: com volume de teste (poucas
+  dezenas de conversões), estratégias automáticas por conversão não têm
+  dado para aprender. Importe a conversão como **secundária** (só
+  observação) e reavalie depois do teste.
+- **O GA4 conta menos que o banco**: quem recusa ou ignora o banner de
+  cookies (LGPD) não gera evento. `outbound_clicks` continua contando
+  tudo. Use as duas fontes: GA4 para atribuir por anúncio, palavra e
+  termo; `outbound_clicks` para o total.
+- **Atribuição por janela de tempo continua como verificação cruzada.**
+  Os cliques de saída orgânicos nos 10 produtos A foram de 21 em 14 dias
+  (0 a 1 por dia no site todo nos últimos 10 dias). Então os cliques em
+  `outbound_clicks` com `source` diferente de `unknown` durante a campanha
+  são quase todos do anúncio (os cliques de validação ficam em `unknown`).
 
 ### 0.2 A conta provavelmente não fecha no azul: é um teste de aprendizado
 
@@ -83,8 +93,9 @@ com retorno esperado. O orçamento abaixo foi dimensionado para isso.
 ## 1. Objetivo da campanha
 
 - **Tipo**: Rede de Pesquisa, sem objetivo de meta (ou "Tráfego do
-  site"). Não usar Performance Max nem Display: sem conversão configurada,
-  eles gastam em tráfego de baixa intenção.
+  site"). Não usar Performance Max nem Display: com volume de teste, a
+  otimização automática não tem conversões suficientes e gasta em tráfego
+  de baixa intenção.
 - **O que o teste precisa responder em 7 dias**:
   1. Qual % de quem clica no anúncio segue para a loja (`/go` afiliado)?
   2. Esses cliques geram pedido no relatório da Amazon Associates?
@@ -346,8 +357,10 @@ titanium amazon" quer comprar exatamente onde o clique vai terminar.
   confira que a URL final abre em 200. As páginas de produto do Next
   aceitam querystring sem quebrar, e o canonical continua limpo (sem UTM).
 - O `source` do `/go` (`product-page`, `ranking`...) é gerado pelo site e
-  **não** carrega a UTM. A ligação anúncio → clique de saída é pela
-  janela de tempo (§0.1).
+  **não** carrega a UTM (a tabela `outbound_clicks` não mudou). A ligação
+  anúncio → clique de saída fica no GA4 (`outbound_link_clicked` com
+  UTMs e `gclid` da sessão), e a janela de tempo serve de verificação
+  cruzada (§0.1).
 
 ## 9. Métricas de sucesso
 
@@ -402,9 +415,12 @@ ORDER BY 1, 5 DESC;
 (Ou `GET /api/admin/metrics` com `x-api-key`, que dá total, afiliado e
 por loja.)
 
-4. Amazon Associates, relatório diário: cliques, pedidos e ganhos
+4. GA4 > Relatórios > Aquisição de tráfego + evento `outbound_link_clicked`
+   por `utm_term`/`product_slug` (no Explorar): quais palavras e produtos
+   geram clique de saída.
+5. Amazon Associates, relatório diário: cliques, pedidos e ganhos
    (atraso de 24–48h, o dia 1 só aparece no dia 2 ou 3).
-5. Conferir que os 10 destinos respondem 200 e que o `/go` de cada um
+6. Conferir que os 10 destinos respondem 200 e que o `/go` de cada um
    segue com `tag=suplescore-20`.
 
 **Dia 3, primeiro checkpoint:**
@@ -424,16 +440,20 @@ por loja.)
 
 **Dia 7, decisão:**
 
-| Resultado                                                             | Decisão                                                                                                                      |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Taxa de saída ≥ 40%, custo por clique afiliado ≤ R$ 1,00 e ≥ 1 pedido | Manter mais 7 dias com o mesmo orçamento; **priorizar ligar o GA4 com evento de conversão** (§0.1) antes de qualquer aumento |
-| Taxa de saída entre 20% e 40%, sem pedido                             | Manter só os grupos com melhor taxa, cortar o resto e reavaliar em mais 7 dias com R$ 10/dia                                 |
-| Taxa de saída < 20% ou custo por clique afiliado > R$ 2,50            | **Encerrar a mídia paga**; o problema é página/oferta, não campanha                                                          |
-| 0 clique na Amazon com cliques `/go` > 0                              | Parar e investigar a atribuição/tag antes de qualquer coisa                                                                  |
+| Resultado                                                             | Decisão                                                                                                                                        |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Taxa de saída ≥ 40%, custo por clique afiliado ≤ R$ 1,00 e ≥ 1 pedido | Manter mais 7 dias com o mesmo orçamento; **avaliar promover a conversão `outbound_link_clicked` a primária** (§0.1) antes de qualquer aumento |
+| Taxa de saída entre 20% e 40%, sem pedido                             | Manter só os grupos com melhor taxa, cortar o resto e reavaliar em mais 7 dias com R$ 10/dia                                                   |
+| Taxa de saída < 20% ou custo por clique afiliado > R$ 2,50            | **Encerrar a mídia paga**; o problema é página/oferta, não campanha                                                                            |
+| 0 clique na Amazon com cliques `/go` > 0                              | Parar e investigar a atribuição/tag antes de qualquer coisa                                                                                    |
 
 ## 12. Checklist antes de ativar (tudo manual, fora deste repositório)
 
 - [ ] Revisar este plano e os CSVs
+- [ ] GA4: registrar as dimensões personalizadas, marcar `outbound_link_clicked`
+      como evento-chave, vincular ao Google Ads e importar a conversão como
+      secundária; validar no DebugView com `?ga_debug=1`
+      (`docs/ANALYTICS_GA4.md` §3–§4)
 - [ ] Conferir a taxa real de comissão de suplementos no portal Amazon
       Associates e refazer a conta do §0.2
 - [ ] Recapturar os preços dos 10 produtos se passaram mais de 3 dias
