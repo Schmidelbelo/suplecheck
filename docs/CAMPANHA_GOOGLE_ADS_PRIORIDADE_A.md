@@ -71,16 +71,16 @@ CPC de empate = ticket × comissão × (% clique no anúncio → clique /go) × 
 
 | Premissa                      | Valor usado   | Fonte                                                            |
 | ----------------------------- | ------------- | ---------------------------------------------------------------- |
-| Ticket                        | R$ 45         | média das 5 creatinas A (R$ 28–87)                               |
+| Ticket                        | R$ 47         | média das 5 creatinas A em 30/09 (R$ 28–87)                      |
 | % anúncio → `/go`             | 40%           | **hipótese**, é o que o teste mede                               |
 | % `/go` → compra              | 8%            | **hipótese**, é o que o teste mede                               |
 | Comissão Amazon (suplementos) | 3% / 6% / 10% | **não confirmada**, conferir a taxa real no portal de Associados |
 
 | Comissão | CPC de empate |
 | -------- | ------------- |
-| 3%       | R$ 0,04       |
+| 3%       | R$ 0,05       |
 | 6%       | R$ 0,09       |
-| 10%      | R$ 0,14       |
+| 10%      | R$ 0,15       |
 
 CPC típico de busca por suplemento no Brasil costuma ficar bem acima
 disso. O cookie de 24h da Amazon (comissão sobre o carrinho inteiro)
@@ -89,6 +89,41 @@ custo para descobrir as 2 taxas reais do funil**, não como investimento
 com retorno esperado. O orçamento abaixo foi dimensionado para isso.
 
 ---
+
+## 0.3 Lista final para ativação (preços de 30/09/2026)
+
+Os 10 produtos foram recapturados em 30/09 na listagem de ofertas da
+Amazon (oferta em destaque de cada ASIN), com
+`prisma/recaptureVitrinePrices.ts`. Todos têm oferta em destaque,
+nenhum saiu da lista, e o `/go` de todos está afiliado
+(`tag=suplescore-20`).
+
+| Grupo de anúncio                   | Produto                                       | ASIN       | Preço 29/09 | **Preço 30/09** | Vendedor da oferta em destaque                    |
+| ---------------------------------- | --------------------------------------------- | ---------- | ----------- | --------------- | ------------------------------------------------- |
+| Creatina - Max Titanium            | `max-titanium-creatina-300g`                  | B07DVJC66X | R$ 33,37    | **R$ 41,69** ↑  | Amazon.com.br                                     |
+| Creatina - Black Skull             | `black-skull-creatina-300g`                   | B09MJK3PMB | R$ 28,40    | **R$ 28,40**    | Black Skull USA Oficial                           |
+| Creatina - Probiotica              | `probiotica-creatina-300g`                    | B07G7JPTCV | R$ 38,09    | **R$ 37,98**    | Império Shop (enviado pela Amazon)                |
+| Creatina - Atlhetica               | `atlhetica-creatina-300g`                     | B07MPZLM1N | R$ 38,16    | **R$ 38,16**    | Atacadista Suplementos (enviado pela Amazon)      |
+| Creatina - Optimum Nutrition       | `optimum-nutrition-creatine-300g`             | B07774XR8W | R$ 87,21    | **R$ 87,21**    | Versalius (enviado pela Amazon)                   |
+| Pre-treino - Horus                 | `max-titanium-horus-300g`                     | B09B1B9QBP | R$ 75,04    | **R$ 75,04**    | HotBody Suplementos (enviado pela Amazon)         |
+| Pre-treino - Evora                 | `darkness-evora-pw-limao-150g`                | B09C81ML7Z | R$ 59,44    | **R$ 58,90**    | BMV MIX, ⚠️ "Novo vendedor" (enviado pela Amazon) |
+| Glutamina - Integralmedica         | `integralmedica-glutamina-300g`               | B07L5X6FSQ | R$ 49,90    | **R$ 49,90**    | Amazon.com.br                                     |
+| BCAA - Max Titanium                | `max-titanium-bcaa-2400-100-capsulas`         | B076X8666Y | R$ 51,99    | **R$ 51,99**    | Amazon.com.br                                     |
+| Melatonina - Neo Quimica (pausado) | `neo-quimica-melatonina-021mg-90-comprimidos` | B0B5S7L3VN | R$ 15,00    | **R$ 15,00**    | Strafit Nutrition (enviado pela Amazon)           |
+
+Observações para a campanha:
+
+- **Max Titanium Creatina subiu 25%** (fim do desconto de −31%), mas
+  continua a oferta vendida e enviada pela própria Amazon, entre as mais
+  baratas de 300g. Segue no plano, sem mudança de texto (anúncio não tem
+  preço).
+- **Évora**: a oferta em destaque passou para um vendedor marcado como
+  "Novo vendedor" na Amazon. Não bloqueia, mas vale olhar a taxa de saída
+  desse grupo nos primeiros dias; se vier ruim, pausar primeiro este.
+- **Black Skull Creator (R$ 28,40, De: R$ 49,90)** e **ON (R$ 87,21, De:
+  R$ 155,25)** seguem com desconto grande. São os mais sujeitos a mudar;
+  conferir antes de subir verba e pausar pela regra dos 15% (§10) se o
+  preço subir.
 
 ## 1. Objetivo da campanha
 
@@ -456,9 +491,10 @@ por loja.)
       (`docs/ANALYTICS_GA4.md` §3–§4)
 - [ ] Conferir a taxa real de comissão de suplementos no portal Amazon
       Associates e refazer a conta do §0.2
-- [ ] Recapturar os preços dos 10 produtos se passaram mais de 3 dias
-      desde 29/09 (`prisma/recaptureVitrinePrices.ts`), sobretudo os
-      descontos grandes (Black Skull Creator, Max Titanium Creatina, ON)
+- [x] Recapturar os preços dos 10 produtos: feito em 30/09 (§0.3).
+      Recapturar de novo se a ativação passar de 3 dias depois disso
+      (`prisma/recaptureVitrinePrices.ts`), sobretudo os descontos grandes
+      (Black Skull Creator, ON)
 - [ ] Conferir que os 10 destinos respondem 200 e o `/go` de cada um é
       afiliado
 - [ ] Importar no Google Ads Editor **com as campanhas pausadas**, revisar
