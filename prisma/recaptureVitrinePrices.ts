@@ -2,10 +2,13 @@ import { prisma } from "../src/lib/db/prisma";
 
 /**
  * Recaptura de preço dos produtos visíveis/monetizados antes de tráfego
- * pago (docs/RECAPTURA_PRECOS_VITRINE_2026-09-29.md). Preços lidos em
- * 2026-09-29 na listagem de ofertas da Amazon (`aodAjaxMain`) de cada
- * ASIN — oferta em destaque quando existe; quando a página não tem
+ * pago. Preços lidos na listagem de ofertas da Amazon (`aodAjaxMain`) de
+ * cada ASIN — oferta em destaque quando existe; quando a página não tem
  * oferta em destaque mas há vendedores, a menor oferta "Novo".
+ *
+ * Rodadas: 2026-09-29, 16 visíveis (docs/RECAPTURA_PRECOS_VITRINE_2026-09-29.md);
+ * 2026-09-30, só os 10 de prioridade A da campanha
+ * (docs/CAMPANHA_GOOGLE_ADS_PRIORIDADE_A.md) — valores abaixo.
  *
  * Append-only: cria uma `PriceEntry` nova por produto reaproveitando
  * `url`/`affiliateUrl`/`storeId` da captura atual — só preço e
@@ -18,16 +21,13 @@ const RECAPTURES: readonly { slug: string; asin: string; priceCents: number }[] 
   { slug: "max-titanium-bcaa-2400-100-capsulas", asin: "B076X8666Y", priceCents: 5199 },
   { slug: "atlhetica-creatina-300g", asin: "B07MPZLM1N", priceCents: 3816 },
   { slug: "black-skull-creatina-300g", asin: "B09MJK3PMB", priceCents: 2840 },
-  { slug: "max-titanium-creatina-300g", asin: "B07DVJC66X", priceCents: 3337 },
+  { slug: "max-titanium-creatina-300g", asin: "B07DVJC66X", priceCents: 4169 },
   { slug: "optimum-nutrition-creatine-300g", asin: "B07774XR8W", priceCents: 8721 },
-  { slug: "probiotica-creatina-300g", asin: "B07G7JPTCV", priceCents: 3809 },
+  { slug: "probiotica-creatina-300g", asin: "B07G7JPTCV", priceCents: 3798 },
   { slug: "integralmedica-glutamina-300g", asin: "B07L5X6FSQ", priceCents: 4990 },
   { slug: "neo-quimica-melatonina-021mg-90-comprimidos", asin: "B0B5S7L3VN", priceCents: 1500 },
-  { slug: "darkness-evora-pw-limao-150g", asin: "B09C81ML7Z", priceCents: 5944 },
+  { slug: "darkness-evora-pw-limao-150g", asin: "B09C81ML7Z", priceCents: 5890 },
   { slug: "max-titanium-horus-300g", asin: "B09B1B9QBP", priceCents: 7504 },
-  // Sem oferta em destaque — menor oferta "Novo" da listagem.
-  { slug: "probiotica-100-pure-whey-900g", asin: "B0BKQSX5CF", priceCents: 14773 },
-  { slug: "black-skull-whey-protein-concentrado-900g", asin: "B0G6WYK4B3", priceCents: 17090 },
 ];
 
 async function main() {
