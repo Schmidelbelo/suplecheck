@@ -10,6 +10,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
   NEXT_PUBLIC_GA_ID: z.string().optional(),
+  NEXT_PUBLIC_GOOGLE_ADS_ID: z.string().optional(),
   NEXT_PUBLIC_CLARITY_ID: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
 });

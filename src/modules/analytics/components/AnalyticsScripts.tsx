@@ -25,7 +25,7 @@ const GA_DEBUG_STORAGE_KEY = "suplescore-ga-debug";
  *   resto da sessão (validação no GA4 > Admin > DebugView). Sem o
  *   parâmetro, `debug_mode` nem é enviado (qualquer valor o ativaria).
  */
-function gaInitScript(gaId: string): string {
+function gaInitScript(gaId: string | undefined, googleAdsId: string | undefined): string {
   return `
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -50,12 +50,13 @@ function gaInitScript(gaId: string): string {
       if (url.searchParams.get("ga_debug") === "1") store.setItem(${JSON.stringify(GA_DEBUG_STORAGE_KEY)}, "1");
       if (store.getItem(${JSON.stringify(GA_DEBUG_STORAGE_KEY)}) === "1") cfg.debug_mode = true;
     } catch (e) {}
-    gtag('config', ${JSON.stringify(gaId)}, cfg);
+    ${gaId ? `gtag('config', ${JSON.stringify(gaId)}, cfg);` : ""}
+    ${googleAdsId ? `gtag('config', ${JSON.stringify(googleAdsId)});` : ""}
   `;
 }
 
 /**
- * Injeta os scripts de terceiros (Google Analytics, Microsoft Clarity)
+ * Injeta os scripts de terceiros (Google Analytics, Google Ads, Microsoft Clarity)
  * apenas quando os respectivos IDs estão configurados via env E o
  * visitante já aceitou cookies de análise (LGPD — ver
  * `CookieConsentBanner`). Sem o aceite, nada é injetado, mesmo com IDs
@@ -63,22 +64,24 @@ function gaInitScript(gaId: string): string {
  */
 export async function AnalyticsScripts() {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const googleAdsId = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID;
   const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
   const consentCookie = (await cookies()).get(COOKIE_CONSENT_COOKIE_NAME)?.value;
   const hasConsent = isAnalyticsConsentGranted(consentCookie);
+  const gtagId = gaId ?? googleAdsId;
 
   if (!hasConsent) return null;
 
   return (
     <>
-      {gaId ? (
+      {gtagId ? (
         <>
           <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            src={`https://www.googletagmanager.com/gtag/js?id=${gtagId}`}
             strategy="afterInteractive"
           />
           <Script id="ga-init" strategy="afterInteractive">
-            {gaInitScript(gaId)}
+            {gaInitScript(gaId, googleAdsId)}
           </Script>
         </>
       ) : null}

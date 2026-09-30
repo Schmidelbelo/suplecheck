@@ -40,6 +40,7 @@ até aqui) for configurado:
 | `ADMIN_API_KEY`                                       | Sim         | Autentica toda escrita (`POST`/`PUT`/`PATCH`/`DELETE`) em `/api/catalog/*` e `/api/evaluation/*` (ver `src/middleware.ts`) — sem ela, essas rotas respondem 500. Gerar com `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, enviar como header `x-api-key` |
 | `NEXT_PUBLIC_SITE_URL`                                | Sim         | URL pública final canônica (`https://suplescore.com.br`) — usada em metadata, sitemap, OG, JSON-LD. Errar isso quebra canonical/sitemap/rich results silenciosamente.                                                                                                                 |
 | `NEXT_PUBLIC_GA_ID`                                   | Não         | ID do Google Analytics 4 (`G-XXXXXXXXXX`) — sem isso, GA4 simplesmente não carrega (ver `AnalyticsScripts.tsx`)                                                                                                                                                                       |
+| `NEXT_PUBLIC_GOOGLE_ADS_ID`                           | Não         | ID da tag do Google Ads (`AW-XXXXXXXXXX`) — usado para medir tráfego pago/conversões junto ao Google Ads, respeitando o consentimento de cookies                                                                                                                                       |
 | `NEXT_PUBLIC_CLARITY_ID`                              | Não         | ID do projeto Microsoft Clarity                                                                                                                                                                                                                                                       |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`                | Não         | Código de verificação "meta tag HTML" do Google Search Console                                                                                                                                                                                                                        |
 | `NEXT_PUBLIC_SENTRY_DSN`                              | Não         | DSN do projeto Sentry — sem isso, o SDK fica instalado mas inativo (não envia nada, não quebra nada)                                                                                                                                                                                  |
@@ -87,16 +88,18 @@ Este é um passo manual, fora do código:
 3. Redeploy.
 4. Submeter `https://SEU_DOMINIO/sitemap.xml` na seção Sitemaps.
 
-## 5. Analytics (GA4 e Clarity)
+## 5. Analytics, Google Ads e Clarity
 
 1. Criar a propriedade GA4 em <https://analytics.google.com>, copiar o
    Measurement ID (`G-...`) para `NEXT_PUBLIC_GA_ID`.
-2. Criar o projeto em <https://clarity.microsoft.com>, copiar o Project
+2. Para campanhas do Google Ads, copiar o ID da tag (`AW-...`) para
+   `NEXT_PUBLIC_GOOGLE_ADS_ID`.
+3. Criar o projeto em <https://clarity.microsoft.com>, copiar o Project
    ID para `NEXT_PUBLIC_CLARITY_ID`.
-3. Redeploy. Os dois scripts (`AnalyticsScripts.tsx`) só são injetados
+4. Redeploy. Os scripts (`AnalyticsScripts.tsx`) só são injetados
    quando o respectivo ID existe **e** o visitante aceitou cookies de
    análise — nada roda em preview/dev sem configuração.
-4. Evento de conversão do clique "Ver oferta" (`outbound_link_clicked`),
+5. Evento de conversão do clique "Ver oferta" (`outbound_link_clicked`),
    dimensões personalizadas, vinculação com o Google Ads e validação no
    DebugView: ver `docs/ANALYTICS_GA4.md`.
 
